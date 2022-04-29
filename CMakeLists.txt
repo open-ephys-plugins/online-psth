@@ -47,6 +47,8 @@ endif()
 target_compile_features(${PLUGIN_NAME} PUBLIC cxx_auto_type cxx_generalized_initializers)
 target_include_directories(${PLUGIN_NAME} PUBLIC ${GUI_BASE_DIR}/JuceLibraryCode ${GUI_BASE_DIR}/JuceLibraryCode/modules ${GUI_BASE_DIR}/Plugins/Headers ${GUI_COMMONLIB_DIR}/include)
 
+target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
+
 set(GUI_BIN_DIR ${GUI_BASE_DIR}/Build/${CONFIGURATION_FOLDER})
 
 if (NOT CMAKE_LIBRARY_ARCHITECTURE)
@@ -60,27 +62,26 @@ endif()
 #Libraries and compiler options
 if(MSVC)
 	target_link_libraries(${PLUGIN_NAME} ${GUI_BIN_DIR}/open-ephys.lib)
-	target_compile_options(${PLUGIN_NAME} PRIVATE /sdl-)
+	target_compile_options(${PLUGIN_NAME} PRIVATE /sdl- /W0)
 	
 	install(TARGETS ${PLUGIN_NAME} RUNTIME DESTINATION ${GUI_BIN_DIR}/plugins  CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
 
-	set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows)
+	set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../libs)
 elseif(LINUX)
 	target_link_libraries(${PLUGIN_NAME} GL X11 Xext Xinerama asound dl freetype pthread rt)
 	set_property(TARGET ${PLUGIN_NAME} APPEND_STRING PROPERTY LINK_FLAGS
-		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/../shared'")
+		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath='$ORIGIN/../shared' -Wl,-rpath='$ORIGIN/../shared-api8'")
 	target_compile_options(${PLUGIN_NAME} PRIVATE -fPIC -rdynamic)
 	target_compile_options(${PLUGIN_NAME} PRIVATE -O3) #enable optimization for linux debug
 	
 	install(TARGETS ${PLUGIN_NAME} LIBRARY DESTINATION ${GUI_BIN_DIR}/plugins)
-	set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux)
 elseif(APPLE)
 	set_target_properties(${PLUGIN_NAME} PROPERTIES BUNDLE TRUE)
 	set_property(TARGET ${PLUGIN_NAME} APPEND_STRING PROPERTY LINK_FLAGS
-	"-undefined dynamic_lookup -rpath @loader_path/../../../../shared")
+	"-undefined dynamic_lookup -rpath @loader_path/../../../../shared-api8")
 
-	install(TARGETS ${PLUGIN_NAME} DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/plugins)
-	set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos)
+	install(TARGETS ${PLUGIN_NAME} DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/plugins-api8)
+	set(CMAKE_PREFIX_PATH /opt/local)
 endif()
 
 #create filters for vs and xcode
@@ -92,19 +93,3 @@ foreach( src_file IN ITEMS ${SRC_FILES})
 	source_group("${group_name}" FILES "${src_file}")
 endforeach()
 
-#on windows, copy the dlls when installing
-if (MSVC)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows/bin/${CMAKE_LIBRARY_ARCHITECTURE}/ DESTINATION ${GUI_BIN_DIR}/shared CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
-elseif(LINUX)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/bin/ DESTINATION ${GUI_BIN_DIR}/shared)
-elseif(APPLE)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/bin/ DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/shared)
-endif()
-
-#additional libraries, if needed
-find_library(ZMQ_LIBRARIES NAMES libzmq-v120-mt-4_0_4 zmq zmq-v120-mt-4_0_4)
-find_path(ZMQ_INCLUDE_DIRS zmq.h)
-
-#target_include_directories(${PLUGIN_NAME} PUBLIC ${ZMQ_INCLUDE_DIRS})
-#target_link_libraries(${PLUGIN_NAME} ${ZMQ_LIBRARIES})
-#target_compile_definitions(${PLUGIN_NAME} PRIVATE ZEROMQ $<$<PLATFORM_ID:Windows>:_SCL_SECURE_NO_WARNINGS>)

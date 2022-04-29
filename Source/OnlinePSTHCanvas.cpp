@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2022 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,12 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- */
- #include "EvntTrigAvgCanvas.h"
+#include "OnlinePSTHCanvas.h"
 
+#include "OnlinePSTHEditor.h"
 
-EvntTrigAvgCanvas::EvntTrigAvgCanvas(EvntTrigAvg* n) :
+OnlinePSTHCanvas::OnlinePSTHCanvas(OnlinePSTH* n) :
     processor(n)
 {
     
@@ -43,11 +42,11 @@ EvntTrigAvgCanvas::EvntTrigAvgCanvas(EvntTrigAvg* n) :
     
     int yOffset = 50;
     processor = n;
-    display = new EvntTrigAvgDisplay(this, viewport, n);
+    display = new OnlinePSTHDisplay(this, viewport, n);
     display->setBounds(0,100,getWidth()-scrollBarThickness, getHeight()-yOffset-40);
     //removeChildComponent(scale);
     scale = new Timescale(processor->getWindowSize(),processor->getSampleRate(),data,bin,binSize);
-    //holder = new EvntTrigAvgCanvasHolder(processor,processor->getWindowSize(),processor->getSampleRate(),data,bin,binSize);
+    //holder = new OnlinePSTHCanvasHolder(processor,processor->getWindowSize(),processor->getSampleRate(),data,bin,binSize);
     viewport->setViewedComponent(display,false);
     addAndMakeVisible(viewport);
     viewport->setBounds(0,100,getWidth(), getHeight()-yOffset-40);
@@ -59,38 +58,38 @@ EvntTrigAvgCanvas::EvntTrigAvgCanvas(EvntTrigAvg* n) :
     update();
 }
 
-EvntTrigAvgCanvas::~EvntTrigAvgCanvas()
+OnlinePSTHCanvas::~OnlinePSTHCanvas()
 {
     //delete scale;
     //deleteAllChildren();
 }
 
-void EvntTrigAvgCanvas::beginAnimation()
+void OnlinePSTHCanvas::beginAnimation()
 {
-    std::cout << "EvntTrigAvgCanvas beginning animation." << std::endl;
+    std::cout << "OnlinePSTHCanvas beginning animation." << std::endl;
 
     startCallbacks();
 }
 
-void EvntTrigAvgCanvas::endAnimation()
+void OnlinePSTHCanvas::endAnimation()
 {
-    std::cout << "EvntTrigAvgCanvas ending animation." << std::endl;
+    std::cout << "OnlinePSTHCanvas ending animation." << std::endl;
 
     stopCallbacks();
 }
 
-void EvntTrigAvgCanvas::update()
+void OnlinePSTHCanvas::update()
 {
     repaint();
 }
 
 
-void EvntTrigAvgCanvas::refreshState()
+void OnlinePSTHCanvas::refreshState()
 {
     resized();
 }
 
-void EvntTrigAvgCanvas::resized()
+void OnlinePSTHCanvas::resized()
 {
 
     int yOffset = 50;
@@ -103,7 +102,7 @@ void EvntTrigAvgCanvas::resized()
     repaint();
 }
 
-void EvntTrigAvgCanvas::paint(Graphics& g)
+void OnlinePSTHCanvas::paint(Graphics& g)
 {
     g.fillAll(Colour(0,18,43));
     
@@ -131,23 +130,23 @@ void EvntTrigAvgCanvas::paint(Graphics& g)
     repaint();
 }
 
-void EvntTrigAvgCanvas::repaintDisplay(){
+void OnlinePSTHCanvas::repaintDisplay(){
     display->repaint();
 }
 
-void EvntTrigAvgCanvas::refresh()
+void OnlinePSTHCanvas::refresh()
 {
     // called every 10 Hz
     display->refresh(); // dont know if this ever gets called
     repaint();
 }
 
-bool EvntTrigAvgCanvas::keyPressed(const KeyPress& key)
+bool OnlinePSTHCanvas::keyPressed(const KeyPress& key)
 {
     return false;
 }
 
-void EvntTrigAvgCanvas::buttonClicked(Button* button)
+void OnlinePSTHCanvas::buttonClicked(Button* button)
 {
     if (button == clearHisto){
         histoData.clear();
@@ -157,22 +156,22 @@ void EvntTrigAvgCanvas::buttonClicked(Button* button)
      repaint();
 }
 
-void EvntTrigAvgCanvas::setBin(int bin_){
+void OnlinePSTHCanvas::setBin(int bin_){
     bin = bin_;
 }
 
-void EvntTrigAvgCanvas::setBinSize(int binSize_){
+void OnlinePSTHCanvas::setBinSize(int binSize_){
     binSize = binSize_;
 }
 
-void EvntTrigAvgCanvas::setData(int data_){
+void OnlinePSTHCanvas::setData(int data_){
     data=data_;
 }
 
 //--------------------------------------------------------------------
 
 
-EvntTrigAvgDisplay::EvntTrigAvgDisplay(EvntTrigAvgCanvas* c, Viewport* v, EvntTrigAvg* p){
+OnlinePSTHDisplay::OnlinePSTHDisplay(OnlinePSTHCanvas* c, Viewport* v, OnlinePSTH* p){
     processor=p;
     canvas=c;
     viewport=v;
@@ -195,19 +194,19 @@ EvntTrigAvgDisplay::EvntTrigAvgDisplay(EvntTrigAvgCanvas* c, Viewport* v, EvntTr
     channelColours[15]=Colour(125,99,32);
 }
 
-EvntTrigAvgDisplay::~EvntTrigAvgDisplay(){
+OnlinePSTHDisplay::~OnlinePSTHDisplay(){
     deleteAllChildren();
 }
 
-void EvntTrigAvgDisplay::visibleAreaChanged(const Rectangle<int>& newVisibleArea){
+void OnlinePSTHDisplay::visibleAreaChanged(const Rectangle<int>& newVisibleArea){
     
 }
 
-void EvntTrigAvgDisplay::viewedComponentChanged(Component* newComponent){
+void OnlinePSTHDisplay::viewedComponentChanged(Component* newComponent){
     
 }
 
-void EvntTrigAvgDisplay::resized()
+void OnlinePSTHDisplay::resized()
 {
     int width = getWidth();
     for(int i = 0 ; i < graphs.size() ; i++){
@@ -216,7 +215,7 @@ void EvntTrigAvgDisplay::resized()
     }
 }
 
-void EvntTrigAvgDisplay::paint(Graphics &g)
+void OnlinePSTHDisplay::paint(Graphics &g)
 {
 
     histoData.clear();
@@ -247,14 +246,14 @@ void EvntTrigAvgDisplay::paint(Graphics &g)
     repaint(); // ideally find better method than this
 }
 
-void EvntTrigAvgDisplay::refresh()
+void OnlinePSTHDisplay::refresh()
 {
     for (int i = 0 ; i < graphs.size() ; i++){
         graphs[i]->repaint();
     }
 }
 
-int EvntTrigAvgDisplay::getNumGraphs()
+int OnlinePSTHDisplay::getNumGraphs()
 {
     return graphs.size();
 }
@@ -327,7 +326,7 @@ void inline Timescale::setBinSize(int binSize_)
 //--------------------------------------------------------------------
 
 
-GraphUnit::GraphUnit(EvntTrigAvg* processor_, EvntTrigAvgCanvas* canvas_,juce::Colour color_, String name_, float  * stats_,uint64 * data_){
+GraphUnit::GraphUnit(OnlinePSTH* processor_, OnlinePSTHCanvas* canvas_,juce::Colour color_, String name_, float  * stats_,uint64 * data_){
     ScopedLock myScopedLock(*processor_->getMutex());
     color = color_;
     LD = new LabelDisplay(color_,name_);
@@ -379,7 +378,7 @@ void LabelDisplay::resized()
 
 //----------------
 
-HistoGraph::HistoGraph(EvntTrigAvg* processor_,EvntTrigAvgCanvas* canvas_, juce::Colour color_, uint64 bins_, float max_, uint64 * histoData_)
+HistoGraph::HistoGraph(OnlinePSTH* processor_,OnlinePSTHCanvas* canvas_, juce::Colour color_, uint64 bins_, float max_, uint64 * histoData_)
 {
     color = color_;
     histoData = histoData_;
@@ -445,7 +444,7 @@ void HistoGraph::mouseMove(const MouseEvent &event)
 
 //----------------
 
-StatDisplay::StatDisplay(EvntTrigAvg* processor_, juce::Colour c, float * s)
+StatDisplay::StatDisplay(OnlinePSTH* processor_, juce::Colour c, float * s)
 {
     processor=processor_;
     color = c;

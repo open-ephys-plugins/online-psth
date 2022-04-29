@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+Copyright (C) 2022 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -22,7 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <PluginInfo.h>
-#include "EvntTrigAvg.h"
+#include "OnlinePSTH.h"
+
 #include <string>
 #ifdef WIN32
 #include <Windows.h>
@@ -38,7 +39,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
 	info->name = "Online PSTH";
-	info->libVersion = 1;
+	info->libVersion = "0.1.0";
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -47,9 +48,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
+		info->type = Plugin::Type::PROCESSOR;
 		info->processor.name = "Online PSTH";
-		info->processor.type = Plugin::FilterProcessor;
+		info->processor.type = Plugin::Processor::SINK;
 		info->processor.creator = &(Plugin::createProcessor<OnlinePSTH>);
 		break;
 	default:

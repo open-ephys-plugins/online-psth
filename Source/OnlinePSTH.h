@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2022 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,39 +21,42 @@
 
 */
 
-#ifndef __EvntTrigAvg_H_3F920F95__
-#define __EvntTrigAvg_H_3F920F95__
+#ifndef __OnlinePSTH_H_3F920F95__
+#define __OnlinePSTH_H_3F920F95__
 
 #include <ProcessorHeaders.h>
-#include "EvntTrigAvgEditor.h"
+
 #include <vector>
 #include <map>
 
-class EvntTrigAvgEditor;
-
 /**
-Aligns spike times with TTL input.
- 
-@see EvntTrigAvgCanvas, EvntTrigAvgEditor
+    
+    Aligns spike times with incoming TTL events to generate real-time peri-stimulus
+    time histogram (PSTH) plots.
 
 */
 
-class EvntTrigAvg : public GenericProcessor
+class OnlinePSTH : public GenericProcessor
 {
 public:
 
-    /** constructor */
-    EvntTrigAvg();
+    /** Constructor */
+    OnlinePSTH();
 
-    /** destructor */
-    ~EvntTrigAvg();
+    /** Destructor */
+    ~OnlinePSTH();
 
+    /** Creates the OnlinePSTHEditor. */
+    AudioProcessorEditor* createEditor() override;
 
-    // PROCESSOR METHODS //
+    /** Records the time of incoming events */
+    void handleTTLEvent (TTLEventPtr event) override;
 
-    void handleEvent (const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
-    void handleSpike(const SpikeChannel* channelInfo, const MidiMessage& event, int samplePosition) override;
-    void process(AudioSampleBuffer& buffer) override;
+    /** Records the time of incoming spikes */
+    void handleSpike(SpikePtr spike) override;
+
+    /** Calls checkForEvents */
+    void process(AudioBuffer<float>& buffer) override;
 
     /** Used to alter parameters of data acquisition. */
     void setParameter(int parameterIndex, float newValue) override;
@@ -61,16 +64,6 @@ public:
     /** Called whenever the signal chain is altered. */
     void updateSettings() override;
 
-    /** Called prior to start of acquisition. */
-    bool enable() override;
-
-    /** Called after acquisition is finished. */
-    bool disable() override;
-
-    /** Creates the EvntTrigAvgEditor. */
-    //AudioProcessorEditor* createEditor() override;
-    AudioProcessorEditor* createEditor() override;
-   
     float getSampleRate();
     int getLastTTLCalculated();
     uint64 getWindowSize();
@@ -96,7 +89,7 @@ public:
     std::vector<String> createElectrodeLabels();
     
     void saveCustomParametersToXml (XmlElement* parentElement) override;
-    void loadCustomParametersFromXml() override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 private:
     CriticalSection mut;
     void initializeHistogramArray();
@@ -126,10 +119,10 @@ private:
     std::vector<int> idIndex; //sorted ID, electrode. used to match a sortedID with its electrode
     std::vector<std::vector<int>> electrodeSortedId; 
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EvntTrigAvg);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTH);
 
 };
 
 
 
-#endif  // __EvntTrigAvg_H_3F920F95__
+#endif  // __OnlinePSTH_H_3F920F95__

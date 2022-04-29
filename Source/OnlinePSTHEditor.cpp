@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2022 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,22 +21,20 @@
 
 */
 
-#include "EvntTrigAvgEditor.h"
-#include "EvntTrigAvgCanvas.h"
-#include "EvntTrigAvg.h"
+#include "OnlinePSTHEditor.h"
+#include "OnlinePSTHCanvas.h"
+#include "OnlinePSTH.h"
 
 #include <stdio.h>
 
 
 
-EvntTrigAvgEditor::EvntTrigAvgEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
-    : VisualizerEditor(parentNode, 300, useDefaultParameterEditors), evntTrigAvgCanvas(nullptr)
+OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
+    : VisualizerEditor(parentNode, "PSTH", 300), canvas(nullptr)
 
 {
-    tabText = "Evnt Trig Avg";
-    desiredWidth = 200;
 
-    processor = (EvntTrigAvg*) getProcessor();
+    processor = (OnlinePSTH*) getProcessor();
 
     triggerChannel = new ComboBox("triggerChannel");
     triggerChannel->addListener(this);
@@ -91,21 +89,21 @@ EvntTrigAvgEditor::EvntTrigAvgEditor(GenericProcessor* parentNode, bool useDefau
 
 }
 
-Visualizer* EvntTrigAvgEditor::createNewCanvas()
+Visualizer* OnlinePSTHEditor::createNewCanvas()
 {
 
-    EvntTrigAvg* processor = (EvntTrigAvg*) getProcessor();
-    evntTrigAvgCanvas = new EvntTrigAvgCanvas(processor);
-    return evntTrigAvgCanvas;
+    OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
+    canvas = new OnlinePSTHCanvas(processor);
+    return canvas;
 }
 
 
-EvntTrigAvgEditor::~EvntTrigAvgEditor()
+OnlinePSTHEditor::~OnlinePSTHEditor()
 {
 
 }
 
-void EvntTrigAvgEditor::sliderEvent(Slider* slider)
+void OnlinePSTHEditor::sliderValueChanged(Slider* slider)
 {
     if (canvas!= nullptr)
         canvas->repaint();
@@ -113,11 +111,11 @@ void EvntTrigAvgEditor::sliderEvent(Slider* slider)
 }
 
 
-void EvntTrigAvgEditor::buttonEvent(Button* button)
+void OnlinePSTHEditor::buttonClicked(Button* button)
 {
 }
 
-void EvntTrigAvgEditor::labelTextChanged(Label* label)
+void OnlinePSTHEditor::labelTextChanged(Label* label)
 {
     uint64 wS = processor->getWindowSize();
     uint64 bS = processor->getBinSize();
@@ -161,7 +159,7 @@ void EvntTrigAvgEditor::labelTextChanged(Label* label)
 }
 
 
-void EvntTrigAvgEditor::comboBoxChanged(ComboBox* comboBox)
+void OnlinePSTHEditor::comboBoxChanged(ComboBox* comboBox)
 {
     if (comboBox->getSelectedId() > 1)
     {
@@ -173,13 +171,10 @@ void EvntTrigAvgEditor::comboBoxChanged(ComboBox* comboBox)
         getProcessor()->setParameter(0, -1);
 }
 
-void EvntTrigAvgEditor::channelChanged (int chan, bool newState){
-    
-}
 
-void EvntTrigAvgEditor::updateSettings()
+void OnlinePSTHEditor::updateSettings()
 {
-    EventSources s;
+    /*EventSources s;
     String name;
     int oldId = triggerChannel->getSelectedId();
     triggerChannel->clear();
@@ -206,21 +201,21 @@ void EvntTrigAvgEditor::updateSettings()
     {
         oldId = 1;
     }
-    triggerChannel->setSelectedId(oldId, sendNotification);
+    triggerChannel->setSelectedId(oldId, sendNotification);*/
 }
 
 //newValue*(getSampleRate()/1000);
 
 
-void  EvntTrigAvgEditor::setTrigger(int val)
+void  OnlinePSTHEditor::setTrigger(int val)
 {
     triggerChannel->setSelectedId(val+2);
 }
-void EvntTrigAvgEditor::setBin(int val)
+void OnlinePSTHEditor::setBin(int val)
 {
     binSize->setText(String(val),juce::NotificationType::dontSendNotification);
 }
-void  EvntTrigAvgEditor::setWindow(int val)
+void  OnlinePSTHEditor::setWindow(int val)
 {
     windowSize->setText(String(val),juce::NotificationType::dontSendNotification);
 }

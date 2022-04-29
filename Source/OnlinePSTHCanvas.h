@@ -21,11 +21,11 @@
 
 */
 
-#ifndef EvntTrigAvgCANVAS_H_
-#define EvntTrigAvgCANVAS_H_
+#ifndef OnlinePSTHCANVAS_H_
+#define OnlinePSTHCANVAS_H_
 
 #include <VisualizerWindowHeaders.h>
-#include "EvntTrigAvg.h"
+#include "OnlinePSTH.h"
 
 #include <vector>
 
@@ -33,12 +33,12 @@
 
  Displays spikes aligned to TTL events
  
- @see EvntTrigAvg, EvntTrigAvgEditor
+ @see OnlinePSTH, OnlinePSTHEditor
  
 */
 
-class EvntTrigAvgCanvasHolder;
-class EvntTrigAvgDisplay;
+class OnlinePSTHCanvasHolder;
+class OnlinePSTHDisplay;
 class Timescale;
 class GraphUnit;
 class LabelDisplay;
@@ -46,12 +46,18 @@ class HistoGraph;
 class StatDisplay;
 
 
-class EvntTrigAvgCanvas : public Visualizer, public Button::Listener
+/** 
 
+    Visualizer for spike histograms
+
+*/
+class OnlinePSTHCanvas : 
+    public Visualizer, 
+    public Button::Listener
 {
 public:
-    EvntTrigAvgCanvas(EvntTrigAvg* n);
-    ~EvntTrigAvgCanvas();
+    OnlinePSTHCanvas(OnlinePSTH* n);
+    ~OnlinePSTHCanvas();
     
     void paint(Graphics& g);
     void repaintDisplay();
@@ -70,7 +76,7 @@ public:
     void setBin(int bin_);
     void setBinSize(int binSize_);
     void setData(int data_);
-    EvntTrigAvg* processor;
+    OnlinePSTH* processor;
 
 private:
 
@@ -78,7 +84,7 @@ private:
     std::vector<std::vector<float>> minMaxMean;
     void removeUnitOrBox();
     ScopedPointer<Viewport> viewport;
-    ScopedPointer<EvntTrigAvgDisplay> display;
+    ScopedPointer<OnlinePSTHDisplay> display;
     ScopedPointer<UtilityButton> clearHisto;
     int scrollBarThickness;
     int border = 20;
@@ -88,20 +94,20 @@ private:
     int bin = 0;
     int binSize = 0;
     int data = 0;
-    EvntTrigAvgCanvasHolder* holder;
+    OnlinePSTHCanvasHolder* holder;
     ScopedPointer<Timescale> scale;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EvntTrigAvgCanvas);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
 
 };
 
 //---------------------------
 
-class EvntTrigAvgDisplay : public Component
+class OnlinePSTHDisplay : public Component
 {
     
 public:
-    EvntTrigAvgDisplay(EvntTrigAvgCanvas* c, Viewport* v, EvntTrigAvg* p);
-    ~EvntTrigAvgDisplay();
+    OnlinePSTHDisplay(OnlinePSTHCanvas* c, Viewport* v, OnlinePSTH* p);
+    ~OnlinePSTHDisplay();
     void visibleAreaChanged (const Rectangle<int>& newVisibleArea);
     
     /** Callback method that is called when the viewed component is added, removed or swapped. */
@@ -112,8 +118,8 @@ public:
     int getNumGraphs();
 private:
 
-    EvntTrigAvg* processor;
-    EvntTrigAvgCanvas* canvas;
+    OnlinePSTH* processor;
+    OnlinePSTHCanvas* canvas;
     Viewport* viewport;
     std::vector<GraphUnit*> graphs;
     juce::Colour channelColours[16];
@@ -153,7 +159,7 @@ private:
 class GraphUnit : public Component
 {
 public:
-    GraphUnit(EvntTrigAvg* processor_,EvntTrigAvgCanvas* canvas_,juce::Colour color_, String name_, float * stats_, uint64 * data_);
+    GraphUnit(OnlinePSTH* processor_,OnlinePSTHCanvas* canvas_,juce::Colour color_, String name_, float * stats_, uint64 * data_);
     ~GraphUnit();
     void paint(Graphics& g);
     void resized();
@@ -184,7 +190,7 @@ class HistoGraph : public Component
 {
     
 public:
-    HistoGraph(EvntTrigAvg* processor_,EvntTrigAvgCanvas* canvas_,juce::Colour color_, uint64 bins_, float max_, uint64 * histoData_);
+    HistoGraph(OnlinePSTH* processor_,OnlinePSTHCanvas* canvas_,juce::Colour color_, uint64 bins_, float max_, uint64 * histoData_);
     ~HistoGraph();
     
     void paint(Graphics& g);
@@ -202,8 +208,8 @@ private:
     float max;
     uint64 const * histoData;
     int valueY=0;
-    EvntTrigAvg* processor;
-    EvntTrigAvgCanvas* canvas;
+    OnlinePSTH* processor;
+    OnlinePSTHCanvas* canvas;
     
 };
 
@@ -212,16 +218,16 @@ private:
 class StatDisplay : public Component
 {
 public:
-    StatDisplay(EvntTrigAvg* display_, juce::Colour c, float * s);
+    StatDisplay(OnlinePSTH* display_, juce::Colour c, float * s);
     ~StatDisplay();
     void paint(Graphics& g);
     void resized();
 private:
-    EvntTrigAvg* processor;
+    OnlinePSTH* processor;
     Colour color;
     float const * stats;
     
 };
 
 
-#endif  // EvntTrigAvgCANVAS_H_
+#endif  // OnlinePSTHCANVAS_H_

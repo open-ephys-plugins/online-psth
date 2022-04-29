@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2022 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,29 +21,30 @@
 
 */
 
-#include <stdio.h>
-#include "EvntTrigAvg.h"
-#include "EvntTrigAvgCanvas.h"
-//#include "HistogramLib/HistogramLib.h"
-class EvntTrigAvg;
+#include "OnlinePSTH.h"
 
-EvntTrigAvg::EvntTrigAvg()
-    : GenericProcessor("Evnt Trig Avg")
+#include <stdio.h>
+
+#include "OnlinePSTHCanvas.h"
+#include "OnlinePSTHEditor.h"
+
+
+OnlinePSTH::OnlinePSTH()
+    : GenericProcessor("Online PSTH")
 
 {
-    setProcessorType (PROCESSOR_TYPE_FILTER);
-    windowSize = getDefaultSampleRate(); // 1 sec in samples
-    binSize = getDefaultSampleRate()/100; // 10 milliseconds in samples
+    windowSize = 44100; //getDefaultSampleRate(); // 1 sec in samples
+    binSize = 44100/100; // 10 milliseconds in samples
     updateSettings();
 }
 
-EvntTrigAvg::~EvntTrigAvg()
+OnlinePSTH::~OnlinePSTH()
 {
     clearHistogramArray();
     clearMinMaxMean();
 }
 
-void EvntTrigAvg::setParameter(int parameterIndex, float newValue)
+void OnlinePSTH::setParameter(int parameterIndex, float newValue)
 {
     bool changed = false;
     if (parameterIndex == 0 && triggerEvent != static_cast<int>(newValue)){
@@ -75,7 +76,7 @@ void EvntTrigAvg::setParameter(int parameterIndex, float newValue)
     }
 }
 
-void EvntTrigAvg::updateSettings()
+void OnlinePSTH::updateSettings()
 {
     clearMinMaxMean();
     clearHistogramArray();
@@ -96,7 +97,7 @@ void EvntTrigAvg::updateSettings()
             spikeData[electrodeIt].resize(1);
     }
 }
-void EvntTrigAvg::initializeHistogramArray()
+void OnlinePSTH::initializeHistogramArray()
 {
     const ScopedLock lock(mut);
     for (int i = 0 ; i < getTotalSpikeChannels() ; i++){
@@ -110,7 +111,7 @@ void EvntTrigAvg::initializeHistogramArray()
     }
 }
 
-void EvntTrigAvg::initializeMinMaxMean()
+void OnlinePSTH::initializeMinMaxMean()
 {
     const ScopedLock lock(mut);
     for (int i = 0 ; i < getTotalSpikeChannels() ; i++){
@@ -123,14 +124,14 @@ void EvntTrigAvg::initializeMinMaxMean()
     }
 }
 
-void EvntTrigAvg::clearHistogramArray()
+void OnlinePSTH::clearHistogramArray()
 {
     const ScopedLock lock(mut);
     for (int i = 0 ; i < histogramData.size() ; i++)
         delete[] histogramData[i];
     histogramData.clear();
 }
-void EvntTrigAvg::clearMinMaxMean()
+void OnlinePSTH::clearMinMaxMean()
 {
     const ScopedLock lock(mut);
     for (int i = 0 ; i < minMaxMean.size() ; i++)
@@ -138,21 +139,10 @@ void EvntTrigAvg::clearMinMaxMean()
     minMaxMean.clear();
 }
 
-bool EvntTrigAvg::enable()
-{
-    return true;
-}
-
-bool EvntTrigAvg::disable()
-{
-    return true;
-}
-
-
-void EvntTrigAvg::process(AudioSampleBuffer& buffer)
+void OnlinePSTH::process(AudioBuffer<float>& buffer)
 {
     
-    checkForEvents(true);// see if got any spikes
+    /*checkForEvents(true);// see if got any spikes
     
     if(buffer.getNumChannels() != numChannels)
         numChannels = buffer.getNumChannels();
@@ -173,23 +163,23 @@ void EvntTrigAvg::process(AudioSampleBuffer& buffer)
         lastTTLCalculated+=1;
         //just recalculated, don't need to again until next ttl window has expired
         recalc=false;
-    }
+    }*/
 }
 
-void EvntTrigAvg::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
+void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {
-    if (triggerEvent < 0) return;
+    /*if (triggerEvent < 0) return;
     else if (eventInfo->getChannelType() == EventChannel::TTL && eventInfo == eventChannelArray[triggerEvent])
     {// if TTL from right channel
         TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
         if (ttl->getChannel() == triggerChannel && ttl->getState())
             ttlTimestampBuffer.push_back(Event::getTimestamp(event)); // add timestamp of TTL to buffer
-    }
+    }*/
 }
 
-void EvntTrigAvg::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& event, int samplePosition)
+void OnlinePSTH::handleSpike(SpikePtr spike)
 {
-    SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
+    /*SpikeEventPtr newSpike = SpikeEvent::deserializeFromMessage(event, spikeInfo);
     if (!newSpike)
         return;
     else {
@@ -227,10 +217,10 @@ void EvntTrigAvg::handleSpike(const SpikeChannel* spikeInfo, const MidiMessage& 
         spikeData[electrode][0].push_back(newSpike->getTimestamp());
         if (sortedID>0)
             spikeData[electrode][relativeSortedID].push_back(newSpike->getTimestamp());
-    }
+    }*/
 }
 
-void EvntTrigAvg::addNewSortedIdHistoData(int electrode,int sortedId)
+void OnlinePSTH::addNewSortedIdHistoData(int electrode,int sortedId)
 {
     const ScopedLock myScopedLock(mut);
     if(electrode == getTotalSpikeChannels()-1){
@@ -254,7 +244,7 @@ void EvntTrigAvg::addNewSortedIdHistoData(int electrode,int sortedId)
     }
 }
 
-void EvntTrigAvg::addNewSortedIdMinMaxMean(int electrode,int sortedId)
+void OnlinePSTH::addNewSortedIdMinMaxMean(int electrode,int sortedId)
 {
     const ScopedLock myScopedLock(mut);
     if(electrode == getTotalSpikeChannels()-1){
@@ -281,25 +271,25 @@ void EvntTrigAvg::addNewSortedIdMinMaxMean(int electrode,int sortedId)
     }
 }
 
-AudioProcessorEditor* EvntTrigAvg::createEditor()
+AudioProcessorEditor* OnlinePSTH::createEditor()
 {
-    editor = std::make_unique<EvntTrigAvgEditor> (this, true);
+    editor = std::make_unique<OnlinePSTHEditor> (this);
     return editor.get();
 }
 
-float EvntTrigAvg::getSampleRate()
+float OnlinePSTH::getSampleRate()
 {
 	return CoreServices::getGlobalSampleRate();
 }
 
-int EvntTrigAvg::getLastTTLCalculated()
+int OnlinePSTH::getLastTTLCalculated()
 {
     return lastTTLCalculated;
 }
 
 /** creates map to convert channelIDX to electrode number */
 /*
-std::map<SourceChannelInfo, int> EvntTrigAvg::createElectrodeMap()
+std::map<SourceChannelInfo, int> OnlinePSTH::createElectrodeMap()
 {
     std::map<SourceChannelInfo,int> map;
     int numSpikeChannels = getTotalSpikeChannels();
@@ -318,7 +308,7 @@ std::map<SourceChannelInfo, int> EvntTrigAvg::createElectrodeMap()
     return map;
 }*/
 
-std::vector<String> EvntTrigAvg::createElectrodeLabels()
+std::vector<String> OnlinePSTH::createElectrodeLabels()
 {
     std::vector<String> map;
     int numSpikeChannels = getTotalSpikeChannels();
@@ -336,7 +326,7 @@ std::vector<String> EvntTrigAvg::createElectrodeLabels()
 }
 
 /** passes data into createHistogramData() by electrode and sorted ID */
-void EvntTrigAvg::processSpikeData(std::vector<std::vector<std::vector<uint64>>> spikeData,std::vector<uint64> ttlData)
+void OnlinePSTH::processSpikeData(std::vector<std::vector<std::vector<uint64>>> spikeData,std::vector<uint64> ttlData)
 {
     
     for (int channelIterator = 0 ; channelIterator < getTotalSpikeChannels() ; channelIterator++){
@@ -357,7 +347,7 @@ void EvntTrigAvg::processSpikeData(std::vector<std::vector<std::vector<uint64>>>
 }
 
 /** returns bin counts */
-uint64* EvntTrigAvg::createHistogramData(std::vector<uint64> spikeData, std::vector<uint64> ttlData)
+uint64* OnlinePSTH::createHistogramData(std::vector<uint64> spikeData, std::vector<uint64> ttlData)
 {
     uint64 numberOfBins = windowSize/binSize;
     std::vector<uint64> histoData;
@@ -375,7 +365,7 @@ uint64* EvntTrigAvg::createHistogramData(std::vector<uint64> spikeData, std::vec
 
 
 /** Returns the bin a data point belongs to given the very first bin, the very last bin, bin size and the data point to bin, currently only works for positive numbers (can get around by adding minimum value to all values*/
-uint64 EvntTrigAvg::binDataPoint(uint64 startBin, uint64 endBin, uint64 binSize, uint64 dataPoint)
+uint64 OnlinePSTH::binDataPoint(uint64 startBin, uint64 endBin, uint64 binSize, uint64 dataPoint)
 {
     uint64 binsInRange = (endBin-startBin);
     uint64 binsToSearch = binsInRange/2;
@@ -404,7 +394,7 @@ uint64 EvntTrigAvg::binDataPoint(uint64 startBin, uint64 endBin, uint64 binSize,
 }
 
 /** count the number of bin instances */
-uint64* EvntTrigAvg::binCount(std::vector<uint64> binData,uint64 numberOfBins)
+uint64* OnlinePSTH::binCount(std::vector<uint64> binData,uint64 numberOfBins)
 {
     for (int i = 0 ; i < 1000 ; i++){
         bins[i]=0;
@@ -415,29 +405,29 @@ uint64* EvntTrigAvg::binCount(std::vector<uint64> binData,uint64 numberOfBins)
     return bins;
 }
 
-uint64 EvntTrigAvg::getBinSize()
+uint64 OnlinePSTH::getBinSize()
 {
     return binSize;
 }
 
-uint64 EvntTrigAvg::getWindowSize()
+uint64 OnlinePSTH::getWindowSize()
 {
     return windowSize;
 }
 
-Array<uint64 *> EvntTrigAvg::getHistoData()
+Array<uint64 *> OnlinePSTH::getHistoData()
 {
     const ScopedLock myScopedLock(mut);
     return histogramData;
 }
 
-Array<float *> EvntTrigAvg::getMinMaxMean()
+Array<float *> OnlinePSTH::getMinMaxMean()
 {
     const ScopedLock myScopedLock(mut);
     return minMaxMean;
 }
 
-float EvntTrigAvg::findMin(uint64* data_)
+float OnlinePSTH::findMin(uint64* data_)
 {
     const ScopedLock myScopedLock(mut);
     //uint64 min = UINT64_MAX;
@@ -450,7 +440,7 @@ float EvntTrigAvg::findMin(uint64* data_)
     return float(min);
 }
 
-float EvntTrigAvg::findMax(uint64* data_)
+float OnlinePSTH::findMax(uint64* data_)
 {
     const ScopedLock myScopedLock(mut);
     uint64 max = 0;
@@ -462,7 +452,7 @@ float EvntTrigAvg::findMax(uint64* data_)
     return float(max);
 }
 
-float EvntTrigAvg::findMean(uint64* data_)
+float OnlinePSTH::findMean(uint64* data_)
 {
     const ScopedLock myScopedLock(mut);
     uint64 runningSum=0;
@@ -475,12 +465,12 @@ float EvntTrigAvg::findMean(uint64* data_)
 
 
 
-std::vector<String> EvntTrigAvg::getElectrodeLabels()
+std::vector<String> OnlinePSTH::getElectrodeLabels()
 {
     return electrodeLabels;
 }
 
-void EvntTrigAvg::clearHistogramData(uint64 * dataptr)
+void OnlinePSTH::clearHistogramData(uint64 * dataptr)
 {
     const ScopedLock myScopedLock(mut);
     for(int i = 0 ; i < 1000 ; i++)
@@ -488,23 +478,23 @@ void EvntTrigAvg::clearHistogramData(uint64 * dataptr)
 }
 
 
-void EvntTrigAvg::saveCustomParametersToXml (XmlElement* parentElement)
+void OnlinePSTH::saveCustomParametersToXml (XmlElement* parentElement)
 {
-    XmlElement* mainNode = parentElement->createNewChildElement ("EVNTTRIGAVG");
+    /*XmlElement* mainNode = parentElement->createNewChildElement ("OnlinePSTH");
     mainNode->setAttribute ("trigger", triggerChannel);
     mainNode->setAttribute ("bin", int(binSize/(getSampleRate()/1000)));
-    mainNode->setAttribute ("window", int(windowSize/(getSampleRate()/1000)));
+    mainNode->setAttribute ("window", int(windowSize/(getSampleRate()/1000)));*/
 }
 
-void EvntTrigAvg::loadCustomParametersFromXml()
+void OnlinePSTH::loadCustomParametersFromXml(XmlElement* xml)
 {
-    if (parametersAsXml)
+    /*if (parametersAsXml)
     {
-        EvntTrigAvgEditor* ed = (EvntTrigAvgEditor*) getEditor();
+        OnlinePSTHEditor* ed = (OnlinePSTHEditor*) getEditor();
         
         forEachXmlChildElement(*parametersAsXml, mainNode)
         {
-            if (mainNode->hasTagName("EVNTTRIGAVG"))
+            if (mainNode->hasTagName("OnlinePSTH"))
             {
                 triggerChannel = mainNode->getIntAttribute("trigger");
                 std::cout<<"set trigger channel to: " << triggerChannel << "\n";
@@ -519,6 +509,6 @@ void EvntTrigAvg::loadCustomParametersFromXml()
                 ed->setWindow(mainNode->getIntAttribute("window"));
             }
         }
-    }
+    }*/
 }
 

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2022 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,44 +21,59 @@
 
 */
 
-#ifndef __EvntTrigAvgEDITOR_H_F0BD2DD9__
-#define __EvntTrigAvgEDITOR_H_F0BD2DD9__
+#ifndef __OnlinePSTHEDITOR_H_F0BD2DD9__
+#define __OnlinePSTHEDITOR_H_F0BD2DD9__
 
 #include <VisualizerEditorHeaders.h>
 
 
-class EvntTrigAvgCanvas;
-class EvntTrigAvg;
+class OnlinePSTHCanvas;
+class OnlinePSTH;
 
 /**
  
-User interface for EvntTrigAvg
+User interface for OnlinePSTH
 
-@see EvntTrigAvg, EvntTrigAvgCanvas
+@see OnlinePSTH, OnlinePSTHCanvas
  */
 
-class EvntTrigAvgEditor : public VisualizerEditor,
+class OnlinePSTHEditor : public VisualizerEditor,
     public Label::Listener,
-    public ComboBox::Listener
+    public ComboBox::Listener,
+    public Button::Listener,
+    public Slider::Listener
 {
     
 public:
     
-    EvntTrigAvgEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors);
-    virtual ~EvntTrigAvgEditor();
-    void buttonEvent(Button* button);
-    void labelTextChanged(Label* label);
-    void comboBoxChanged(ComboBox* comboBox);
-    void sliderEvent(Slider* slider);
-    void channelChanged (int chan, bool newState) override;
-    void updateSettings();
+    /** Constructor */
+    OnlinePSTHEditor(GenericProcessor* parentNode);
+
+    /** Destructor */
+    virtual ~OnlinePSTHEditor();
+
+    /** Creates the visualizer */
+    Visualizer* createNewCanvas() override;
+
+    /** Respond to button events */
+    void buttonClicked(Button* button) override;
+
+    /** Label events */
+    void labelTextChanged(Label* label) override;
+
+    /** ComboBox event listener */
+    void comboBoxChanged(ComboBox* comboBox) override;
+
+    /** Slider event listener */
+    void sliderValueChanged(Slider* slider) override;
+
+    /** Called when signal chain is updated */
+    void updateSettings() override;
     void setTrigger(int val);
     void setBin(int val);
     void setWindow(int val);
-    Visualizer* createNewCanvas();
-    
-    EvntTrigAvgCanvas* evntTrigAvgCanvas;
 
+    OnlinePSTHCanvas* canvas;
     
 private:
     struct EventSources
@@ -66,19 +81,19 @@ private:
         unsigned int eventIndex;
         unsigned int channel;
     };
+
     std::vector<EventSources> eventSourceArray;
     
-    
-    EvntTrigAvg* processor;
+    OnlinePSTH* processor;
     ScopedPointer<ComboBox> triggerChannel;
     ScopedPointer<Label> binSize, windowSize, channelLabel, binLabel, windowLabel;
     Font font;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EvntTrigAvgEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHEditor);
 
 };
 
 
 
 
-#endif  // __EvntTrigAvgEDITOR_H_F0BD2DD9__
+#endif  // __OnlinePSTHEDITOR_H_F0BD2DD9__
