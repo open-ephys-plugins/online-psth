@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2022 Open Ephys
+    Copyright (C) 2013 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,44 +21,41 @@
 
 */
 
-#ifndef __OnlinePSTHEDITOR_H_F0BD2DD9__
-#define __OnlinePSTHEDITOR_H_F0BD2DD9__
+#ifndef OnlinePSTHTIMESCALE_H_
+#define OnlinePSTHTIMESCALE_H_
 
-#include <VisualizerEditorHeaders.h>
+#include <VisualizerWindowHeaders.h>
 
-class OnlinePSTHCanvas;
+#include <vector>
+
 
 /**
  
-User interface for OnlinePSTH
-
-@see OnlinePSTH, OnlinePSTHCanvas
+    Displays the timescale for all histograms
+ 
  */
-class OnlinePSTHEditor : public VisualizerEditor
+class Timescale : public Component
 {
 public:
     
     /** Constructor */
-    OnlinePSTHEditor(GenericProcessor* parentNode);
-
+    Timescale() { }
+    
     /** Destructor */
-    ~OnlinePSTHEditor() { }
-
-    /** Creates the visualizer */
-    Visualizer* createNewCanvas() override;
-
-    /** Called when signal chain is updated */
-    void updateSettings() override;
+    ~Timescale() { }
+    
+    /** Renders the timescle */
+    void paint(Graphics& g);
+    
+    /** Sets the upper and lower bounds */
+    void setWindowSizeMs(int pre_ms, int post_ms);
     
 private:
     
-    OnlinePSTHCanvas* canvas;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHEditor);
-
+    int pre_ms;
+    int post_ms;
+    
 };
 
 
-
-
-#endif  // __OnlinePSTHEDITOR_H_F0BD2DD9__
+#endif  // OnlinePSTHTIMESCALE_H_

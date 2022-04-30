@@ -29,6 +29,8 @@
 #include <vector>
 #include <map>
 
+class OnlinePSTHCanvas;
+
 /**
     
     Aligns spike times with incoming TTL events to generate real-time peri-stimulus
@@ -44,81 +46,41 @@ public:
     OnlinePSTH();
 
     /** Destructor */
-    ~OnlinePSTH();
+    ~OnlinePSTH() { }
 
     /** Creates the OnlinePSTHEditor. */
     AudioProcessorEditor* createEditor() override;
-
-    /** Records the time of incoming events */
-    void handleTTLEvent (TTLEventPtr event) override;
-
-    /** Records the time of incoming spikes */
-    void handleSpike(SpikePtr spike) override;
+    
+    /** Used to alter parameters of data acquisition. */
+    void parameterValueChanged(Parameter* param) override;
 
     /** Calls checkForEvents */
     void process(AudioBuffer<float>& buffer) override;
-
-    /** Used to alter parameters of data acquisition. */
-    void setParameter(int parameterIndex, float newValue) override;
-
-    /** Called whenever the signal chain is altered. */
-    void updateSettings() override;
-
-    float getSampleRate();
-    int getLastTTLCalculated();
-    uint64 getWindowSize();
-    uint64 getBinSize();
-    std::vector<String> getElectrodeLabels();
-    CriticalSection* getMutex() { return &mut; }
-    //get pointers to shared data
-    Array<uint64 *> getHistoData();
-    Array<float *> getMinMaxMean();
-
-    //create histogram data
-    uint64* createHistogramData(std::vector<uint64> spikeData, std::vector<uint64> ttlData); // shared data
-    uint64 binDataPoint(uint64 startBin, uint64 endBin, uint64 binSize, uint64 dataPoint); // shared data
-    void processSpikeData(std::vector<std::vector<std::vector<uint64>>> spikeData,std::vector<uint64> ttlData);
-    uint64* binCount(std::vector<uint64> binData, uint64 numberOfBins); // shared data
-    bool shouldReadHistoData();
-    float findMin(uint64* data_);
-    float findMax(uint64* data_);
-    float findMean(uint64* data_); // TODO make running
     
-    //TODO electrodeMap is not being used right now, fix it to actually work with SourceInfo instead of just indexes
-    //std::map<SourceChannelInfo,int> createElectrodeMap();
-    std::vector<String> createElectrodeLabels();
+    /** Returns the PSTH pre-event window size in ms */
+    int getPreWindowSizeMs();
     
-    void saveCustomParametersToXml (XmlElement* parentElement) override;
-    void loadCustomParametersFromXml(XmlElement* xml) override;
+    /** Returns the PSTH post-event window size in ms */
+    int getPostWindowSizeMs();
+    
+    /** Returns the PSTH bin size in ms*/
+    int getBinSizeMs();
+    
+    /** Pointer to the display canvas */
+    OnlinePSTHCanvas* canvas;
+
 private:
-    CriticalSection mut;
-    void initializeHistogramArray();
-    void initializeMinMaxMean();
-    void clearHistogramArray();
-    void clearMinMaxMean();
-    void addNewSortedIdHistoData(int electrode, int sortedId);
-    void addNewSortedIdMinMaxMean(int electrode,int sortedID);
-    std::atomic<int> triggerEvent;
-    std::atomic<int> triggerChannel;
-
-    uint64 bins[1000]; // workspace for bin counting
-
-    int numChannels = 0;
-    bool recalc = false;
-    int lastTTLCalculated = 0;
-    uint64 windowSize;
-    uint64 binSize;
     
-    std::vector<uint64> ttlTimestampBuffer;
-    std::vector<std::vector<std::vector<uint64>>> spikeData;// channel.sortedID.spikeInstance.timestamp
-    void clearHistogramData(uint64 * const);
-    Array<uint64*> histogramData; // shared data
-    Array<float*> minMaxMean; // shared data
-    //std::map<SourceChannelInfo,int> electrodeMap; // Used to identify what electrode a spike came from
-    std::vector<String> electrodeLabels;
-    std::vector<int> idIndex; //sorted ID, electrode. used to match a sortedID with its electrode
-    std::vector<std::vector<int>> electrodeSortedId; 
+    /** Pushes incoming events to the canvas */
+    void handleTTLEvent (TTLEventPtr event) override;
+
+    /** Pushes incoming spikes to the canvas */
+    void handleSpike(SpikePtr spike) override;
     
+    
+    
+    int triggerLine;
+   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTH);
 
 };

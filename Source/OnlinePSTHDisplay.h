@@ -21,51 +21,35 @@
 
 */
 
-#ifndef OnlinePSTHCANVAS_H_
-#define OnlinePSTHCANVAS_H_
+#ifndef OnlinePSTHDISPLAY_H_
+#define OnlinePSTHDISPLAY_H_
 
 #include <VisualizerWindowHeaders.h>
 
-#include "OnlinePSTHDisplay.h"
-#include "Timescale.h"
+#include "Histogram.h"
 
-/**
+#include <vector>
 
-    Visualizer for spike histograms
-
-*/
-class OnlinePSTHCanvas : 
-    public Visualizer, 
-    public Button::Listener
+/*
+    
+    Component that holds the histogram displays
+ 
+ */
+class OnlinePSTHDisplay : public Component
 {
+    
 public:
     
     /** Constructor */
-    OnlinePSTHCanvas();
+    OnlinePSTHDisplay();
     
     /** Destructor */
-    ~OnlinePSTHCanvas() { }
-    
-    /** Respond to button clicks */
-    void buttonClicked(Button* button);
+    ~OnlinePSTHDisplay() { }
     
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
     void refresh();
-
-    /** Called when the Visualizer's tab becomes visible after being hidden .*/
-    void refreshState();
-    
-    /** Called when the Visualizer is first created, and optionally when
-        the parameters of the underlying processor are changed. */
-    void update() { }
-    
-    /** Called when the component changes size */
-    void resized();
-    
-    /** Renders component background */
-    void paint(Graphics& g);
 
     /** Sets the overall window size*/
     void setWindowSizeMs(int pre_ms, int post_ms);
@@ -84,18 +68,21 @@ public:
     
     /** Prepare for update*/
     void prepareToUpdate();
-
+    
+    /** Returns the desired height for this component*/
+    int getDesiredHeight();
+    
 private:
-    
-    ScopedPointer<UtilityButton> clearButton;
-    ScopedPointer<Viewport> viewport;
-    
-    ScopedPointer<Timescale> scale;
-    ScopedPointer<OnlinePSTHDisplay> display;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
 
+    OwnedArray<Histogram> histograms;
+    
+    std::map<const SpikeChannel*, Histogram*> histogramMap;
+    
+    int totalHeight = 0;
+    const int histogramHeight = 100;
+    const int borderSize = 20;
+    
 };
 
 
-#endif  // OnlinePSTHCANVAS_H_
+#endif  // OnlinePSTHDISPLAY_H_
