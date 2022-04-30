@@ -23,8 +23,16 @@
 #include "Histogram.h"
 
 Histogram::Histogram(const String& name, const String& streamName, uint16 streamId_, double sample_rate_)
-    : sample_rate(sample_rate_), streamId(streamId_)
+    : sample_rate(sample_rate_),
+      streamId(streamId_),
+      waitingForWindowToClose(false),
+      latestEventSampleNumber(0)
 {
+    
+    pre_ms = 0;
+    post_ms = 0;
+    bin_size_ms = 10;
+    
     infoLabel = new Label("info label");
     infoLabel->setText(name + "\n" + streamName, dontSendNotification);
     addAndMakeVisible(infoLabel);
@@ -43,13 +51,13 @@ Histogram::Histogram(const String& name, const String& streamName, uint16 stream
 
 void Histogram::resized()
 {
-    infoLabel->setBounds(getWidth() - 40, 0, 40, getHeight());
+    infoLabel->setBounds(getWidth() - 150, 0, 150, getHeight());
 }
 
 void Histogram::clear()
 {
-    spikeSampleNumbers.clear();
-    spikeSortedIds.clear();
+    newSpikeSampleNumbers.clear();
+    newSpikeSortedIds.clear();
     relativeTimes.clear();
     relativeTimeSortedIds.clear();
     
@@ -59,33 +67,36 @@ void Histogram::clear()
 
 void Histogram::addSpike(int64 sample_number, int sortedId)
 {
-    spikeSampleNumbers.add(sample_number);
-    spikeSortedIds.add(sortedId);
+    
+    const ScopedLock lock(mutex);
+    
+    newSpikeSampleNumbers.add(sample_number);
+    newSpikeSortedIds.add(sortedId);
     
     int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
     
     if (sortedIdIndex < 0)
     {
+        std::cout << "Adding new sortedId: " << sortedId << std::endl;
         sortedIdIndex = uniqueSortedIds.size();
         uniqueSortedIds.add(sortedId);
         counts.add(Array<int>());
-    }
-    
-    for (auto eventSampleNumber : eventSampleNumbers)
-    {
-        double offsetMs = double(eventSampleNumber - sample_number) / sample_rate;
-        
-        if (offsetMs > -pre_ms && offsetMs < post_ms)
-        {
-            relativeTimes.add(offsetMs);
-            relativeTimeSortedIds.add(sortedId);
-        }
     }
 }
 
 void Histogram::addEvent(int64 sample_number)
 {
-    eventSampleNumbers.add(sample_number);
+    if (!waitingForWindowToClose)
+    {
+        latestEventSampleNumber = sample_number;
+        
+        std::cout << "Added " << latestEventSampleNumber << std::endl;
+        
+        startTimer(1010);
+        
+        waitingForWindowToClose = true;
+    }
+    
 }
 
 void Histogram::setWindowSizeMs(int pre, int post)
@@ -93,35 +104,54 @@ void Histogram::setWindowSizeMs(int pre, int post)
     pre_ms = pre;
     post_ms = post;
     
-    recompute();
-}
-
-
-void Histogram::recompute()
-{
-    relativeTimes.clear();
-    
-    int index = -1;
-    
-    for (auto spikeSampleNumber : spikeSampleNumbers)
-    {
-        index++;
-        
-        for (auto eventSampleNumber : eventSampleNumbers)
-        {
-            double offsetMs = double(eventSampleNumber - spikeSampleNumber) / sample_rate;
-            
-            if (offsetMs > -pre_ms && offsetMs < post_ms)
-            {
-                relativeTimes.add(offsetMs);
-                relativeTimeSortedIds.add(spikeSortedIds[index]);
-            }
-        }
-    }
-    
     setBinSizeMs(bin_size_ms);
     
+    recount();
+    
+    
 }
+
+void Histogram::update()
+{
+    std::cout << "Updating!" << std::endl;
+    
+    {
+        const ScopedLock lock(mutex);
+        
+        std::cout << newSpikeSampleNumbers.size() << " new spikes." << std::endl;
+        
+        int index = 0;
+        
+        for (auto sample_number : newSpikeSampleNumbers)
+        {
+            double offsetMs = double(sample_number - latestEventSampleNumber) / sample_rate * 1000;
+            
+           // if (index < 10)
+           // {
+           //     std::cout << latestEventSampleNumber << " " << sample_number << " " << offsetMs << std::endl;
+           // }
+                
+            
+            if (offsetMs > -1000 && offsetMs < 1000)
+            {
+                //if (index < 10)
+                 //   std::cout << offsetMs << std::endl;
+                
+                relativeTimes.add(offsetMs);
+                relativeTimeSortedIds.add(newSpikeSortedIds[index]);
+            }
+            
+            index++;
+        }
+        
+        newSpikeSampleNumbers.clear();
+        newSpikeSortedIds.clear();
+    }
+    
+    recount();
+
+}
+
 
 void Histogram::setBinSizeMs(int ms)
 {
@@ -135,12 +165,14 @@ void Histogram::setBinSizeMs(int ms)
     {
         binEdges.add(bin_edge);
         bin_edge += (double) bin_size_ms;
+        //std::cout << bin_edge << std::endl;
     }
     
     binEdges.add(post_ms);
     
     recount();
 }
+
 
 void Histogram::recount()
 {
@@ -153,29 +185,43 @@ void Histogram::recount()
         c.insertMultiple(0, 0, nBins);
     }
     
-    int maxCount = 0;
+    maxCount = 1;
+    
+    std::cout << "Recount!" << std::endl;
+    std::cout << "Num relative times: " << relativeTimes.size() << std::endl;
     
     for (int i = 0; i < relativeTimes.size(); i++)
     {
         for (int j = 0; j < nBins; j++)
         {
+            
             if (relativeTimes[i] > binEdges[j] && relativeTimes[i] < binEdges[j+1])
             {
+                //std::cout << "FOUND!" << std::endl;
+                
                 int sortedIdIndex = uniqueSortedIds.indexOf(relativeTimeSortedIds[i]);
                 int lastCount = counts[sortedIdIndex][j];
                 int newCount = lastCount + 1;
                 
                 maxCount = jmax(newCount, maxCount);
                 
-                counts[sortedIdIndex].set(j, newCount);
+                counts.getReference(sortedIdIndex).set(j, newCount);
+                
+                //std::cout << "Count = " << newCount << std::endl;
+                
+                continue;
             }
                 
         }
     }
+    
+    repaint();
 }
 
 void Histogram::paint(Graphics& g)
 {
+    
+    g.fillAll(Colours::greenyellow);
     
     const int nBins = binEdges.size() - 1;
     
@@ -183,10 +229,10 @@ void Histogram::paint(Graphics& g)
     
     for (int sortedIdIndex = 0; sortedIdIndex < uniqueSortedIds.size(); sortedIdIndex++)
     {
-        if (sortedIdIndex == 0)
-            g.setColour(Colours::lightgrey);
+        if (uniqueSortedIds[sortedIdIndex] == 0)
+            g.setColour(Colours::black);
         else
-            g.setColour(colours[(sortedIdIndex - 1) % colours.size() ]);
+            g.setColour(colours[(uniqueSortedIds[sortedIdIndex] - 1) % colours.size() ]);
         
         for (int i = 0; i < nBins; i++)
         {
@@ -194,11 +240,14 @@ void Histogram::paint(Graphics& g)
             float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCount);
             float height = relativeHeight * getHeight();
             float y = getHeight() - height;
-            g.drawRect(x, y, binWidth, height);
+            g.fillRect(x, y, binWidth, height);
+            
+            //if (i < 10)
+            //    std::cout << x << " " << y << " " << binWidth << " " << height << std::endl;
         }
     }
     
-    float zeroLoc = pre_ms / (pre_ms + post_ms) * getWidth();
+    float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * getWidth();
     
     g.setColour(Colours::white);
     g.drawLine(zeroLoc, 0, zeroLoc, getHeight());
@@ -207,6 +256,17 @@ void Histogram::paint(Graphics& g)
 
 void Histogram::mouseMove(const MouseEvent &event)
 {
-    std::cout << event.getScreenX() << std::endl;
+    //std::cout << event.getScreenX() << std::endl;
 }
 
+
+void Histogram::timerCallback()
+{
+    
+    stopTimer();
+    
+    waitingForWindowToClose = false;
+    
+    update();
+    
+}

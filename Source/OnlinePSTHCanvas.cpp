@@ -22,15 +22,12 @@
 
 #include "OnlinePSTHCanvas.h"
 
-#include "OnlinePSTHEditor.h"
-
 OnlinePSTHCanvas::OnlinePSTHCanvas()
 {
     
     clearButton = new UtilityButton("CLEAR", Font("Default", 12, Font::plain));
     clearButton->addListener(this);
     clearButton->setRadius(3.0f);
-    clearButton->setBounds(80,5,65,15);
     clearButton->setClickingTogglesState(false);
     addAndMakeVisible(clearButton);
 
@@ -38,12 +35,12 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     viewport->setScrollBarsShown(true, true);
 
     display = new OnlinePSTHDisplay();
+    viewport->setViewedComponent(display, false);
+    addAndMakeVisible(viewport);
+    display->setBounds(0, 50, 500, 100);
 
     scale = new Timescale();
     addAndMakeVisible(scale);
-    
-    viewport->setViewedComponent(display, false);
-    addAndMakeVisible(viewport);
 
 }
 
@@ -59,17 +56,14 @@ void OnlinePSTHCanvas::resized()
     int scrollBarThickness = viewport->getScrollBarThickness();
     int yOffset = 50;
     
+    clearButton->setBounds(getWidth()-120, 12, 100, 25);
+    
     viewport->setBounds(0, yOffset, getWidth(), getHeight()-yOffset-40);
     
     display->setBounds(0, yOffset, getWidth()-scrollBarThickness, display->getDesiredHeight());
 
     scale->setBounds(0, getHeight()-40, getWidth()-scrollBarThickness, 40);
 
-}
-
-void OnlinePSTHCanvas::refresh()
-{
-    display->refresh();
 }
 
 void OnlinePSTHCanvas::paint(Graphics& g)
@@ -108,4 +102,12 @@ void OnlinePSTHCanvas::addSpikeChannel(const SpikeChannel* channel)
 void OnlinePSTHCanvas::prepareToUpdate()
 {
     display->prepareToUpdate();
+}
+
+void OnlinePSTHCanvas::buttonClicked(Button* button)
+{
+    if (button == clearButton)
+    {
+        display->clear();
+    }
 }

@@ -33,7 +33,9 @@
     Displays the actual PSTH
  
  */
-class Histogram : public Component
+class Histogram :
+    public Component,
+    public Timer
 {
 public:
     
@@ -70,10 +72,16 @@ public:
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     
+    /** Called by OnlinePSTHDisplay after event window closes */
+    void update();
+    
     /** Stream ID for this histogram */
     uint16 streamId;
 
 private:
+    
+    /** Updates histogram after event window closes*/
+    void timerCallback();
     
     /** Recomputes temporal offsets */
     void recompute();
@@ -83,10 +91,11 @@ private:
     
     ScopedPointer<Label> infoLabel;
     
-    Array<int64> spikeSampleNumbers;
-    Array<int64> eventSampleNumbers;
+    Array<int64> newSpikeSampleNumbers;
+    Array<int> newSpikeSortedIds;
     
-    Array<int> spikeSortedIds;
+    int64 latestEventSampleNumber;
+    
     Array<int> uniqueSortedIds;
     
     Array<double> binEdges;
@@ -103,7 +112,11 @@ private:
     int post_ms;
     int bin_size_ms;
     
-    int maxCount;
+    int maxCount = 1;
+    
+    CriticalSection mutex;
+    
+    bool waitingForWindowToClose;
     
     const double sample_rate;
     

@@ -31,18 +31,18 @@
 
 OnlinePSTH::OnlinePSTH()
     : GenericProcessor("Online PSTH"),
-      canvas(nullptr), triggerLine(1)
+      canvas(nullptr), triggerLine(0)
 {
 
     addIntParameter(Parameter::GLOBAL_SCOPE,
                     "pre_ms",
                     "Size of the PSTH window in ms",
-                    500, 10, 2000);
+                    500, 10, 1000);
     
     addIntParameter(Parameter::GLOBAL_SCOPE,
                     "post_ms",
                     "Size of the PSTH window in ms",
-                    500, 10, 2000);
+                    500, 10, 1000);
     
     addIntParameter(Parameter::GLOBAL_SCOPE,
                     "bin_size",
@@ -50,7 +50,7 @@ OnlinePSTH::OnlinePSTH()
                     10, 1, 100);
     
     addIntParameter(Parameter::GLOBAL_SCOPE,
-                    "trigger_line",
+                    "trigger",
                     "The input TTL line to trigger on",
                     1, 1, 16);
     
@@ -65,7 +65,7 @@ AudioProcessorEditor* OnlinePSTH::createEditor()
 
 void OnlinePSTH::parameterValueChanged(Parameter* param)
 {
-    if (param->getName().equalsIgnoreCase("pre_ms"))
+   if (param->getName().equalsIgnoreCase("pre_ms"))
     {
         if (canvas != nullptr)
             canvas->setWindowSizeMs((int) param->getValue(), (int) getParameter("post_ms")->getValue());
@@ -80,7 +80,7 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
         if (canvas != nullptr)
             canvas->setBinSizeMs((int) param->getValue());
     }
-    else if (param->getName().equalsIgnoreCase("trigger_line"))
+    else if (param->getName().equalsIgnoreCase("trigger"))
     {
         triggerLine = ((int) param->getValue()) - 1;
     }

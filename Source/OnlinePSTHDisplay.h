@@ -50,6 +50,9 @@ public:
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
     void refresh();
+    
+    /** Called when component changes size*/
+    void resized();
 
     /** Sets the overall window size*/
     void setWindowSizeMs(int pre_ms, int post_ms);
@@ -72,8 +75,11 @@ public:
     /** Returns the desired height for this component*/
     int getDesiredHeight();
     
+    /** Clears the histograms */
+    void clear();
+    
 private:
-
+    
     OwnedArray<Histogram> histograms;
     
     std::map<const SpikeChannel*, Histogram*> histogramMap;
@@ -82,6 +88,7 @@ private:
     const int histogramHeight = 100;
     const int borderSize = 20;
     
+    int post_ms;
 };
 
 

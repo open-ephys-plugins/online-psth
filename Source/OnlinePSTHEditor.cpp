@@ -29,24 +29,26 @@
 #include <stdio.h>
 
 OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, "PSTH", 300), canvas(nullptr)
+    : VisualizerEditor(parentNode, "PSTH", 225), canvas(nullptr)
 
 {
-    addTextBoxParameterEditor("window_size", 20, 40);
-    addTextBoxParameterEditor("bin_size", 20, 80);
-    addComboBoxParameterEditor("trigger_line", 150, 40);
+    addTextBoxParameterEditor("pre_ms", 20, 30);
+    addTextBoxParameterEditor("post_ms", 20, 75);
+    addTextBoxParameterEditor("bin_size", 125, 30);
+    addComboBoxParameterEditor("trigger", 125, 75);
 }
 
 Visualizer* OnlinePSTHEditor::createNewCanvas()
 {
 
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
+    
     canvas = new OnlinePSTHCanvas();
     processor->canvas = canvas;
     
     updateSettings();
     
-    return (Visualizer*) canvas;
+    return canvas;
 }
 
 void OnlinePSTHEditor::updateSettings()
@@ -68,5 +70,7 @@ void OnlinePSTHEditor::updateSettings()
                             processor->getPostWindowSizeMs());
     
     canvas->setBinSizeMs(processor->getBinSizeMs());
+    
+    canvas->resized();
     
 }

@@ -29,17 +29,19 @@
 #include "OnlinePSTHDisplay.h"
 #include "Timescale.h"
 
+
 /**
 
     Visualizer for spike histograms
 
 */
-class OnlinePSTHCanvas : 
-    public Visualizer, 
+class OnlinePSTHCanvas :
+    public Visualizer,
     public Button::Listener
 {
 public:
     
+ 
     /** Constructor */
     OnlinePSTHCanvas();
     
@@ -52,7 +54,7 @@ public:
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
-    void refresh();
+    void refresh() { }
 
     /** Called when the Visualizer's tab becomes visible after being hidden .*/
     void refreshState();
@@ -96,6 +98,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
 
 };
-
 
 #endif  // OnlinePSTHCANVAS_H_

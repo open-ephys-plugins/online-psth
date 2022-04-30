@@ -46,6 +46,20 @@ void OnlinePSTHDisplay::prepareToUpdate()
 }
 
 
+void OnlinePSTHDisplay::resized()
+{
+    totalHeight = 0;
+    
+    for (auto hist : histograms)
+    {
+        hist->setBounds(10, totalHeight, getWidth()-20, histogramHeight);
+        totalHeight += histogramHeight + borderSize;
+        
+        std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
+    }
+}
+
+
 void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel)
 {
     Histogram* h = new Histogram(channel->getName(), channel->getStreamName(),
@@ -54,16 +68,19 @@ void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel)
     histograms.add(h);
     histogramMap[channel] = h;
     
-    h->setBounds(0, totalHeight, getWidth(), histogramHeight);
-    
     totalHeight += histogramHeight + borderSize;
     
+    std::cout << "Adding histogram for " << channel->getName() << std::endl;
+
     addAndMakeVisible(h);
 }
 
 
-void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms)
+void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms_)
 {
+    
+    post_ms = post_ms_;
+    
     for (auto hist : histograms)
     {
         hist->setWindowSizeMs(pre_ms, post_ms);
@@ -80,11 +97,16 @@ void OnlinePSTHDisplay::setBinSizeMs(int bin_size)
 
 void OnlinePSTHDisplay::pushEvent(uint16 streamId, int64 sample_number)
 {
+    
+    std::cout << "Display received event " << std::endl;
+    
+
     for (auto hist : histograms)
     {
         if (hist->streamId == streamId)
             hist->addEvent(sample_number);
     }
+    
 }
 
 void OnlinePSTHDisplay::pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId)
@@ -97,3 +119,12 @@ int OnlinePSTHDisplay::getDesiredHeight()
 {
     return totalHeight;
 }
+
+void OnlinePSTHDisplay::clear()
+{
+    for (auto hist : histograms)
+    {
+        hist->clear();
+    }
+}
+
