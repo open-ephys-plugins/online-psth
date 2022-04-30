@@ -72,6 +72,9 @@ public:
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     
+    /** Listens for mouse movements */
+    void mouseExit(const MouseEvent& event);
+    
     /** Called by OnlinePSTHDisplay after event window closes */
     void update();
     
@@ -90,6 +93,7 @@ private:
     void recount();
     
     ScopedPointer<Label> infoLabel;
+    ScopedPointer<Label> hoverLabel;
     
     Array<int64> newSpikeSampleNumbers;
     Array<int> newSpikeSortedIds;
@@ -114,9 +118,13 @@ private:
     
     int maxCount = 1;
     
+    int hoverBin = -1;
+    
     CriticalSection mutex;
     
     bool waitingForWindowToClose;
+    
+    float numEvents = 0;
     
     const double sample_rate;
     

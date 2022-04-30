@@ -58,11 +58,11 @@ void OnlinePSTHCanvas::resized()
     
     clearButton->setBounds(getWidth()-120, 12, 100, 25);
     
-    viewport->setBounds(0, yOffset, getWidth(), getHeight()-yOffset-40);
+    viewport->setBounds(0, yOffset, getWidth(), getHeight()-yOffset);
     
     display->setBounds(0, yOffset, getWidth()-scrollBarThickness, display->getDesiredHeight());
 
-    scale->setBounds(0, getHeight()-40, getWidth()-scrollBarThickness, 40);
+    scale->setBounds(10, getHeight()-40, getWidth()-scrollBarThickness-190, 40);
 
 }
 

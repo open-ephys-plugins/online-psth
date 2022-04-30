@@ -68,12 +68,14 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
    if (param->getName().equalsIgnoreCase("pre_ms"))
     {
         if (canvas != nullptr)
-            canvas->setWindowSizeMs((int) param->getValue(), (int) getParameter("post_ms")->getValue());
+            canvas->setWindowSizeMs((int) param->getValue(),
+                                    (int) getParameter("post_ms")->getValue());
     }
     else if (param->getName().equalsIgnoreCase("post_ms"))
     {
         if (canvas != nullptr)
-            canvas->setWindowSizeMs((int) getParameter("pre_ms")->getValue(), (int) getParameter("pre_ms")->getValue());
+            canvas->setWindowSizeMs((int) getParameter("pre_ms")->getValue(),
+                                    (int) getParameter("post_ms")->getValue());
     }
     else if (param->getName().equalsIgnoreCase("bin_size"))
     {
@@ -111,7 +113,7 @@ void OnlinePSTH::process(AudioBuffer<float>& buffer)
 
 void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {
-    if (event->getLine() == triggerLine)
+    if (event->getLine() == triggerLine && event->getState())
     {
         if (canvas != nullptr)
             canvas->pushEvent(event->getStreamId(), event->getSampleNumber());

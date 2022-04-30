@@ -25,8 +25,12 @@
 
 void Timescale::paint(Graphics& g)
 {
-    /*g.setColour(Colours::snow);
-    int histogramLen = getWidth()-230;
+    Colour color = Colours::snow;
+    color = color.withAlpha(0.25f);
+    g.setColour(color);
+    g.fillAll();
+    
+    /*int histogramLen = getWidth()-230;
     int vertLineLen = 20;
     int textStart = vertLineLen+5;
     g.drawHorizontalLine(0, 30, histogramLen+30);

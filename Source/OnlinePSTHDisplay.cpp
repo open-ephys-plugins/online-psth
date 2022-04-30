@@ -98,9 +98,6 @@ void OnlinePSTHDisplay::setBinSizeMs(int bin_size)
 void OnlinePSTHDisplay::pushEvent(uint16 streamId, int64 sample_number)
 {
     
-    std::cout << "Display received event " << std::endl;
-    
-
     for (auto hist : histograms)
     {
         if (hist->streamId == streamId)
