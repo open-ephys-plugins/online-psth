@@ -25,32 +25,60 @@
 
 void Timescale::paint(Graphics& g)
 {
-    Colour color = Colours::snow;
-    color = color.withAlpha(0.25f);
-    g.setColour(color);
-    g.fillAll();
+    const float histogramWidth = getWidth() - 40;
     
-    /*int histogramLen = getWidth()-230;
-    int vertLineLen = 20;
-    int textStart = vertLineLen+5;
-    g.drawHorizontalLine(0, 30, histogramLen+30);
-
-    g.drawVerticalLine(30, 0, vertLineLen);
-    g.drawText(String(-1000.0*float(windowSize/2)/float(sampleRate)) + " ms", 0, textStart, 60, 10, Justification::centred);
+    float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
     
-    g.drawVerticalLine(histogramLen/4+30, 0, vertLineLen);
-    g.drawText(String(-1000.0*float(windowSize/2)/2.0/float(sampleRate)) + " ms", histogramLen/4, textStart, 60, 10, Justification::centred);
+    g.setColour(Colours::white);
+    //g.drawLine(0, getHeight()-3, histogramWidth, getHeight()-3, 3.0);
+    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 3.0);
     
-    g.drawVerticalLine(histogramLen/2+30, 0, vertLineLen);
-    g.drawText(" 0 ms",histogramLen/2, textStart, 60, 10, Justification::centred);
+    float window_size_ms = float(pre_ms + post_ms);
+    float stepSize;
     
-    g.drawVerticalLine(3*histogramLen/4+30, 0, vertLineLen);
-    g.drawText(String(1000.0*float(windowSize/2)/2.0/float(sampleRate)) + " ms", 3*histogramLen/4, textStart, 60, 10, Justification::centred);
+    if (window_size_ms == 20.0f)
+        stepSize = 1.0f;
+    else if (window_size_ms > 20.0f && window_size_ms <= 50.0f)
+        stepSize = 5.0f;
+    else if (window_size_ms > 50.0f && window_size_ms <= 100.0f)
+        stepSize = 10.0f;
+    else if (window_size_ms > 100.0f && window_size_ms <= 250.0f)
+        stepSize = 25.0f;
+    else if (window_size_ms > 250.0f && window_size_ms <= 500.0f)
+        stepSize = 50.0f;
+    else if (window_size_ms > 500.0f && window_size_ms <= 1000.0f)
+        stepSize = 100.0f;
+    else if (window_size_ms >= 1000.0f && window_size_ms < 2000.0f)
+        stepSize = 250.0f;
+    else
+        stepSize = 500.0f;
     
-    g.drawVerticalLine(histogramLen+30, 0, vertLineLen);
-    g.drawText(String(1000.0*float(windowSize/2)/float(sampleRate)) + " ms", histogramLen, textStart, 60, 10, Justification::centred);
+    float tickDistance = (stepSize / window_size_ms) * histogramWidth;
     
-    g.drawText(String(1000*float(bin*binSize)/float(sampleRate)) + "-" + String(1000*(float(bin+1)*binSize)/float(sampleRate)) + "ms, Spikes: " + String(data),histogramLen+30, 5, getWidth()-(histogramLen+30), getHeight(), Justification::right);*/
+    float tick = stepSize;
+    float tickLoc = zeroLoc + tickDistance;
+    
+    while (tick < post_ms)
+    {
+        g.drawLine(tickLoc, getHeight(), tickLoc, getHeight()-8, 2.0);
+        g.drawText(String(tick), tickLoc-50, getHeight()-25, 100, 15, Justification::centred);
+        tick += stepSize;
+        tickLoc += tickDistance;
+        
+    }
+    
+    tick = -stepSize;
+    tickLoc = zeroLoc - tickDistance;
+    
+    while (tick > -pre_ms)
+    {
+        g.drawLine(tickLoc, getHeight(), tickLoc, getHeight()-8, 2.0);
+        g.drawText(String(tick), tickLoc-54, getHeight()-25, 100, 15, Justification::centred);
+        tick -= stepSize;
+        tickLoc -= tickDistance;
+        
+    }
+    
 }
 
 

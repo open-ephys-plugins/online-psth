@@ -22,9 +22,9 @@
 
 #include "Histogram.h"
 
-Histogram::Histogram(const String& name, const String& streamName, uint16 streamId_, double sample_rate_)
-    : sample_rate(sample_rate_),
-      streamId(streamId_),
+Histogram::Histogram(const SpikeChannel* channel)
+    : sample_rate(channel->getSampleRate()),
+      streamId(channel->getStreamId()),
       waitingForWindowToClose(false),
       latestEventSampleNumber(0)
 {
@@ -35,12 +35,27 @@ Histogram::Histogram(const String& name, const String& streamName, uint16 stream
     
     infoLabel = new Label("info label");
     infoLabel->setJustificationType(Justification::topLeft);
-    infoLabel->setText(name + "\n" + streamName, dontSendNotification);
+    infoLabel->setText(channel->getName() + "\n" + channel->getStreamName(), dontSendNotification);
+    infoLabel->setColour(Label::textColourId, Colours::white);
     addAndMakeVisible(infoLabel);
+    
+    channelLabel = new Label("channel label");
+    channelLabel->setFont(14);
+    channelLabel->setJustificationType(Justification::topLeft);
+    channelLabel->setColour(Label::textColourId, Colours::white);
+    String channelString = "";
+    
+    for (auto ch : channel->getSourceChannels())
+        channelString += ch->getName() + ", ";
+    
+    channelString = channelString.substring(0, channelString.length()-2);
+    channelLabel->setText(channelString, dontSendNotification);
+    addAndMakeVisible(channelLabel);
     
     hoverLabel = new Label("hover label");
     hoverLabel->setJustificationType(Justification::topLeft);
     hoverLabel->setFont(12);
+    hoverLabel->setColour(Label::textColourId, Colours::white);
     addAndMakeVisible(hoverLabel);
     
     colours.add(Colour(255, 224, 93));
@@ -58,12 +73,12 @@ Histogram::Histogram(const String& name, const String& streamName, uint16 stream
 void Histogram::resized()
 {
     infoLabel->setBounds(getWidth() - 150, 10, 150, 30);
-    hoverLabel->setBounds(getWidth() - 150, 50, 150, 45);
+    channelLabel->setBounds(getWidth() - 150, 45, 150, 15);
+    hoverLabel->setBounds(getWidth() - 150, 66, 150, 45);
 }
 
 void Histogram::clear()
 {
-    
     relativeTimes.clear();
     relativeTimeSortedIds.clear();
     numEvents = 0;
@@ -83,7 +98,6 @@ void Histogram::addSpike(int64 sample_number, int sortedId)
     
     if (sortedIdIndex < 0)
     {
-        //std::cout << "Adding new sortedId: " << sortedId << std::endl;
         sortedIdIndex = uniqueSortedIds.size();
         uniqueSortedIds.add(sortedId);
         counts.add(Array<int>());
@@ -96,8 +110,6 @@ void Histogram::addEvent(int64 sample_number)
     {
         latestEventSampleNumber = sample_number;
 
-        //std::cout << "Added " << latestEventSampleNumber << std::endl;
-        
         startTimer(1010);
         
         waitingForWindowToClose = true;
@@ -107,14 +119,14 @@ void Histogram::addEvent(int64 sample_number)
 
 void Histogram::setWindowSizeMs(int pre, int post)
 {
+    
     pre_ms = pre;
     post_ms = post;
     
     setBinSizeMs(bin_size_ms);
     
     recount();
-    
-    
+
 }
 
 void Histogram::update()
@@ -161,18 +173,12 @@ void Histogram::setBinSizeMs(int ms)
     
     double bin_edge = (double) -pre_ms;
     
-    //std::cout << "Bin edges: ";
-    
     while (bin_edge < post_ms)
     {
-        //std::cout << bin_edge << " ";
         binEdges.add(bin_edge);
         bin_edge += (double) bin_size_ms;
         
     }
-    
-   // std::cout << post_ms << " ";
-   // std::cout << std::endl;
     
     binEdges.add(post_ms);
     
@@ -192,10 +198,7 @@ void Histogram::recount()
     }
     
     maxCount = 1;
-    
-    //std::cout << "Recount!" << std::endl;
-    //std::cout << "Num relative times: " << relativeTimes.size() << std::endl;
-    
+
     for (int i = 0; i < relativeTimes.size(); i++)
     {
         for (int j = 0; j < nBins; j++)
@@ -203,8 +206,6 @@ void Histogram::recount()
             
             if (relativeTimes[i] > binEdges[j] && relativeTimes[i] < binEdges[j+1])
             {
-                //std::cout << "FOUND!" << std::endl;
-                
                 int sortedIdIndex = uniqueSortedIds.indexOf(relativeTimeSortedIds[i]);
                 int lastCount = counts[sortedIdIndex][j];
                 int newCount = lastCount + 1;
@@ -212,9 +213,7 @@ void Histogram::recount()
                 maxCount = jmax(newCount, maxCount);
                 
                 counts.getReference(sortedIdIndex).set(j, newCount);
-                
-                //std::cout << "Count = " << newCount << std::endl;
-                
+
                 continue;
             }
                 
@@ -227,7 +226,7 @@ void Histogram::recount()
 void Histogram::paint(Graphics& g)
 {
     
-    g.fillAll(Colours::greenyellow);
+    g.fillAll(Colour(30,30,40));
     
     const int nBins = binEdges.size() - 1;
     const int histogramWidth = getWidth() - 170;
@@ -245,18 +244,16 @@ void Histogram::paint(Graphics& g)
         for (int i = 0; i < nBins; i++)
         {
             if (hoverBin == i)
-                g.setColour(Colours::grey);
+                g.setColour(Colours::greenyellow.withAlpha(0.85f));
             else
-                g.setColour(Colours::darkgrey);
+                g.setColour(Colours::greenyellow);
             
             float x = binWidth * i;
             float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCount);
             float height = relativeHeight * histogramHeight;
             float y = 10 + histogramHeight - height;
             g.fillRect(x, y, binWidth+1, height);
-            
-            //if (i < 10)
-            //    std::cout << x << " " << y << " " << binWidth << " " << height << std::endl;
+
         }
     }
     
@@ -286,7 +283,6 @@ void Histogram::mouseMove(const MouseEvent &event)
         else
             firing_rate = 0;
         
-        //std::cout << hoverBin << " " << counts[0][hoverBin] << " " << numEvents << " " << bin_size_ms << std::endl;
         String firingRateString = String(firing_rate, 2) + " Hz";
         String binString = "[" + String(binEdges[hoverBin]) +
         "," + String(binEdges[hoverBin+1]) + "] ms";
@@ -308,11 +304,9 @@ void Histogram::mouseExit(const MouseEvent &event)
 
 void Histogram::timerCallback()
 {
-    
     stopTimer();
     
     waitingForWindowToClose = false;
     
     update();
-    
 }

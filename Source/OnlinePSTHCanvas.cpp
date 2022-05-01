@@ -62,7 +62,7 @@ void OnlinePSTHCanvas::resized()
     
     display->setBounds(0, yOffset, getWidth()-scrollBarThickness, display->getDesiredHeight());
 
-    scale->setBounds(10, getHeight()-40, getWidth()-scrollBarThickness-190, 40);
+    scale->setBounds(10, 0, getWidth()-scrollBarThickness-150, 50);
 
 }
 

@@ -40,10 +40,7 @@ class Histogram :
 public:
     
     /** Constructor */
-    Histogram(const String& name,
-              const String& streamName,
-              uint16 streamId,
-              double sample_rate);
+    Histogram(const SpikeChannel* channel);
     
     /** Destructor */
     ~Histogram() { }
@@ -93,6 +90,7 @@ private:
     void recount();
     
     ScopedPointer<Label> infoLabel;
+    ScopedPointer<Label> channelLabel;
     ScopedPointer<Label> hoverLabel;
     
     Array<int64> newSpikeSampleNumbers;

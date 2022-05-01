@@ -55,22 +55,21 @@ void OnlinePSTHDisplay::resized()
         hist->setBounds(10, totalHeight, getWidth()-20, histogramHeight);
         totalHeight += histogramHeight + borderSize;
         
-        std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
+        //std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
     }
 }
 
 
 void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel)
 {
-    Histogram* h = new Histogram(channel->getName(), channel->getStreamName(),
-                                 channel->getStreamId(), channel->getSampleRate());
+    Histogram* h = new Histogram(channel);
     
     histograms.add(h);
     histogramMap[channel] = h;
     
     totalHeight += histogramHeight + borderSize;
     
-    std::cout << "Adding histogram for " << channel->getName() << std::endl;
+    //std::cout << "Adding histogram for " << channel->getName() << std::endl;
 
     addAndMakeVisible(h);
 }
