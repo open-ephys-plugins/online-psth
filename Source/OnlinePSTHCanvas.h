@@ -89,6 +89,9 @@ public:
 
 private:
     
+    int pre_ms;
+    int post_ms;
+    
     ScopedPointer<UtilityButton> clearButton;
     ScopedPointer<Viewport> viewport;
     

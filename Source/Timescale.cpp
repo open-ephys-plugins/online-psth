@@ -31,7 +31,7 @@ void Timescale::paint(Graphics& g)
     
     g.setColour(Colours::white);
     //g.drawLine(0, getHeight()-3, histogramWidth, getHeight()-3, 3.0);
-    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 3.0);
+    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
     
     float window_size_ms = float(pre_ms + post_ms);
     float stepSize;

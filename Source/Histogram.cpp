@@ -260,7 +260,7 @@ void Histogram::paint(Graphics& g)
     float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
     
     g.setColour(Colours::white);
-    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 3.0);
+    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
 }
 
 

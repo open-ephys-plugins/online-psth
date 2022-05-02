@@ -68,14 +68,28 @@ void OnlinePSTHCanvas::resized()
 
 void OnlinePSTHCanvas::paint(Graphics& g)
 {
+    
     g.fillAll(Colour(0,18,43));
-
+    
+    const float histogramWidth = getWidth()-viewport->getScrollBarThickness()-190;
+    
+    float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth + 10;
+    
+    g.setColour(Colours::white);
+    //g.drawLine(0, getHeight()-3, histogramWidth, getHeight()-3, 3.0);
+    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
+    
 }
 
-void OnlinePSTHCanvas::setWindowSizeMs(int pre_ms, int post_ms)
+void OnlinePSTHCanvas::setWindowSizeMs(int pre_ms_, int post_ms_)
 {
+    pre_ms = pre_ms_;
+    post_ms = post_ms_;
+    
     display->setWindowSizeMs(pre_ms, post_ms);
     scale->setWindowSizeMs(pre_ms, post_ms);
+    
+    repaint();
 }
 
 void OnlinePSTHCanvas::setBinSizeMs(int bin_size)
