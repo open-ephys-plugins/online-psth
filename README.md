@@ -2,14 +2,6 @@
 
 ![Online PSTH Editor](Resources/Images/onlinepsth.png)
 
-*Plugin type*: Sink
-
-*Platforms*: Windows, Linux, macOS
-
-*Built in?*: No
-
-*Documentation*: [link](https://open-ephys.github.io/gui-docs)
-
 ![Linux](https://github.com/open-ephys/plugin-GUI/workflows/Linux/badge.svg)
 ![OSX](https://github.com/open-ephys/plugin-GUI/workflows/macOS/badge.svg)
 ![Windows](https://github.com/open-ephys/plugin-GUI/workflows/Windows/badge.svg)
@@ -19,6 +11,10 @@
 ---
 
 ## Installation
+
+(Coming soon)
+
+## Usage
 
 (Coming soon)
 
@@ -43,9 +39,9 @@ Code
 
 ### Windows
 
-Building requires [Visual Studio](https://visualstudio.microsoft.com/) and [CMake](https://cmake.org/install/).
+**Requirements:** [Visual Studio](https://visualstudio.microsoft.com/) and [CMake](https://cmake.org/install/)
 
-From the `Build` directory, type:
+From the `Build` directory, enter:
 
 ```bash
 cmake -G "Visual Studio 17 2022" -A x64 ..
@@ -53,14 +49,14 @@ cmake -G "Visual Studio 17 2022" -A x64 ..
 
 Next, launch Visual Studio and open the `OE_PLUGIN_online-psth.sln` file that was just created. Select the appropriate configuration (Debug/Release) and build the solution.
 
-Selecting the `INSTALL` project and manually building it will copy the plugin and any required files into the GUI's `plugins` directory. The next time you launch the GUI from Visual Studio, the Online PSTH plugin should be available.
+Selecting the `INSTALL` project and manually building it will copy the `.dll` and any other required files into the GUI's `plugins` directory. The next time you launch the GUI from Visual Studio, the Online PSTH plugin should be available.
 
 
 ### Linux
 
-Building requires [CMake](https://cmake.org/install/).
+**Requirements:** [CMake](https://cmake.org/install/)
 
-From the `Build` directory, type:
+From the `Build` directory, enter:
 
 ```bash
 cmake -G "Unix Makefiles" ..
@@ -74,9 +70,9 @@ This will build the plugin and copy the `.so` file into the GUI's `plugins` dire
 
 ### macOS
 
-Building requires [Xcode](https://developer.apple.com/xcode/) and [CMake](https://cmake.org/install/).
+**Requirements:** [Xcode](https://developer.apple.com/xcode/) and [CMake](https://cmake.org/install/)
 
-From the `Build` directory, type:
+From the `Build` directory, enter:
 
 ```bash
 cmake -G "Xcode" ..
