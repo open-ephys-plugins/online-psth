@@ -77,10 +77,6 @@ private:
     /** Pushes incoming spikes to the canvas */
     void handleSpike(SpikePtr spike) override;
     
-    
-    
-    int triggerLine;
-   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTH);
 
 };

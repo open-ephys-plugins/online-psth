@@ -66,6 +66,9 @@ public:
     /** Sets the pre-event window size*/
     void setBinSizeMs(int ms);
     
+    /** Sets the plot type (histogram, raster, raster + histogram) */
+    void setPlotType(int plotType);
+    
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     
@@ -102,9 +105,14 @@ private:
     
     Array<double> binEdges;
     
+    bool plotHistogram = true;
+    bool plotRaster = false;
+    
     int maxSortedId = 0;
+    int maxRasterTrials = 20;
     
     Array<double> relativeTimes;
+    Array<int> relativeTimeTrialIndices;
     Array<int> relativeTimeSortedIds;
     Array<Colour> colours;
     
@@ -122,7 +130,7 @@ private:
     
     bool waitingForWindowToClose;
     
-    float numEvents = 0;
+    float numTrials = 0;
     
     const double sample_rate;
     

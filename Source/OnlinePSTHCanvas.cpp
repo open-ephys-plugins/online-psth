@@ -30,6 +30,14 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     clearButton->setRadius(3.0f);
     clearButton->setClickingTogglesState(false);
     addAndMakeVisible(clearButton);
+    
+    plotTypeSelector = new ComboBox("Plot Type Selector");
+    plotTypeSelector->addItem("Histogram", 1);
+    plotTypeSelector->addItem("Raster", 2);
+    plotTypeSelector->addItem("Histogram + Raster", 3);
+    plotTypeSelector->setSelectedId(1, dontSendNotification);
+    plotTypeSelector->addListener(this);
+    addAndMakeVisible(plotTypeSelector);
 
     viewport = new Viewport();
     viewport->setScrollBarsShown(true, true);
@@ -56,7 +64,9 @@ void OnlinePSTHCanvas::resized()
     int scrollBarThickness = viewport->getScrollBarThickness();
     int yOffset = 50;
     
-    clearButton->setBounds(getWidth()-120, 12, 100, 25);
+    clearButton->setBounds(getWidth()-80, 12, 70, 25);
+    
+    plotTypeSelector->setBounds(getWidth()-240, 12, 150, 25);
     
     viewport->setBounds(0, yOffset, getWidth(), getHeight()-yOffset);
     
@@ -124,4 +134,26 @@ void OnlinePSTHCanvas::buttonClicked(Button* button)
     {
         display->clear();
     }
+}
+
+void OnlinePSTHCanvas::comboBoxChanged(ComboBox* comboBox)
+{
+    if (comboBox == plotTypeSelector)
+    {
+        display->setPlotType(comboBox->getSelectedId());
+    }
+}
+
+
+void OnlinePSTHCanvas::saveCustomParametersToXml(XmlElement* xml)
+{
+    xml->setAttribute("plot_type", plotTypeSelector->getSelectedId());
+}
+
+void OnlinePSTHCanvas::loadCustomParametersFromXml(XmlElement* xml)
+{
+    
+    int selectedId = xml->getIntAttribute("plot_type", 1);
+    
+    plotTypeSelector->setSelectedId(selectedId, sendNotification);
 }

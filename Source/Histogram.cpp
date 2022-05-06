@@ -81,7 +81,9 @@ void Histogram::clear()
 {
     relativeTimes.clear();
     relativeTimeSortedIds.clear();
-    numEvents = 0;
+    relativeTimeTrialIndices.clear();
+    
+    numTrials = 0;
 
     recount();
 }
@@ -129,6 +131,24 @@ void Histogram::setWindowSizeMs(int pre, int post)
 
 }
 
+void Histogram::setPlotType(int plotType)
+{
+    if (plotType == 1)
+    {
+        plotRaster = false;
+        plotHistogram = true;
+    } else if (plotType == 2)
+    {
+        plotRaster = true;
+        plotHistogram = false;
+    } else {
+        plotRaster = true;
+        plotHistogram = true;
+    }
+    
+    repaint();
+}
+
 void Histogram::update()
 {
     //std::cout << "Updating!" << std::endl;
@@ -148,6 +168,7 @@ void Histogram::update()
             {
                 relativeTimes.add(offsetMs);
                 relativeTimeSortedIds.add(newSpikeSortedIds[index]);
+                relativeTimeTrialIndices.add(int(numTrials));
             }
             
             index++;
@@ -156,7 +177,7 @@ void Histogram::update()
         newSpikeSampleNumbers.clear();
         newSpikeSortedIds.clear();
         
-        numEvents++;
+        numTrials++;
         
     }
     
@@ -229,33 +250,68 @@ void Histogram::paint(Graphics& g)
     g.fillAll(Colour(30,30,40));
     
     const int nBins = binEdges.size() - 1;
-    const int histogramWidth = getWidth() - 170;
-    const int histogramHeight = getHeight() - 10;
+    const float histogramWidth = getWidth() - 170;
+    const float histogramHeight = getHeight() - 10;
     
     float binWidth = histogramWidth / float(nBins);
     
-    for (int sortedIdIndex = 0; sortedIdIndex < uniqueSortedIds.size(); sortedIdIndex++)
+    if (plotHistogram)
     {
-        if (uniqueSortedIds[sortedIdIndex] == 0)
-            g.setColour(Colours::darkgrey);
-        else
-            g.setColour(colours[(uniqueSortedIds[sortedIdIndex] - 1) % colours.size() ]);
-        
-        for (int i = 0; i < nBins; i++)
+        for (int sortedIdIndex = 0; sortedIdIndex < uniqueSortedIds.size(); sortedIdIndex++)
         {
-            if (hoverBin == i)
-                g.setColour(Colours::greenyellow.withAlpha(0.85f));
-            else
-                g.setColour(Colours::greenyellow);
             
-            float x = binWidth * i;
-            float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCount);
-            float height = relativeHeight * histogramHeight;
-            float y = 10 + histogramHeight - height;
-            g.fillRect(x, y, binWidth+1, height);
+            Colour plotColour;
+            
+            if (uniqueSortedIds[sortedIdIndex] == 0)
+                plotColour = Colours::greenyellow;
+            else
+                plotColour = colours[(uniqueSortedIds[sortedIdIndex] - 1) % colours.size()];
+            
+            for (int i = 0; i < nBins; i++)
+            {
+                if (hoverBin == i)
+                    g.setColour(plotColour.withAlpha(0.85f));
+                else
+                    g.setColour(plotColour);
+                
+                float x = binWidth * i;
+                float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCount);
+                float height = relativeHeight * histogramHeight;
+                float y = 10 + histogramHeight - height;
+                g.fillRect(x, y, binWidth+1, height);
 
+            }
         }
     }
+    
+    if (plotRaster)
+    {
+        int firstTrial = numTrials - maxRasterTrials;
+        
+        if (firstTrial < 0)
+            firstTrial = 0;
+        
+        for (int index = 0; index < relativeTimes.size(); index++)
+        {
+            if (relativeTimeTrialIndices[index] >= firstTrial)
+            {
+                if (relativeTimes[index] > -pre_ms && relativeTimes[index] < post_ms)
+                {
+                    const float yPos = float(relativeTimeTrialIndices[index] - firstTrial) / float(maxRasterTrials) * (histogramHeight+10);
+                    const float xPos = (relativeTimes[index] + float(pre_ms)) / float(pre_ms + post_ms) * histogramWidth;
+                    const int sortedId = relativeTimeSortedIds[index];
+                    
+                    if (sortedId == 0)
+                        g.setColour(Colours::white.withAlpha(0.8f));
+                    else
+                        g.setColour(colours[(sortedId - 1) % colours.size()]);
+                    
+                    g.fillEllipse(xPos, yPos, 2, 2);
+                }
+            }
+        }
+    }
+    
     
     float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
     
@@ -278,8 +334,8 @@ void Histogram::mouseMove(const MouseEvent &event)
         
         float firing_rate;
         
-        if (numEvents > 0)
-            firing_rate = float(counts[0][hoverBin] / numEvents) / (float(bin_size_ms) / 1000.0f) ;
+        if (numTrials > 0)
+            firing_rate = float(counts[0][hoverBin] / numTrials) / (float(bin_size_ms) / 1000.0f) ;
         else
             firing_rate = 0;
         

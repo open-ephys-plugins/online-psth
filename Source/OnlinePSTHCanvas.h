@@ -37,7 +37,8 @@
 */
 class OnlinePSTHCanvas :
     public Visualizer,
-    public Button::Listener
+    public Button::Listener,
+    public ComboBox::Listener
 {
 public:
     
@@ -49,7 +50,10 @@ public:
     ~OnlinePSTHCanvas() { }
     
     /** Respond to button clicks */
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
+    
+    /** Respond to button clicks */
+    void comboBoxChanged(ComboBox* comboBox) override;
     
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
@@ -86,6 +90,12 @@ public:
     
     /** Prepare for update*/
     void prepareToUpdate();
+    
+    /** Save plot type*/
+    void saveCustomParametersToXml(XmlElement* xml) override;
+    
+    /** Load plot type*/
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
 private:
     
@@ -93,6 +103,8 @@ private:
     int post_ms;
     
     ScopedPointer<UtilityButton> clearButton;
+    ScopedPointer<ComboBox> plotTypeSelector;
+    
     ScopedPointer<Viewport> viewport;
     
     ScopedPointer<Timescale> scale;

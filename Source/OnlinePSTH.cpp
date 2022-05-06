@@ -31,7 +31,7 @@
 
 OnlinePSTH::OnlinePSTH()
     : GenericProcessor("Online PSTH"),
-      canvas(nullptr), triggerLine(0)
+      canvas(nullptr)
 {
 
     addIntParameter(Parameter::GLOBAL_SCOPE,
@@ -82,10 +82,6 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
         if (canvas != nullptr)
             canvas->setBinSizeMs((int) param->getValue());
     }
-    else if (param->getName().equalsIgnoreCase("trigger"))
-    {
-        triggerLine = ((int) param->getValue()) - 1;
-    }
 
 }
 
@@ -113,7 +109,8 @@ void OnlinePSTH::process(AudioBuffer<float>& buffer)
 
 void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {
-    if (event->getLine() == triggerLine && event->getState())
+    
+    if (event->getLine() == (int(getParameter("trigger")->getValue())-1) && event->getState())
     {
         if (canvas != nullptr)
             canvas->pushEvent(event->getStreamId(), event->getSampleNumber());

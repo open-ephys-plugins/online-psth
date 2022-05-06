@@ -63,6 +63,7 @@ void OnlinePSTHDisplay::resized()
 void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel)
 {
     Histogram* h = new Histogram(channel);
+    h->setPlotType(plotType);
     
     histograms.add(h);
     histogramMap[channel] = h;
@@ -91,6 +92,19 @@ void OnlinePSTHDisplay::setBinSizeMs(int bin_size)
     for (auto hist : histograms)
     {
         hist->setBinSizeMs(bin_size);
+    }
+}
+
+
+
+void OnlinePSTHDisplay::setPlotType(int plotType_)
+{
+    
+    plotType = plotType_;
+    
+    for (auto hist : histograms)
+    {
+        hist->setPlotType(plotType);
     }
 }
 

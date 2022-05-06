@@ -60,6 +60,9 @@ public:
     /** Sets the bin size*/
     void setBinSizeMs(int bin_size);
     
+    /** Sets the bin size*/
+    void setPlotType(int plotType);
+    
     /** Add an event to the queue */
     void pushEvent(uint16 streamId, int64 sample_number);
     
@@ -89,6 +92,7 @@ private:
     const int borderSize = 20;
     
     int post_ms;
+    int plotType = 1;
 };
 
 
