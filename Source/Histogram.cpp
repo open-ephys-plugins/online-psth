@@ -103,6 +103,7 @@ void Histogram::addSpike(int64 sample_number, int sortedId)
         sortedIdIndex = uniqueSortedIds.size();
         uniqueSortedIds.add(sortedId);
         counts.add(Array<int>());
+        maxSortedId = jmax(sortedId, maxSortedId);
     }
 }
 
@@ -257,15 +258,23 @@ void Histogram::paint(Graphics& g)
     
     if (plotHistogram)
     {
-        for (int sortedIdIndex = 0; sortedIdIndex < uniqueSortedIds.size(); sortedIdIndex++)
+        for (int sortedId = 0; sortedId < maxSortedId + 1; sortedId++)
         {
             
             Colour plotColour;
             
-            if (uniqueSortedIds[sortedIdIndex] == 0)
+            if (sortedId == 0)
                 plotColour = Colours::greenyellow;
             else
-                plotColour = colours[(uniqueSortedIds[sortedIdIndex] - 1) % colours.size()];
+                plotColour = colours[(sortedId - 1) % colours.size()];
+            
+            if (plotRaster)
+                plotColour = plotColour.withBrightness(0.35f);
+            
+            const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
+            
+            if (sortedIdIndex < 0)
+                continue;
             
             for (int i = 0; i < nBins; i++)
             {
