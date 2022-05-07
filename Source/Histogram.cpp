@@ -65,7 +65,6 @@ Histogram::Histogram(const SpikeChannel* channel)
     colours.add(Colour(175, 98, 255));
     colours.add(Colour(90, 241, 233));
     colours.add(Colour(109, 175, 136));
-    colours.add(Colour(255, 224, 93));
     colours.add(Colour(160, 237, 181));
     
 }
@@ -269,7 +268,7 @@ void Histogram::paint(Graphics& g)
                 plotColour = colours[(sortedId - 1) % colours.size()];
             
             if (plotRaster)
-                plotColour = plotColour.withBrightness(0.35f);
+                plotColour = plotColour.withBrightness(0.45f);
             
             const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
             
