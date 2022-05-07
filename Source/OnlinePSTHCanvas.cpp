@@ -25,6 +25,9 @@
 OnlinePSTHCanvas::OnlinePSTHCanvas()
 {
     
+    scale = new Timescale();
+    addAndMakeVisible(scale);
+    
     clearButton = new UtilityButton("CLEAR", Font("Default", 12, Font::plain));
     clearButton->addListener(this);
     clearButton->setRadius(3.0f);
@@ -46,9 +49,6 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     viewport->setViewedComponent(display, false);
     addAndMakeVisible(viewport);
     display->setBounds(0, 50, 500, 100);
-
-    scale = new Timescale();
-    addAndMakeVisible(scale);
 
 }
 
