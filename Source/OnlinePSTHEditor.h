@@ -26,6 +26,10 @@
 
 #include <VisualizerEditorHeaders.h>
 
+#include "OnlinePSTH.h"
+
+class PopupConfigurationWindow;
+
 class OnlinePSTHCanvas;
 
 /**
@@ -34,7 +38,8 @@ User interface for OnlinePSTH
 
 @see OnlinePSTH, OnlinePSTHCanvas
  */
-class OnlinePSTHEditor : public VisualizerEditor
+class OnlinePSTHEditor : public VisualizerEditor,
+                         public Button::Listener
 {
 public:
     
@@ -49,10 +54,23 @@ public:
 
     /** Called when signal chain is updated */
     void updateSettings() override;
+
+    /** Called when configure button is clicked */
+    void buttonClicked(Button* button) override;
+
+    /** Adds triggers with a given type */
+	void addTriggerSources(PopupConfigurationWindow* window, Array<int> lines, TriggerType type);
+
+    /** Removes triggers based on an array of pointers to trigger objects*/
+    void removeTriggerSources(PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove);
     
 private:
+
+    std::unique_ptr<UtilityButton> configureButton;
     
     OnlinePSTHCanvas* canvas;
+
+    PopupConfigurationWindow* currentConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHEditor);
 

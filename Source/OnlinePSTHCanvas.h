@@ -29,6 +29,7 @@
 #include "OnlinePSTHDisplay.h"
 #include "Timescale.h"
 
+class TriggerSource;
 
 /**
 
@@ -80,13 +81,19 @@ public:
     void setBinSizeMs(int bin_size);
     
     /** Add an event to the queue */
-    void pushEvent(uint16 streamId, int64 sample_number);
+    void pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number);
     
     /** Add a spike to the queue */
     void pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId);
     
     /** Adds a spike channel */
-    void addSpikeChannel(const SpikeChannel* channel);
+    void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
+
+    /** Add trigger source*/
+    void addTriggerSource(TriggerSource* source);
+
+    /** Add trigger source*/
+    void removeTriggerSources(Array<TriggerSource*> sources);
     
     /** Prepare for update*/
     void prepareToUpdate();

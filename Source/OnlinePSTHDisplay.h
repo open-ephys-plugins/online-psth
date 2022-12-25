@@ -30,6 +30,8 @@
 
 #include <vector>
 
+class TriggerSource;
+
 /*
     
     Component that holds the histogram displays
@@ -64,13 +66,13 @@ public:
     void setPlotType(int plotType);
     
     /** Add an event to the queue */
-    void pushEvent(uint16 streamId, int64 sample_number);
+    void pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number);
     
     /** Add a spike to the queue */
     void pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId);
     
-    /** Adds a spike channel */
-    void addSpikeChannel(const SpikeChannel* channel);
+    /** Adds a spike channel for a given trigger source */
+    void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
     
     /** Prepare for update*/
     void prepareToUpdate();
@@ -80,12 +82,19 @@ public:
     
     /** Clears the histograms */
     void clear();
+
+    /** Add trigger source*/
+    void addTriggerSource(TriggerSource* source);
+
+    /** Add trigger source*/
+    void removeTriggerSources(Array<TriggerSource*> sources);
     
 private:
     
     OwnedArray<Histogram> histograms;
     
-    std::map<const SpikeChannel*, Histogram*> histogramMap;
+	std::map<const TriggerSource*, Array<Histogram*>> triggerSourceMap;
+    std::map<const SpikeChannel*, Array<Histogram*>> spikeChannelMap;
     
     int totalHeight = 0;
     const int histogramHeight = 100;

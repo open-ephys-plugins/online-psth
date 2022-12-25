@@ -28,6 +28,8 @@
 
 #include <vector>
 
+class TriggerSource;
+
 /**
  
     Displays the actual PSTH
@@ -40,7 +42,7 @@ class Histogram :
 public:
     
     /** Constructor */
-    Histogram(const SpikeChannel* channel);
+    Histogram(const SpikeChannel* channel, const TriggerSource* triggerSource);
     
     /** Destructor */
     ~Histogram() { }
@@ -117,6 +119,8 @@ private:
     Array<Colour> colours;
     
     Array<Array<int>> counts;
+
+    const TriggerSource* source;
     
     int pre_ms;
     int post_ms;

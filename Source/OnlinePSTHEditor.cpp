@@ -26,16 +26,26 @@
 #include "OnlinePSTHCanvas.h"
 #include "OnlinePSTH.h"
 
+#include "PopupConfigurationWindow.h"
+
 #include <stdio.h>
 
 OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, "PSTH", 225), canvas(nullptr)
+    : VisualizerEditor(parentNode, "PSTH", 225), 
+      canvas(nullptr),
+      currentConfigWindow(nullptr)
 
 {
     addTextBoxParameterEditor("pre_ms", 20, 30);
     addTextBoxParameterEditor("post_ms", 20, 75);
     addTextBoxParameterEditor("bin_size", 125, 30);
-    addComboBoxParameterEditor("trigger", 125, 75);
+    //addComboBoxParameterEditor("trigger", 125, 75);
+
+    configureButton = std::make_unique<UtilityButton>("configure", titleFont);
+    configureButton->addListener(this);
+    configureButton->setRadius(3.0f);
+    configureButton->setBounds(125, 85, 80, 30);
+    addAndMakeVisible(configureButton.get());
 }
 
 Visualizer* OnlinePSTHEditor::createNewCanvas()
@@ -60,20 +70,87 @@ void OnlinePSTHEditor::updateSettings()
     canvas->prepareToUpdate();
     
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
+
     
     for (int i = 0; i < processor->getTotalSpikeChannels(); i++)
     {
         const SpikeChannel* channel = processor->getSpikeChannel(i);
-        
+            
+        for (auto source : processor->getTriggerSources())
+        {
+            
+
         if (channel->isValid())
-            canvas->addSpikeChannel(channel);
+            canvas->addSpikeChannel(channel, source);
+        }
     }
-    
+
     canvas->setWindowSizeMs(processor->getPreWindowSizeMs(),
                             processor->getPostWindowSizeMs());
     
     canvas->setBinSizeMs(processor->getBinSizeMs());
     
     canvas->resized();
+    
+}
+
+
+void OnlinePSTHEditor::buttonClicked(Button* button)
+{
+
+    if (button == configureButton.get())
+    {
+
+        OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
+
+        Array<TriggerSource*> triggerLines = processor->getTriggerSources();
+        std::cout << triggerLines.size() << " trigger sources found." << std::endl;
+
+        currentConfigWindow = new PopupConfigurationWindow(this,
+            triggerLines,
+            acquisitionIsActive);
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow),
+                button->getScreenBounds(),
+                nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+
+        return;
+    }
+
+}
+
+
+void OnlinePSTHEditor::addTriggerSources(PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
+{
+	OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+	
+	for (int i = 0; i < lines.size(); i++)
+	{
+		TriggerSource* source = processor->addTriggerSource(lines[i], type);
+        
+        if (canvas != nullptr)
+            canvas->addTriggerSource(source);
+	}
+
+    if (window != nullptr)
+        window->update(processor->getTriggerSources());
+}
+
+
+void OnlinePSTHEditor::removeTriggerSources(PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove)
+{
+    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+
+    processor->removeTriggerSources(triggerSourcesToRemove);
+
+    if (canvas != nullptr)
+        canvas->removeTriggerSources(triggerSourcesToRemove);
+
+    if (window != nullptr)
+        window->update(processor->getTriggerSources());
+
     
 }

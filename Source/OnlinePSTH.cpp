@@ -101,6 +101,84 @@ int OnlinePSTH::getBinSizeMs()
     return (int) getParameter("bin_size")->getValue();
 }
 
+Array<TriggerSource*> OnlinePSTH::getTriggerSources()
+{
+    Array<TriggerSource*> sources;
+
+    for (auto source : triggerSources)
+    {
+        sources.add(source);
+    }
+
+    return sources;
+}
+
+TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type)
+{
+	String name = "Condition " + String(nextConditionIndex++);
+    
+	TriggerSource* source = new TriggerSource(this, name, line, type);
+	triggerSources.add(source);
+	return source;
+}
+
+void OnlinePSTH::removeTriggerSources(Array<TriggerSource*> sources)
+{
+	for (auto source : sources)
+	{
+		triggerSources.removeObject(source);
+	}
+}
+
+
+String OnlinePSTH::ensureUniqueName(String name)
+{
+
+    // std::cout << "Candidate name: " << name << std::endl;
+
+    bool matchingName = true;
+
+    int append = 0;
+
+    String nameToCheck = name;
+
+    while (matchingName)
+    {
+        if (append > 0)
+            nameToCheck = name + " (" + String(append) + ")";
+
+        matchingName = false;
+
+        for (auto source : triggerSources)
+        {
+            if (source->name.equalsIgnoreCase(nameToCheck))
+            {
+                matchingName = true;
+                append += 1;
+                break;
+            }
+        }
+    }
+
+    // std::cout << "New name: " << nameToCheck;
+
+    return nameToCheck;
+}
+
+void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name)
+{
+    source->name = name;
+}
+
+void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
+{
+    source->line = line;
+}
+
+void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
+{
+    source->type = type;
+}
 
 void OnlinePSTH::process(AudioBuffer<float>& buffer)
 {
@@ -110,11 +188,15 @@ void OnlinePSTH::process(AudioBuffer<float>& buffer)
 void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {
     
-    if (event->getLine() == (int(getParameter("trigger")->getValue())-1) && event->getState())
+    for (auto source : triggerSources)
     {
-        if (canvas != nullptr)
-            canvas->pushEvent(event->getStreamId(), event->getSampleNumber());
+        if (event->getLine() == source->line - 1 && event->getState())
+        {
+            if (canvas != nullptr)
+                canvas->pushEvent(source, event->getStreamId(), event->getSampleNumber());
+        }
     }
+    
 }
 
 void OnlinePSTH::handleSpike(SpikePtr spike)

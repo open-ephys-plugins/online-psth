@@ -22,8 +22,10 @@
 
 #include "Histogram.h"
 
-Histogram::Histogram(const SpikeChannel* channel)
-    : sample_rate(channel->getSampleRate()),
+#include "OnlinePSTH.h"
+
+Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
+    : sample_rate(channel->getSampleRate()), source(source_),
       streamId(channel->getStreamId()),
       waitingForWindowToClose(false),
       latestEventSampleNumber(0)
@@ -35,7 +37,7 @@ Histogram::Histogram(const SpikeChannel* channel)
     
     infoLabel = new Label("info label");
     infoLabel->setJustificationType(Justification::topLeft);
-    infoLabel->setText(channel->getName() + "\n" + channel->getStreamName(), dontSendNotification);
+    infoLabel->setText(channel->getName() + "\n" + source->name, dontSendNotification);
     infoLabel->setColour(Label::textColourId, Colours::white);
     addAndMakeVisible(infoLabel);
     

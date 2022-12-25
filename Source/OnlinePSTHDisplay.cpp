@@ -21,7 +21,7 @@
 */
 
 #include "OnlinePSTHDisplay.h"
-
+#include "OnlinePSTH.h"
 
 OnlinePSTHDisplay::OnlinePSTHDisplay()
 {
@@ -41,7 +41,8 @@ void OnlinePSTHDisplay::refresh()
 void OnlinePSTHDisplay::prepareToUpdate()
 {
     histograms.clear();
-    histogramMap.clear();
+    triggerSourceMap.clear();
+    spikeChannelMap.clear();
     setBounds(0, 0, getWidth(), 0);
 }
 
@@ -60,17 +61,18 @@ void OnlinePSTHDisplay::resized()
 }
 
 
-void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel)
+void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source)
 {
-    Histogram* h = new Histogram(channel);
+    Histogram* h = new Histogram(channel, source);
     h->setPlotType(plotType);
     
     histograms.add(h);
-    histogramMap[channel] = h;
+    triggerSourceMap[source].add(h);
+    spikeChannelMap[channel].add(h);
     
     totalHeight += histogramHeight + borderSize;
     
-    //std::cout << "Adding histogram for " << channel->getName() << std::endl;
+    std::cout << "Adding histogram for " << channel->getName() << " and " << source->name << std::endl;
 
     addAndMakeVisible(h);
 }
@@ -108,10 +110,10 @@ void OnlinePSTHDisplay::setPlotType(int plotType_)
     }
 }
 
-void OnlinePSTHDisplay::pushEvent(uint16 streamId, int64 sample_number)
+void OnlinePSTHDisplay::pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number)
 {
     
-    for (auto hist : histograms)
+    for (auto hist : triggerSourceMap[source])
     {
         if (hist->streamId == streamId)
             hist->addEvent(sample_number);
@@ -121,7 +123,11 @@ void OnlinePSTHDisplay::pushEvent(uint16 streamId, int64 sample_number)
 
 void OnlinePSTHDisplay::pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId)
 {
-    histogramMap[channel]->addSpike(sample_number, sortedId);
+
+    for (auto hist : spikeChannelMap[channel])
+    {
+        hist->addSpike(sample_number, sortedId);
+    }
 }
 
 
@@ -138,3 +144,12 @@ void OnlinePSTHDisplay::clear()
     }
 }
 
+void OnlinePSTHDisplay::addTriggerSource(TriggerSource* source)
+{
+    
+}
+
+void OnlinePSTHDisplay::removeTriggerSources(Array<TriggerSource*> sources)
+{
+    
+}

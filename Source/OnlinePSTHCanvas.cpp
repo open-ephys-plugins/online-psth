@@ -21,6 +21,7 @@
 */
 
 #include "OnlinePSTHCanvas.h"
+#include "OnlinePSTH.h"
 
 OnlinePSTHCanvas::OnlinePSTHCanvas()
 {
@@ -107,9 +108,9 @@ void OnlinePSTHCanvas::setBinSizeMs(int bin_size)
     display->setBinSizeMs(bin_size);
 }
 
-void OnlinePSTHCanvas::pushEvent(uint16 streamId, int64 sample_number)
+void OnlinePSTHCanvas::pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number)
 {
-    display->pushEvent(streamId, sample_number);
+    display->pushEvent(source, streamId, sample_number);
 }
 
 
@@ -118,9 +119,9 @@ void OnlinePSTHCanvas::pushSpike(const SpikeChannel* channel, int64 sample_numbe
     display->pushSpike(channel, sample_number, sortedId);
 }
 
-void OnlinePSTHCanvas::addSpikeChannel(const SpikeChannel* channel)
+void OnlinePSTHCanvas::addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source)
 {
-    display->addSpikeChannel(channel);
+    display->addSpikeChannel(channel, source);
 }
 
 void OnlinePSTHCanvas::prepareToUpdate()
@@ -142,6 +143,16 @@ void OnlinePSTHCanvas::comboBoxChanged(ComboBox* comboBox)
     {
         display->setPlotType(comboBox->getSelectedId());
     }
+}
+
+void OnlinePSTHCanvas::addTriggerSource(TriggerSource* source)
+{
+    display->addTriggerSource(source);
+}
+
+void OnlinePSTHCanvas::removeTriggerSources(Array<TriggerSource*> sources)
+{
+    display->removeTriggerSources(sources);
 }
 
 

@@ -29,6 +29,30 @@
 #include <vector>
 #include <map>
 
+class OnlinePSTH;
+
+enum TriggerType
+{
+	TTL_TRIGGER = 1,
+	MSG_TRIGGER = 2,
+	TTL_AND_MSG_TRIGGER = 3
+};
+
+/** 
+	Represents one trigger source
+*/
+class TriggerSource
+{
+public:
+    TriggerSource(OnlinePSTH* processor_, String name_, int line_, TriggerType type_) :
+		processor(processor_), name(name_), line(line_), type(type_) {}
+    
+	String name;
+	int line;
+	TriggerType type;
+    OnlinePSTH* processor;
+};
+
 class OnlinePSTHCanvas;
 
 /**
@@ -69,6 +93,27 @@ public:
     /** Pointer to the display canvas */
     OnlinePSTHCanvas* canvas;
 
+    /** Returns an array of current trigger sources */
+	Array<TriggerSource*> getTriggerSources();
+
+    /** Adds a new trigger source */
+    TriggerSource* addTriggerSource(int line, TriggerType type);
+
+    /** Removes trigger sources */
+	void removeTriggerSources(Array<TriggerSource*> sources);
+
+    /** Checks whether the source name is unique*/
+    String ensureUniqueName(String name);
+
+    /** Sets trigger source name*/
+    void setTriggerSourceName(TriggerSource* source, String name);
+
+    /** Sets trigger source line */
+    void setTriggerSourceLine(TriggerSource* source, int line);
+    
+    /** Sets trigger source type */
+    void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type);
+    
 private:
     
     /** Pushes incoming events to the canvas */
@@ -76,6 +121,10 @@ private:
 
     /** Pushes incoming spikes to the canvas */
     void handleSpike(SpikePtr spike) override;
+
+    OwnedArray<TriggerSource> triggerSources;
+
+    int nextConditionIndex = 1;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTH);
 
