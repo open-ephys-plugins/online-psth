@@ -131,12 +131,12 @@ void OnlinePSTHEditor::addTriggerSources(PopupConfigurationWindow* window, Array
 	{
 		TriggerSource* source = processor->addTriggerSource(lines[i], type);
         
-        if (canvas != nullptr)
-            canvas->addTriggerSource(source);
 	}
 
     if (window != nullptr)
         window->update(processor->getTriggerSources());
+
+    updateSettings();
 }
 
 
@@ -146,11 +146,8 @@ void OnlinePSTHEditor::removeTriggerSources(PopupConfigurationWindow* window, Ar
 
     processor->removeTriggerSources(triggerSourcesToRemove);
 
-    if (canvas != nullptr)
-        canvas->removeTriggerSources(triggerSourcesToRemove);
-
     if (window != nullptr)
         window->update(processor->getTriggerSources());
 
-    
+    updateSettings();
 }

@@ -147,16 +147,6 @@ void OnlinePSTHCanvas::comboBoxChanged(ComboBox* comboBox)
     }
 }
 
-void OnlinePSTHCanvas::addTriggerSource(TriggerSource* source)
-{
-    display->addTriggerSource(source);
-}
-
-void OnlinePSTHCanvas::removeTriggerSources(Array<TriggerSource*> sources)
-{
-    display->removeTriggerSources(sources);
-}
-
 
 void OnlinePSTHCanvas::saveCustomParametersToXml(XmlElement* xml)
 {

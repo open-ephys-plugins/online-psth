@@ -65,9 +65,10 @@ public:
     void setRowAndColumn(const int newRow, const int newColumn);
     
     int row;
+    TriggerSource* source;
 
 private:
-    TriggerSource* source;
+    
     OnlinePSTH* processor;
     bool acquisitionIsActive;
     int columnId;
@@ -114,9 +115,10 @@ public:
     void setRowAndColumn(const int newRow, const int newColumn);
     
     int row;
+    TriggerSource* source;
 
 private:
-    TriggerSource* source;
+    
     int columnId;
     juce::Colour textColour;
     bool acquisitionIsActive;
@@ -135,6 +137,7 @@ public:
     TriggerTypeSelectorCustomComponent(TriggerSource* source_, bool acquisitionIsActive_)
         : acquisitionIsActive(acquisitionIsActive_), source(source_)
     {
+		assert(source != nullptr);
     }
 
     /** Handles mouse clicks */
@@ -150,9 +153,10 @@ public:
     void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
 
     int row;
+    TriggerSource* source;
 
 private:
-    TriggerSource* source;
+    
     OnlinePSTHTableModel* table;
     int columnId;
     juce::Colour textColour;
@@ -240,8 +244,6 @@ public:
     Array<TriggerSource*> triggerSources;
     TableListBox* table;
 private:
-
-    OwnedArray<TriggerTypeSelectorCustomComponent> triggerTypeComponents;
 
     OnlinePSTHEditor* editor;
     

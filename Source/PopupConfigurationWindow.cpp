@@ -42,7 +42,9 @@ void EditableTextCustomComponent::setRowAndColumn(const int newRow, const int ne
 {
     row = newRow;
     columnId = newColumn;
-    setText(source->name, dontSendNotification);
+
+    if (source != nullptr)
+        setText(source->name, dontSendNotification);
     
 }
 
@@ -60,7 +62,7 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
 
 void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive)
+    if (acquisitionIsActive || source == nullptr)
         return;
 
     std::vector<bool> channelStates;
@@ -75,7 +77,7 @@ void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
     
-    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    channelSelector->setChannelButtonColour(Colour(197, 62, 199));
     channelSelector->setMaximumSelectableChannels(1);
 
      CallOutBox& myBox
@@ -86,6 +88,9 @@ void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     
 void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
+
+    if (source == nullptr)
+        return;
     
     if (source->line > -1)
     {
@@ -102,7 +107,7 @@ void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int ne
 
 void TriggerTypeSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive)
+    if (acquisitionIsActive || source == nullptr)
         return;
 
     TriggerType newType;
@@ -130,6 +135,9 @@ void TriggerTypeSelectorCustomComponent::mouseDown(const juce::MouseEvent& event
     
 void TriggerTypeSelectorCustomComponent::paint(Graphics& g)
 {
+
+    if (source == nullptr)
+        return;
 
     int width = getWidth();
 	int height = getHeight();
@@ -330,25 +338,47 @@ void OnlinePSTHTableModel::update(Array<TriggerSource*> triggerSources_)
 {
     triggerSources = triggerSources_;
 
-    table->updateContent();
-
-    /*triggerTypeComponents.clear();
+	std::cout << "UPDATING, num rows = " << getNumRows() << std::endl;
     
     for (int i = 0; i < getNumRows(); i++)
     {
 
-        Component* c = table->getCellComponent(OnlinePSTHTableMode::Columns::THRESHOLD, i);
+        Component* c = table->getCellComponent(OnlinePSTHTableModel::Columns::NAME, i);
 
         if (c == nullptr)
             continue;
 
-        ThresholdSelectorCustomComponent* th = (ThresholdSelectorCustomComponent*)c;
+        EditableTextCustomComponent* etcc = (EditableTextCustomComponent*)c;
 
-        th->setSpikeChannel(trikg[i]);
+        etcc->source = triggerSources[i];
 
-        th->repaint();
+        etcc->repaint();
 
-    }*/
+        c = table->getCellComponent(OnlinePSTHTableModel::Columns::LINE, i);
+
+        if (c == nullptr)
+            continue;
+
+        LineSelectorCustomComponent* lscc = (LineSelectorCustomComponent*)c;
+
+        lscc->source = triggerSources[i];
+
+        lscc->repaint();
+
+        c = table->getCellComponent(OnlinePSTHTableModel::Columns::TYPE, i);
+
+        if (c == nullptr)
+            continue;
+
+        TriggerTypeSelectorCustomComponent* tts = (TriggerTypeSelectorCustomComponent*)c;
+
+        tts->source = triggerSources[i];
+
+        tts->repaint();
+
+    }
+
+    table->updateContent();
 
    
 }

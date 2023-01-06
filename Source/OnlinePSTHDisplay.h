@@ -83,12 +83,6 @@ public:
     /** Clears the histograms */
     void clear();
 
-    /** Add trigger source*/
-    void addTriggerSource(TriggerSource* source);
-
-    /** Add trigger source*/
-    void removeTriggerSources(Array<TriggerSource*> sources);
-    
 private:
     
     OwnedArray<Histogram> histograms;

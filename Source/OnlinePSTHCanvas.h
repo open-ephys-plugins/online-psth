@@ -89,12 +89,6 @@ public:
     /** Adds a spike channel */
     void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
 
-    /** Add trigger source*/
-    void addTriggerSource(TriggerSource* source);
-
-    /** Add trigger source*/
-    void removeTriggerSources(Array<TriggerSource*> sources);
-    
     /** Prepare for update*/
     void prepareToUpdate();
     

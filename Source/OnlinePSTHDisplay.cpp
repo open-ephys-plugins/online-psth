@@ -143,13 +143,3 @@ void OnlinePSTHDisplay::clear()
         hist->clear();
     }
 }
-
-void OnlinePSTHDisplay::addTriggerSource(TriggerSource* source)
-{
-    
-}
-
-void OnlinePSTHDisplay::removeTriggerSources(Array<TriggerSource*> sources)
-{
-    
-}
