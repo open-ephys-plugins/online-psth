@@ -168,11 +168,17 @@ String OnlinePSTH::ensureUniqueName(String name)
 void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name)
 {
     source->name = name;
+
+    getEditor()->updateSettings();
 }
 
 void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
 {
     source->line = line;
+
+    source->colour = TriggerSource::getColourForLine(source->line);
+
+    getEditor()->updateSettings();
 }
 
 void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
@@ -183,6 +189,7 @@ void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType 
         source->canTrigger = true;
     else
 		source->canTrigger = false;
+
 }
 
 void OnlinePSTH::process(AudioBuffer<float>& buffer)

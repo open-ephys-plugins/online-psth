@@ -163,6 +163,42 @@ private:
     bool acquisitionIsActive;
 };
 
+/**
+*   Table component used to display colour of each condition
+*/
+class ColourDisplayCustomComponent : public Component
+{
+public:
+
+    /** Constructor */
+    ColourDisplayCustomComponent(TriggerSource* source_, bool acquisitionIsActive_)
+        : acquisitionIsActive(acquisitionIsActive_), source(source_)
+    {
+        assert(source != nullptr);
+    }
+
+    /** Handles mouse clicks */
+    void mouseDown(const juce::MouseEvent& event) override;
+
+    /** Renders the color icon */
+    void paint(Graphics& g) override;
+
+    /** Sets row and column */
+    void setRowAndColumn(const int newRow, const int newColumn);
+
+    /** Sets a pointer to the OnlinePSTHTableModel object */
+    void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
+
+    int row;
+    TriggerSource* source;
+
+private:
+
+    OnlinePSTHTableModel* table;
+    int columnId;
+    bool acquisitionIsActive;
+};
+
 
 /**
 *   Table component used to delete electrodes
@@ -216,6 +252,7 @@ public:
         NAME,
         LINE,
         TYPE,
+        COLOUR,
         DELETE
     };
 

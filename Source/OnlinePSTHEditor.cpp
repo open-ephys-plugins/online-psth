@@ -39,7 +39,6 @@ OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
     addTextBoxParameterEditor("pre_ms", 20, 30);
     addTextBoxParameterEditor("post_ms", 20, 75);
     addTextBoxParameterEditor("bin_size", 125, 30);
-    //addComboBoxParameterEditor("trigger", 125, 75);
 
     configureButton = std::make_unique<UtilityButton>("configure", titleFont);
     configureButton->addListener(this);

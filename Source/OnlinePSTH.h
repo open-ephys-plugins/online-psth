@@ -38,6 +38,8 @@ enum TriggerType
 	TTL_AND_MSG_TRIGGER = 3
 };
 
+
+
 /** 
 	Represents one trigger source
 */
@@ -51,14 +53,34 @@ public:
             canTrigger = true;
         else
             canTrigger = false;
+
+        colour = getColourForLine(line);
     
     }
-    
+
+    static Colour getColourForLine(int line) 
+    {
+        Array<Colour> eventColours = {
+        Colour(224, 185, 36),
+        Colour(243, 119, 33),
+        Colour(237, 37, 36),
+        Colour(217, 46, 171),
+        Colour(101, 31, 255),
+        Colour(48, 117, 255),
+        Colour(116, 227, 156),
+        Colour(82, 173, 0)
+        };
+
+        return eventColours[line % 8];
+    }
+
+
 	String name;
 	int line;
 	TriggerType type;
     OnlinePSTH* processor;
     bool canTrigger;
+    Colour colour;
 };
 
 class OnlinePSTHCanvas;

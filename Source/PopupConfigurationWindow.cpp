@@ -34,7 +34,6 @@
 
 void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
 {
-    //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
     Label::mouseDown(event);
 }
 
@@ -176,6 +175,38 @@ void TriggerTypeSelectorCustomComponent::setRowAndColumn(const int newRow, const
 
 
 
+
+void ColourDisplayCustomComponent::mouseDown(const juce::MouseEvent& event)
+{
+    if (acquisitionIsActive || source == nullptr)
+        return;
+}
+
+
+void ColourDisplayCustomComponent::paint(Graphics& g)
+{
+
+    if (source == nullptr)
+        return;
+
+    int width = getWidth();
+    int height = getHeight();
+
+    g.setColour(source->colour);
+    g.fillRect(6, 6, width - 12, height - 12);
+    g.setColour(Colours::black);
+    g.drawRect(6, 6, width - 12, height - 12, 1);
+
+}
+
+void ColourDisplayCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
+{
+    row = newRow;
+    repaint();
+}
+
+
+
 void DeleteButtonCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
     if (acquisitionIsActive)
@@ -308,6 +339,23 @@ Component* OnlinePSTHTableModel::refreshComponentForCell(int rowNumber,
         return selectorButton;
 
     }
+    else if (columnId == OnlinePSTHTableModel::Columns::COLOUR)
+    {
+        auto* colourComponent = static_cast<ColourDisplayCustomComponent*> (existingComponentToUpdate);
+
+        if (colourComponent == nullptr)
+        {
+            colourComponent = new ColourDisplayCustomComponent(triggerSources[rowNumber],
+                acquisitionIsActive);
+        }
+
+        colourComponent->setRowAndColumn(rowNumber, columnId);
+        colourComponent->setTableModel(this);
+
+        return colourComponent;
+
+    }
+    
     else if (columnId == OnlinePSTHTableModel::Columns::DELETE)
     {
         auto* deleteButton = static_cast<DeleteButtonCustomComponent*> (existingComponentToUpdate);
@@ -375,6 +423,17 @@ void OnlinePSTHTableModel::update(Array<TriggerSource*> triggerSources_)
         tts->source = triggerSources[i];
 
         tts->repaint();
+
+        c = table->getCellComponent(OnlinePSTHTableModel::Columns::COLOUR, i);
+
+        if (c == nullptr)
+            continue;
+
+        ColourDisplayCustomComponent* cdcc = (ColourDisplayCustomComponent*)c;
+
+        cdcc->source = triggerSources[i];
+
+        cdcc->repaint();
 
     }
 
@@ -606,6 +665,7 @@ PopupConfigurationWindow::PopupConfigurationWindow(OnlinePSTHEditor* editor_,
     table->getHeader().addColumn("Name", OnlinePSTHTableModel::Columns::NAME, 180, 180, 180, TableHeaderComponent::notResizableOrSortable);
     table->getHeader().addColumn("TTL Line", OnlinePSTHTableModel::Columns::LINE, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
     table->getHeader().addColumn("Type", OnlinePSTHTableModel::Columns::TYPE, 90, 90, 90, TableHeaderComponent::notResizableOrSortable);
+    table->getHeader().addColumn(" ", OnlinePSTHTableModel::Columns::COLOUR, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
     table->getHeader().addColumn(" ", OnlinePSTHTableModel::Columns::DELETE, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
 
     table->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
@@ -664,9 +724,9 @@ void PopupConfigurationWindow::update(Array<TriggerSource*> triggerSources)
             viewport->getVerticalScrollBar().setVisible(false);
         }
           
-        setSize(450 + scrollBarWidth, (numRowsVisible + 1) * 30 + 10 + 40);
-        viewport->setBounds(5, 5, 430 + scrollBarWidth, (numRowsVisible + 1) * 30);
-        table->setBounds(0, 0, 430 + scrollBarWidth, (triggerSources.size() + 1) * 30);
+        setSize(480 + scrollBarWidth, (numRowsVisible + 1) * 30 + 10 + 40);
+        viewport->setBounds(5, 5, 460 + scrollBarWidth, (numRowsVisible + 1) * 30);
+        table->setBounds(0, 0, 460 + scrollBarWidth, (triggerSources.size() + 1) * 30);
         
         viewport->setViewPosition(0, scrollDistance);
         
@@ -680,8 +740,8 @@ void PopupConfigurationWindow::update(Array<TriggerSource*> triggerSources)
     else {
         tableModel->update(triggerSources);
         table->setVisible(false);
-        setSize(450, 45);
-        triggerSourceGenerator->setBounds(10, 8, 430, 30);
+        setSize(480, 45);
+        triggerSourceGenerator->setBounds(10, 8, 460, 30);
     }
     
 }

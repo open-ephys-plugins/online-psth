@@ -96,6 +96,7 @@ private:
     
     ScopedPointer<Label> infoLabel;
     ScopedPointer<Label> channelLabel;
+    ScopedPointer<Label> conditionLabel;
     ScopedPointer<Label> hoverLabel;
     
     Array<int64> newSpikeSampleNumbers;
@@ -118,6 +119,7 @@ private:
     Array<int> relativeTimeTrialIndices;
     Array<int> relativeTimeSortedIds;
     Array<Colour> colours;
+    Colour baseColour;
     
     Array<Array<int>> counts;
 

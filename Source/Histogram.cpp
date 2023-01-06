@@ -25,7 +25,7 @@
 #include "OnlinePSTH.h"
 
 Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
-    : sample_rate(channel->getSampleRate()), source(source_),
+    : sample_rate(channel->getSampleRate()), source(source_), baseColour(source_->colour),
       streamId(channel->getStreamId()),
       waitingForWindowToClose(false),
       latestEventSampleNumber(0)
@@ -37,22 +37,29 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
     
     infoLabel = new Label("info label");
     infoLabel->setJustificationType(Justification::topLeft);
-    infoLabel->setText(channel->getName() + "\n" + source->name, dontSendNotification);
+    infoLabel->setText(channel->getName(), dontSendNotification);
     infoLabel->setColour(Label::textColourId, Colours::white);
     addAndMakeVisible(infoLabel);
-    
+
     channelLabel = new Label("channel label");
     channelLabel->setFont(14);
     channelLabel->setJustificationType(Justification::topLeft);
     channelLabel->setColour(Label::textColourId, Colours::white);
     String channelString = "";
-    
+
     for (auto ch : channel->getSourceChannels())
         channelString += ch->getName() + ", ";
-    
-    channelString = channelString.substring(0, channelString.length()-2);
+
+    channelString = channelString.substring(0, channelString.length() - 2);
     channelLabel->setText(channelString, dontSendNotification);
     addAndMakeVisible(channelLabel);
+    
+    conditionLabel = new Label("condition label");
+    conditionLabel->setFont(16);
+    conditionLabel->setJustificationType(Justification::topLeft);
+    conditionLabel->setText(source->name, dontSendNotification);
+    conditionLabel->setColour(Label::textColourId, baseColour);
+    addAndMakeVisible(conditionLabel);
     
     hoverLabel = new Label("hover label");
     hoverLabel->setJustificationType(Justification::topLeft);
@@ -74,7 +81,8 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
 void Histogram::resized()
 {
     infoLabel->setBounds(getWidth() - 150, 10, 150, 30);
-    channelLabel->setBounds(getWidth() - 150, 45, 150, 15);
+	channelLabel->setBounds(getWidth() - 150, 26, 150, 30);
+    conditionLabel->setBounds(getWidth() - 150, 45, 150, 15);
     hoverLabel->setBounds(getWidth() - 150, 66, 150, 45);
 }
 
@@ -284,7 +292,7 @@ void Histogram::paint(Graphics& g)
             Colour plotColour;
             
             if (sortedId == 0)
-                plotColour = Colours::greenyellow;
+                plotColour = baseColour;
             else
                 plotColour = colours[(sortedId - 1) % colours.size()];
             
@@ -321,7 +329,7 @@ void Histogram::paint(Graphics& g)
             Colour plotColour;
 
             if (sortedId == 0)
-                plotColour = Colours::greenyellow;
+                plotColour = baseColour;
             else
                 plotColour = colours[(sortedId - 1) % colours.size()];
 
