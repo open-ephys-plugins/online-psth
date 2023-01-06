@@ -39,6 +39,8 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     plotTypeSelector->addItem("Histogram", 1);
     plotTypeSelector->addItem("Raster", 2);
     plotTypeSelector->addItem("Histogram + Raster", 3);
+    plotTypeSelector->addItem("Line", 4);
+    plotTypeSelector->addItem("Line + Raster", 5);
     plotTypeSelector->setSelectedId(1, dontSendNotification);
     plotTypeSelector->addListener(this);
     addAndMakeVisible(plotTypeSelector);

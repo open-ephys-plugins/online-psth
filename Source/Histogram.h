@@ -109,6 +109,7 @@ private:
     
     bool plotHistogram = true;
     bool plotRaster = false;
+    bool plotLine = false;
     
     int maxSortedId = 0;
     int maxRasterTrials = 20;

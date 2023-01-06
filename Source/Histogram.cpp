@@ -139,14 +139,33 @@ void Histogram::setPlotType(int plotType)
     {
         plotRaster = false;
         plotHistogram = true;
-    } else if (plotType == 2)
+        plotLine = false;
+    } 
+    else if (plotType == 2)
     {
         plotRaster = true;
         plotHistogram = false;
-    } else {
+        plotLine = false;
+    } 
+    else if (plotType == 3) 
+    {
         plotRaster = true;
         plotHistogram = true;
+        plotLine = false;
     }
+    else if (plotType == 4) 
+    {
+        plotRaster = false;
+        plotHistogram = false;
+        plotLine = true;
+    }
+    else if (plotType == 5) {
+        plotRaster = true;
+        plotHistogram = false;
+        plotLine = true;
+    }
+
+
     
     repaint();
 }
@@ -289,6 +308,45 @@ void Histogram::paint(Graphics& g)
                 float height = relativeHeight * histogramHeight;
                 float y = 10 + histogramHeight - height;
                 g.fillRect(x, y, binWidth+1, height);
+
+            }
+        }
+    }
+
+    if (plotLine)
+    {
+        for (int sortedId = 0; sortedId < maxSortedId + 1; sortedId++)
+        {
+
+            Colour plotColour;
+
+            if (sortedId == 0)
+                plotColour = Colours::greenyellow;
+            else
+                plotColour = colours[(sortedId - 1) % colours.size()];
+
+            const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
+
+            if (sortedIdIndex < 0)
+                continue;
+
+			g.setColour(plotColour);
+
+            for (int i = 0; i < nBins - 1; i++)
+            {
+                
+                float x1 = binWidth * i + binWidth / 2;
+                float x2 = binWidth * (i + 1) + binWidth / 2;
+                float relativeHeight1 = float(counts[sortedIdIndex][i]) / float(maxCount);
+                float height1 = relativeHeight1 * histogramHeight;
+                float y1 = 10 + histogramHeight - height1;
+                float relativeHeight2 = float(counts[sortedIdIndex][i+1]) / float(maxCount);
+                float height2 = relativeHeight2 * histogramHeight;
+                float y2 = 10 + histogramHeight - height2;
+                g.drawLine(x1, y1, x2, y2, 2.0f);
+
+                if (hoverBin == i)
+					g.fillEllipse(x1 - 3, y1 - 3, 6, 6);
 
             }
         }
