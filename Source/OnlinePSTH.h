@@ -45,12 +45,20 @@ class TriggerSource
 {
 public:
     TriggerSource(OnlinePSTH* processor_, String name_, int line_, TriggerType type_) :
-		processor(processor_), name(name_), line(line_), type(type_) {}
+		processor(processor_), name(name_), line(line_), type(type_) {
+    
+        if (type == TTL_TRIGGER)
+            canTrigger = true;
+        else
+            canTrigger = false;
+    
+    }
     
 	String name;
 	int line;
 	TriggerType type;
     OnlinePSTH* processor;
+    bool canTrigger;
 };
 
 class OnlinePSTHCanvas;
@@ -113,8 +121,17 @@ public:
     
     /** Sets trigger source type */
     void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type);
+
+    /** Saves trigger source parameters */
+    void saveCustomParametersToXml(XmlElement* xml) override;
+
+    /** Saves trigger source parameters */
+    void loadCustomParametersFromXml(XmlElement* xml) override;
     
 private:
+
+    /** Responds to incoming broadcast messages */
+    void handleBroadcastMessage(String message) override;
     
     /** Pushes incoming events to the canvas */
     void handleTTLEvent (TTLEventPtr event) override;

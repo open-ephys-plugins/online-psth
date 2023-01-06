@@ -178,6 +178,11 @@ void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
 void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
 {
     source->type = type;
+
+    if (source->type == TTL_TRIGGER)
+        source->canTrigger = true;
+    else
+		source->canTrigger = false;
 }
 
 void OnlinePSTH::process(AudioBuffer<float>& buffer)
@@ -185,15 +190,45 @@ void OnlinePSTH::process(AudioBuffer<float>& buffer)
     checkForEvents(true);
 }
 
+void OnlinePSTH::handleBroadcastMessage(String message)
+{
+    LOGD("Online PSTH received ", message);
+
+    for (auto source : triggerSources)
+    {
+        if (message.equalsIgnoreCase(source->name))
+        {
+            if (source->type == TTL_AND_MSG_TRIGGER)
+            {
+                source->canTrigger = true;
+            }
+            else if (source->type == MSG_TRIGGER)
+            {
+                if (canvas != nullptr)
+                {
+                    for (auto stream : getDataStreams())
+                    {
+                        const uint16 streamId = stream->getStreamId();
+                        canvas->pushEvent(source, streamId, getFirstSampleNumberForBlock(streamId));
+                    }
+                }
+            }
+        }
+    }
+}
+
 void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {
     
     for (auto source : triggerSources)
     {
-        if (event->getLine() == source->line - 1 && event->getState())
+        if (event->getLine() == source->line && event->getState() && source->canTrigger)
         {
             if (canvas != nullptr)
                 canvas->pushEvent(source, event->getStreamId(), event->getSampleNumber());
+
+            if (source->type == TTL_AND_MSG_TRIGGER)
+				source->canTrigger = false;
         }
     }
     
@@ -205,3 +240,34 @@ void OnlinePSTH::handleSpike(SpikePtr spike)
        canvas->pushSpike(spike->getChannelInfo(), spike->getSampleNumber(), spike->getSortedId());
 }
 
+
+
+void OnlinePSTH::saveCustomParametersToXml(XmlElement* xml)
+{
+    
+	for (auto source : triggerSources)
+	{
+		XmlElement* sourceXml = xml->createNewChildElement("TRIGGERSOURCE");
+		sourceXml->setAttribute("name", source->name);
+		sourceXml->setAttribute("line", source->line);
+		sourceXml->setAttribute("type", source->type);
+	}
+
+    
+}
+
+
+void OnlinePSTH::loadCustomParametersFromXml(XmlElement* xml)
+{
+    
+	for (auto sourceXml : xml->getChildIterator())
+	{
+		if (sourceXml->hasTagName("TRIGGERSOURCE"))
+		{
+			TriggerSource* source = addTriggerSource(sourceXml->getIntAttribute("line", 0),
+				(TriggerType)sourceXml->getIntAttribute("type", TTL_TRIGGER));
+			
+            source->name = sourceXml->getStringAttribute("name");
+		}
+	}
+}
