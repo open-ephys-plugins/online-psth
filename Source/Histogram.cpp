@@ -75,6 +75,8 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
     colours.add(Colour(90, 241, 233));
     colours.add(Colour(109, 175, 136));
     colours.add(Colour(160, 237, 181));
+
+    clear();
     
 }
 
@@ -122,7 +124,7 @@ void Histogram::addEvent(int64 sample_number)
     {
         latestEventSampleNumber = sample_number;
 
-        startTimer(1010);
+        startTimer(1010); // collect all spikes within 1 s
         
         waitingForWindowToClose = true;
     }
@@ -173,44 +175,34 @@ void Histogram::setPlotType(int plotType)
         plotLine = true;
     }
 
-
-    
     repaint();
 }
 
 void Histogram::update()
 {
-    //std::cout << "Updating!" << std::endl;
-    
+
+    int index = 0;
+        
+    for (auto sample_number : newSpikeSampleNumbers)
     {
-        const ScopedLock lock(mutex);
-        
-        //std::cout << newSpikeSampleNumbers.size() << " new spikes." << std::endl;
-        
-        int index = 0;
-        
-        for (auto sample_number : newSpikeSampleNumbers)
+        double offsetMs = double(sample_number - latestEventSampleNumber) / sample_rate * 1000;
+            
+        if (offsetMs > -1000 && offsetMs < 1000)
         {
-            double offsetMs = double(sample_number - latestEventSampleNumber) / sample_rate * 1000;
-            
-            if (offsetMs > -1000 && offsetMs < 1000)
-            {
-                relativeTimes.add(offsetMs);
-                relativeTimeSortedIds.add(newSpikeSortedIds[index]);
-                relativeTimeTrialIndices.add(int(numTrials));
-            }
-            
-            index++;
+            relativeTimes.add(offsetMs);
+            relativeTimeSortedIds.add(newSpikeSortedIds[index]);
+            relativeTimeTrialIndices.add(int(numTrials));
         }
-        
-        newSpikeSampleNumbers.clear();
-        newSpikeSortedIds.clear();
-        
-        numTrials++;
-        
+            
+        index++;
     }
-    
-    recount();
+        
+    numTrials++;
+        
+    if (numTrials == 1)
+        recount(true);
+    else
+        recount(false);
 
 }
 
@@ -236,38 +228,49 @@ void Histogram::setBinSizeMs(int ms)
 }
 
 
-void Histogram::recount()
+void Histogram::recount(bool full)
 {
     
     const int nBins = binEdges.size() - 1;
     
-    for (int i = 0; i < counts.size(); i++)
+    if (full)
     {
-        counts.getReference(i).clear();
-        counts.getReference(i).insertMultiple(0, 0, nBins);
+        for (int i = 0; i < counts.size(); i++)
+        {
+            counts.getReference(i).clear();
+            counts.getReference(i).insertMultiple(0, 0, nBins);
+        }
     }
-    
+
     maxCount = 1;
 
     for (int i = 0; i < relativeTimes.size(); i++)
     {
-        for (int j = 0; j < nBins; j++)
-        {
-            
-            if (relativeTimes[i] > binEdges[j] && relativeTimes[i] < binEdges[j+1])
-            {
-                int sortedIdIndex = uniqueSortedIds.indexOf(relativeTimeSortedIds[i]);
-                int lastCount = counts[sortedIdIndex][j];
-                int newCount = lastCount + 1;
-                
-                maxCount = jmax(newCount, maxCount);
-                
-                counts.getReference(sortedIdIndex).set(j, newCount);
 
-                continue;
+        if (relativeTimeTrialIndices[i] == (numTrials - 1) || full)
+        {
+            for (int j = 0; j < nBins; j++)
+            {
+
+                maxCount = jmax(counts[0][j], maxCount);
+
+                if (relativeTimes[i] > binEdges[j] && relativeTimes[i] < binEdges[j + 1])
+                {
+                    int sortedIdIndex = uniqueSortedIds.indexOf(relativeTimeSortedIds[i]);
+                    int lastCount = counts[sortedIdIndex][j];
+                    int newCount = lastCount + 1;
+
+                    if (sortedIdIndex == 0)
+                        maxCount = jmax(newCount, maxCount);
+
+                    counts.getReference(sortedIdIndex).set(j, newCount);
+
+                    continue;
+                }
+
             }
-                
         }
+
     }
     
     repaint();
@@ -347,10 +350,10 @@ void Histogram::paint(Graphics& g)
                 float x2 = binWidth * (i + 1) + binWidth / 2;
                 float relativeHeight1 = float(counts[sortedIdIndex][i]) / float(maxCount);
                 float height1 = relativeHeight1 * histogramHeight;
-                float y1 = 10 + histogramHeight - height1;
+                float y1 = 9 + histogramHeight - height1;
                 float relativeHeight2 = float(counts[sortedIdIndex][i+1]) / float(maxCount);
                 float height2 = relativeHeight2 * histogramHeight;
-                float y2 = 10 + histogramHeight - height2;
+                float y2 = 9 + histogramHeight - height2;
                 g.drawLine(x1, y1, x2, y2, 2.0f);
 
                 if (hoverBin == i)

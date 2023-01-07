@@ -72,7 +72,7 @@ void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const Trigg
     
     totalHeight += histogramHeight + borderSize;
     
-    std::cout << "Adding histogram for " << channel->getName() << " and " << source->name << std::endl;
+    //std::cout << "Adding histogram for " << channel->getName() << " and " << source->name << std::endl;
 
     addAndMakeVisible(h);
 }

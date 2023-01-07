@@ -92,7 +92,7 @@ private:
     void recompute();
     
     /** Recomputes bin counts */
-    void recount();
+    void recount(bool full=true);
     
     ScopedPointer<Label> infoLabel;
     ScopedPointer<Label> channelLabel;
