@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OnlinePSTH.h"
 
 #include <string>
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
@@ -39,7 +39,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
 	info->name = "Online PSTH";
-	info->libVersion = "0.1.0";
+	info->libVersion = "0.2.0";
 	info->numPlugins = NUM_PLUGINS;
 }
 
