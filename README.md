@@ -1,6 +1,6 @@
 # Online PSTH
 
-![Online PSTH Editor](Resources/Images/onlinepsth.png)
+![Online PSTH Editor](https://open-ephys.github.io/gui-docs/_images/onlinepsth-01.png)
 
 Plots a peri-stimulus time histogram of spikes locked to incoming TTL events.
 
@@ -9,6 +9,8 @@ Plots a peri-stimulus time histogram of spikes locked to incoming TTL events.
 This plugin can be added via the Open Ephys GUI Plugin Installer. To access the Plugin Installer, press **ctrl-P** or **⌘P** from inside the GUI. Once the installer is loaded, browse to the "Online PSTH" plugin and click "Install."
 
 ## Usage
+
+![Example screenshot](https://open-ephys.github.io/gui-docs/_images/onlinepsth-03.png)
 
 Instructions for using the Online PSTH plugin are available [here](https://open-ephys.github.io/gui-docs/User-Manual/Plugins/Online-PSTH.html).
 
