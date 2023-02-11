@@ -131,6 +131,9 @@ private:
     int pre_ms;
     int post_ms;
     int bin_size_ms;
+
+    float histogramWidth;
+    float histogramHeight;
     
     int maxCount = 1;
     

@@ -30,6 +30,7 @@
 #include "Timescale.h"
 
 class TriggerSource;
+class OnlinePSTHCanvas;
 
 /**
 
@@ -43,7 +44,7 @@ class OptionsBar :
 {
 public:
     /** Constructor */
-    OptionsBar(OnlinePSTHDisplay* display);
+    OptionsBar(OnlinePSTHCanvas* canvas, OnlinePSTHDisplay* display, Timescale* timescale);
 
     /** Destructor */
     ~OptionsBar() { }
@@ -76,6 +77,8 @@ private:
     std::unique_ptr<UtilityButton> overlayButton;
 
     OnlinePSTHDisplay* display;
+    OnlinePSTHCanvas* canvas;
+    Timescale* timescale;
     
 };
 

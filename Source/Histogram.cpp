@@ -82,23 +82,54 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
 
 void Histogram::resized()
 {
-    infoLabel->setBounds(getWidth() - 150, 10, 150, 30);
-	
+    
+    
+    int labelOffset;
+    const int width = getWidth();
+
+    if (width < 320)
+        labelOffset = 5;
+    else if (width >= 320 && width < 700)
+        labelOffset = width - 120;
+    else
+        labelOffset = width - 150;
+        
+   
+    if (labelOffset == 5)
+        histogramWidth = width - labelOffset;
+    else
+        histogramWidth = labelOffset - 10;
+    
+    histogramHeight = getHeight() - 10;
+    
+    infoLabel->setBounds(labelOffset, 10, 150, 30);
     
     if (getHeight() < 100)
     {
-        conditionLabel->setBounds(getWidth() - 150, 26, 150, 15);
+        conditionLabel->setBounds(labelOffset, 26, 150, 30);
         channelLabel->setVisible(false);
         hoverLabel->setVisible(false);
 	}
 	else
 	{
-		conditionLabel->setBounds(getWidth() - 150, 45, 150, 15);
+		conditionLabel->setBounds(labelOffset, 45, 150, 15);
 		channelLabel->setVisible(true);
-        channelLabel->setBounds(getWidth() - 150, 26, 150, 30);
+        channelLabel->setBounds(labelOffset, 26, 150, 30);
 		hoverLabel->setVisible(true);
-        hoverLabel->setBounds(getWidth() - 150, 66, 150, 45);
+        hoverLabel->setBounds(labelOffset, 66, 150, 45);
 	}
+
+    if (labelOffset == 5)
+    {
+		conditionLabel->setVisible(false);
+		channelLabel->setVisible(false);
+        hoverLabel->setBounds(width - 120, 10, 150, 45);
+	}
+	else
+	{
+		conditionLabel->setVisible(true);
+		channelLabel->setVisible(true);
+    }
     
 }
 
@@ -303,9 +334,6 @@ void Histogram::paint(Graphics& g)
     g.fillAll(Colour(30,30,40));
     
     const int nBins = binEdges.size() - 1;
-    const float histogramWidth = getWidth() - 170;
-    const float histogramHeight = getHeight() - 10;
-    
     float binWidth = histogramWidth / float(nBins);
     
     if (plotHistogram)
@@ -422,8 +450,6 @@ void Histogram::paint(Graphics& g)
 
 void Histogram::mouseMove(const MouseEvent &event)
 {
-    
-    const int histogramWidth = getWidth() - 170;
     
     if (event.getPosition().x < histogramWidth)
     {

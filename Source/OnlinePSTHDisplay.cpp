@@ -50,14 +50,29 @@ void OnlinePSTHDisplay::prepareToUpdate()
 void OnlinePSTHDisplay::resized()
 {
     totalHeight = 0;
-    
+	const int numPlots = histograms.size();
+    const int leftEdge = 10;
+	const int rightEdge = getWidth() - borderSize;
+    const int histogramWidth = (rightEdge - leftEdge - borderSize * (numColumns - 1)) / numColumns;
+
+    int index = 0;
+    int row = 0;
+    int col = 0;
+
     for (auto hist : histograms)
     {
-        hist->setBounds(10, totalHeight, getWidth()-20, histogramHeight);
-        totalHeight += histogramHeight + borderSize;
+		row = index / numColumns;
+		col = index % numColumns;
         
+		hist->setBounds(leftEdge + col * (histogramWidth + borderSize),
+                       row * (histogramHeight + borderSize), 
+                       histogramWidth, histogramHeight);
+        
+        index++;
         //std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
     }
+
+    totalHeight = (row + 1) * (histogramHeight + borderSize);
 }
 
 
@@ -69,11 +84,14 @@ void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const Trigg
     histograms.add(h);
     triggerSourceMap[source].add(h);
     spikeChannelMap[channel].add(h);
-    
-    totalHeight += histogramHeight + borderSize;
-    
-    //std::cout << "Adding histogram for " << channel->getName() << " and " << source->name << std::endl;
 
+    int numRows = histograms.size() / numColumns + 1;
+
+    totalHeight = (numRows + 1) * (histogramHeight + 10);
+
+    std::cout << "Num Rows: " << numRows << std::endl;
+    std::cout << "Total height: " << totalHeight << std::endl;
+    
     addAndMakeVisible(h);
 }
 

@@ -23,8 +23,8 @@
 #include "OnlinePSTHCanvas.h"
 #include "OnlinePSTH.h"
 
-OptionsBar::OptionsBar(OnlinePSTHDisplay* display_)
-	: display(display_)
+OptionsBar::OptionsBar(OnlinePSTHCanvas* canvas_, OnlinePSTHDisplay* display_, Timescale* timescale_)
+	: canvas(canvas_), display(display_), timescale(timescale_)
 {
     
     clearButton = std::make_unique<UtilityButton>("CLEAR", Font("Default", 12, Font::plain));
@@ -91,11 +91,22 @@ void OptionsBar::comboBoxChanged(ComboBox* comboBox)
     } 
 	else if (comboBox == columnNumberSelector.get())
 	{
-		display->setNumColumns(comboBox->getSelectedId());
+		const int numColumns = comboBox->getSelectedId();
+        
+		display->setNumColumns(numColumns);
+
+        if (numColumns == 1)
+            timescale->setVisible(true);
+        else
+            timescale->setVisible(false);
+
+        canvas->resized();
 	}
 	else if (comboBox == rowHeightSelector.get())
 	{
 		display->setRowHeight(comboBox->getSelectedId());
+
+        canvas->resized();
 	}
 }
 
@@ -168,7 +179,7 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     addAndMakeVisible(viewport.get());
     display->setBounds(0, 50, 500, 100);
 
-	optionsBar = std::make_unique<OptionsBar>(display.get());
+	optionsBar = std::make_unique<OptionsBar>(this, display.get(), scale.get());
     addAndMakeVisible(optionsBar.get());
 
 }
@@ -183,14 +194,20 @@ void OnlinePSTHCanvas::resized()
 {
 
     const int scrollBarThickness = viewport->getScrollBarThickness();
-    const int timescaleHeight = 50;
+    const int timescaleHeight = 40;
     const int optionsBarHeight = 40;
 
-    viewport->setBounds(0, timescaleHeight, getWidth(), getHeight()- timescaleHeight -optionsBarHeight);
-    
-    display->setBounds(0, 0, getWidth()-scrollBarThickness, display->getDesiredHeight());
+    if (scale->isVisible())
+    {
+        scale->setBounds(10, 0, getWidth() - scrollBarThickness - 150, timescaleHeight);
+        viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - timescaleHeight - optionsBarHeight);
+    }
+    else {
+        viewport->setBounds(0, 10, getWidth(), getHeight() - 10 - optionsBarHeight);
+    }
 
-    scale->setBounds(10, 0, getWidth()-scrollBarThickness-150, timescaleHeight);
+    display->setBounds(0, 0, getWidth()-scrollBarThickness, display->getDesiredHeight());
+    display->resized();
 
 	optionsBar->setBounds(0, getHeight() - optionsBarHeight, getWidth(), optionsBarHeight);
 
@@ -200,13 +217,6 @@ void OnlinePSTHCanvas::paint(Graphics& g)
 {
     
     g.fillAll(Colour(0,18,43));
-    
-    const float histogramWidth = getWidth()-viewport->getScrollBarThickness()-190;
-    
-    float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth + 10;
-    
-    g.setColour(Colours::white);
-    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
     
 }
 

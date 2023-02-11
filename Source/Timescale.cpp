@@ -25,7 +25,7 @@
 
 void Timescale::paint(Graphics& g)
 {
-    const float histogramWidth = getWidth() - 40;
+    const float histogramWidth = getWidth() - 30;
     
     float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
     

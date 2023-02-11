@@ -101,7 +101,7 @@ private:
     
     int totalHeight = 0;
     int histogramHeight = 100;
-    const int borderSize = 20;
+    int borderSize = 10;
     int numColumns = 1;
     
     int post_ms;
