@@ -25,7 +25,7 @@
 #include "OnlinePSTH.h"
 
 Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
-    : sample_rate(channel->getSampleRate()), source(source_), baseColour(source_->colour),
+    : sample_rate(channel->getSampleRate()), spikeChannel(channel), source(source_), baseColour(source_->colour),
       streamId(channel->getStreamId()),
       waitingForWindowToClose(false),
       latestEventSampleNumber(0)
@@ -113,9 +113,10 @@ void Histogram::resized()
 	else
 	{
 		conditionLabel->setBounds(labelOffset, 45, 150, 15);
-		channelLabel->setVisible(true);
+		channelLabel->setVisible(!overlayMode);
         channelLabel->setBounds(labelOffset, 26, 150, 30);
-		hoverLabel->setVisible(true);
+
+		hoverLabel->setVisible(!overlayMode);
         hoverLabel->setBounds(labelOffset, 66, 150, 45);
 	}
 
@@ -127,8 +128,9 @@ void Histogram::resized()
 	}
 	else
 	{
-		conditionLabel->setVisible(true);
-		channelLabel->setVisible(true);
+        conditionLabel->setVisible(!overlayMode);
+        channelLabel->setVisible(!overlayMode);
+
     }
     
 }
@@ -229,6 +231,23 @@ void Histogram::setSourceColour(Colour colour)
     conditionLabel->setColour(Label::textColourId, baseColour);
     repaint();
 }
+
+
+void Histogram::drawBackground(bool shouldDraw)
+{
+    shouldDrawBackground = shouldDraw;
+
+    infoLabel->setVisible(shouldDrawBackground);
+
+}
+
+void Histogram::setOverlayMode(bool shouldOverlay)
+{
+
+    overlayMode = shouldOverlay;
+
+}
+
 
 void Histogram::update()
 {
@@ -331,7 +350,8 @@ void Histogram::recount(bool full)
 void Histogram::paint(Graphics& g)
 {
     
-    g.fillAll(Colour(30,30,40));
+    if (shouldDrawBackground)
+      g.fillAll(Colour(30,30,40));
     
     const int nBins = binEdges.size() - 1;
     float binWidth = histogramWidth / float(nBins);

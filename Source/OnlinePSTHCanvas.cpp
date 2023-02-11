@@ -74,12 +74,14 @@ void OptionsBar::buttonClicked(Button* button)
 
     else if (button == overlayButton.get())
     {
-        // display->overlayConditions(button->getToggleState());
+        display->setConditionOverlay(button->getToggleState());
 
         if (overlayButton->getToggleState())
             overlayButton->setLabel("ON");
         else
 			overlayButton->setLabel("OFF");
+
+        canvas->resized();
     }
 }
 

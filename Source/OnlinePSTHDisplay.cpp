@@ -55,20 +55,44 @@ void OnlinePSTHDisplay::resized()
 	const int rightEdge = getWidth() - borderSize;
     const int histogramWidth = (rightEdge - leftEdge - borderSize * (numColumns - 1)) / numColumns;
 
-    int index = 0;
+    int index = -1;
     int row = 0;
     int col = 0;
+    bool drawBackground = true;
+
+    SpikeChannel* latestChannel = nullptr;
 
     for (auto hist : histograms)
     {
+        if (overlayConditions)
+        {
+            if (hist->spikeChannel != latestChannel)
+            {
+                //std::cout << "Incrementing channel" << std::endl;
+                latestChannel = const_cast<SpikeChannel*>(hist->spikeChannel);
+                drawBackground = true;
+                index++;
+            }
+
+        }
+        else {
+            index++;
+        }
+        
 		row = index / numColumns;
 		col = index % numColumns;
+
+        //std::cout << row << " : " << col << std::endl;
         
+        hist->drawBackground(drawBackground);
 		hist->setBounds(leftEdge + col * (histogramWidth + borderSize),
                        row * (histogramHeight + borderSize), 
                        histogramWidth, histogramHeight);
         
-        index++;
+
+        if (overlayConditions)
+            drawBackground = false;
+
         //std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
     }
 
@@ -89,9 +113,6 @@ void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const Trigg
 
     totalHeight = (numRows + 1) * (histogramHeight + 10);
 
-    std::cout << "Num Rows: " << numRows << std::endl;
-    std::cout << "Total height: " << totalHeight << std::endl;
-    
     addAndMakeVisible(h);
 }
 
@@ -114,6 +135,15 @@ void OnlinePSTHDisplay::setRowHeight(int height)
 void OnlinePSTHDisplay::setNumColumns(int numColumns_)
 {
     numColumns = numColumns_;
+    resized();
+}
+
+
+void OnlinePSTHDisplay::setConditionOverlay(bool overlay_)
+{
+
+    std::cout << "Set condition overlay: " << overlay_ << std::endl;
+    overlayConditions = overlay_;
     resized();
 }
 

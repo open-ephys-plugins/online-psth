@@ -82,6 +82,9 @@ public:
 
     /** Changes row height */
     void setRowHeight(int rowHeightPixels);
+
+    /** Sets whether conditions are overlaid or not */
+    void setConditionOverlay(bool);
     
     /** Prepare for update*/
     void prepareToUpdate();
@@ -103,6 +106,8 @@ private:
     int histogramHeight = 100;
     int borderSize = 10;
     int numColumns = 1;
+
+    bool overlayConditions = false;
     
     int post_ms;
     int plotType = 1;

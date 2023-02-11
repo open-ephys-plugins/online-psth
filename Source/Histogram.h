@@ -74,6 +74,12 @@ public:
     /** Sets the plot colour */
     void setSourceColour(Colour colour);
 
+    /** Sets background draw state */
+    void drawBackground(bool);
+
+    /** Sets overlay mode */
+    void setOverlayMode(bool);
+
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     
@@ -85,6 +91,9 @@ public:
     
     /** Stream ID for this histogram */
     uint16 streamId;
+
+    /** Spike channel for this histogram */
+    const SpikeChannel* spikeChannel;
 
 private:
     
@@ -128,12 +137,16 @@ private:
 
     const TriggerSource* source;
     
+    
     int pre_ms;
     int post_ms;
     int bin_size_ms;
 
     float histogramWidth;
     float histogramHeight;
+
+    bool shouldDrawBackground = true;
+    bool overlayMode = false;
     
     int maxCount = 1;
     
