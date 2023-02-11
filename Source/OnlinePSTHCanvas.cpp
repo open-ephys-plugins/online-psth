@@ -23,19 +23,17 @@
 #include "OnlinePSTHCanvas.h"
 #include "OnlinePSTH.h"
 
-OnlinePSTHCanvas::OnlinePSTHCanvas()
+OptionsBar::OptionsBar(OnlinePSTHDisplay* display_)
+	: display(display_)
 {
     
-    scale = new Timescale();
-    addAndMakeVisible(scale);
-    
-    clearButton = new UtilityButton("CLEAR", Font("Default", 12, Font::plain));
+    clearButton = std::make_unique<UtilityButton>("CLEAR", Font("Default", 12, Font::plain));
     clearButton->addListener(this);
     clearButton->setRadius(3.0f);
     clearButton->setClickingTogglesState(false);
-    addAndMakeVisible(clearButton);
-    
-    plotTypeSelector = new ComboBox("Plot Type Selector");
+    addAndMakeVisible(clearButton.get());
+
+    plotTypeSelector = std::make_unique<ComboBox>("Plot Type Selector");
     plotTypeSelector->addItem("Histogram", 1);
     plotTypeSelector->addItem("Raster", 2);
     plotTypeSelector->addItem("Histogram + Raster", 3);
@@ -43,15 +41,70 @@ OnlinePSTHCanvas::OnlinePSTHCanvas()
     plotTypeSelector->addItem("Line + Raster", 5);
     plotTypeSelector->setSelectedId(1, dontSendNotification);
     plotTypeSelector->addListener(this);
-    addAndMakeVisible(plotTypeSelector);
+    addAndMakeVisible(plotTypeSelector.get());
+}
 
-    viewport = new Viewport();
+void OptionsBar::buttonClicked(Button* button)
+{
+    if (button == clearButton.get())
+    {
+        display->clear();
+    }
+}
+
+void OptionsBar::comboBoxChanged(ComboBox* comboBox)
+{
+    if (comboBox == plotTypeSelector.get())
+    {
+        display->setPlotType(comboBox->getSelectedId());
+    }
+}
+
+
+
+void OptionsBar::resized()
+{
+    clearButton->setBounds(getWidth() - 80, 5, 70, 25);
+
+    plotTypeSelector->setBounds(getWidth() - 240, 5, 150, 25);
+
+}
+
+void OptionsBar::paint(Graphics& g)
+{
+    g.fillAll(Colours::orange);
+}
+
+void OptionsBar::saveCustomParametersToXml(XmlElement* xml)
+{
+    xml->setAttribute("plot_type", plotTypeSelector->getSelectedId());
+}
+
+void OptionsBar::loadCustomParametersFromXml(XmlElement* xml)
+{
+
+    int selectedId = xml->getIntAttribute("plot_type", 1);
+
+    plotTypeSelector->setSelectedId(selectedId, sendNotification);
+}
+
+
+OnlinePSTHCanvas::OnlinePSTHCanvas()
+{
+    
+    scale = std::make_unique<Timescale>();
+    addAndMakeVisible(scale.get());
+
+    viewport = std::make_unique<Viewport>();
     viewport->setScrollBarsShown(true, true);
 
-    display = new OnlinePSTHDisplay();
-    viewport->setViewedComponent(display, false);
-    addAndMakeVisible(viewport);
+    display = std::make_unique<OnlinePSTHDisplay>();
+    viewport->setViewedComponent(display.get(), false);
+    addAndMakeVisible(viewport.get());
     display->setBounds(0, 50, 500, 100);
+
+	optionsBar = std::make_unique<OptionsBar>(display.get());
+    addAndMakeVisible(optionsBar.get());
 
 }
 
@@ -64,18 +117,17 @@ void OnlinePSTHCanvas::refreshState()
 void OnlinePSTHCanvas::resized()
 {
 
-    int scrollBarThickness = viewport->getScrollBarThickness();
-    int yOffset = 50;
-    
-    clearButton->setBounds(getWidth()-80, 12, 70, 25);
-    
-    plotTypeSelector->setBounds(getWidth()-240, 12, 150, 25);
-    
-    viewport->setBounds(0, yOffset, getWidth(), getHeight()-yOffset);
-    
-    display->setBounds(0, yOffset, getWidth()-scrollBarThickness, display->getDesiredHeight());
+    const int scrollBarThickness = viewport->getScrollBarThickness();
+    const int timescaleHeight = 50;
+    const int optionsBarHeight = 50;
 
-    scale->setBounds(10, 0, getWidth()-scrollBarThickness-150, 50);
+    viewport->setBounds(0, timescaleHeight, getWidth(), getHeight()- timescaleHeight -optionsBarHeight);
+    
+    display->setBounds(0, 0, getWidth()-scrollBarThickness, display->getDesiredHeight());
+
+    scale->setBounds(10, 0, getWidth()-scrollBarThickness-150, timescaleHeight);
+
+	optionsBar->setBounds(0, getHeight() - optionsBarHeight, getWidth(), optionsBarHeight);
 
 }
 
@@ -89,7 +141,6 @@ void OnlinePSTHCanvas::paint(Graphics& g)
     float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth + 10;
     
     g.setColour(Colours::white);
-    //g.drawLine(0, getHeight()-3, histogramWidth, getHeight()-3, 3.0);
     g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
     
 }
@@ -131,32 +182,15 @@ void OnlinePSTHCanvas::prepareToUpdate()
     display->prepareToUpdate();
 }
 
-void OnlinePSTHCanvas::buttonClicked(Button* button)
-{
-    if (button == clearButton)
-    {
-        display->clear();
-    }
-}
-
-void OnlinePSTHCanvas::comboBoxChanged(ComboBox* comboBox)
-{
-    if (comboBox == plotTypeSelector)
-    {
-        display->setPlotType(comboBox->getSelectedId());
-    }
-}
 
 
 void OnlinePSTHCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
-    xml->setAttribute("plot_type", plotTypeSelector->getSelectedId());
+    optionsBar->saveCustomParametersToXml(xml);
 }
 
 void OnlinePSTHCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
     
-    int selectedId = xml->getIntAttribute("plot_type", 1);
-    
-    plotTypeSelector->setSelectedId(selectedId, sendNotification);
+    optionsBar->loadCustomParametersFromXml(xml);
 }

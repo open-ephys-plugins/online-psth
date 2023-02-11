@@ -33,13 +33,55 @@ class TriggerSource;
 
 /**
 
+    Histogram options interface
+
+*/
+class OptionsBar :
+    public Component,
+    public Button::Listener,
+    public ComboBox::Listener
+{
+public:
+    /** Constructor */
+    OptionsBar(OnlinePSTHDisplay* display);
+
+    /** Destructor */
+    ~OptionsBar() { }
+
+    /** Respond to button clicks */
+    void buttonClicked(Button* button) override;
+
+    /** Respond to button clicks */
+    void comboBoxChanged(ComboBox* comboBox) override;
+
+    /** Called when the component changes size */
+    void resized();
+
+    /** Renders component background */
+    void paint(Graphics& g);
+
+    /** Save plot type*/
+    void saveCustomParametersToXml(XmlElement* xml);
+
+    /** Load plot type*/
+    void loadCustomParametersFromXml(XmlElement* xml);
+
+private:
+
+    std::unique_ptr<UtilityButton> clearButton;
+    std::unique_ptr<ComboBox> plotTypeSelector;
+
+    OnlinePSTHDisplay* display;
+    
+};
+
+/**
+
     Visualizer for spike histograms
 
 */
 class OnlinePSTHCanvas :
-    public Visualizer,
-    public Button::Listener,
-    public ComboBox::Listener
+    public Visualizer
 {
 public:
     
@@ -49,12 +91,6 @@ public:
     
     /** Destructor */
     ~OnlinePSTHCanvas() { }
-    
-    /** Respond to button clicks */
-    void buttonClicked(Button* button) override;
-    
-    /** Respond to button clicks */
-    void comboBoxChanged(ComboBox* comboBox) override;
     
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
@@ -103,13 +139,12 @@ private:
     int pre_ms;
     int post_ms;
     
-    ScopedPointer<UtilityButton> clearButton;
-    ScopedPointer<ComboBox> plotTypeSelector;
+    std::unique_ptr<Viewport> viewport;
     
-    ScopedPointer<Viewport> viewport;
-    
-    ScopedPointer<Timescale> scale;
-    ScopedPointer<OnlinePSTHDisplay> display;
+    std::unique_ptr<Timescale> scale;
+    std::unique_ptr<OnlinePSTHDisplay> display;
+
+    std::unique_ptr<OptionsBar> optionsBar;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
 
