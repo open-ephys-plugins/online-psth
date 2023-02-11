@@ -55,6 +55,9 @@ public:
     /** Called when signal chain is updated */
     void updateSettings() override;
 
+    /** Called when source colours are updated */
+    void updateColours(TriggerSource*);
+
     /** Called when configure button is clicked */
     void buttonClicked(Button* button) override;
 

@@ -70,7 +70,10 @@ public:
     
     /** Sets the plot type (histogram, raster, raster + histogram) */
     void setPlotType(int plotType);
-    
+
+    /** Sets the plot colour */
+    void setSourceColour(Colour colour);
+
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     

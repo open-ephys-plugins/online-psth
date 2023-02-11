@@ -118,7 +118,9 @@ TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type)
 	String name = "Condition " + String(nextConditionIndex++);
     
 	TriggerSource* source = new TriggerSource(this, name, line, type);
+    source->colour = TriggerSource::getColourForLine(triggerSources.size());
 	triggerSources.add(source);
+
 	return source;
 }
 
@@ -176,10 +178,18 @@ void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
 {
     source->line = line;
 
-    source->colour = TriggerSource::getColourForLine(source->line);
-
     getEditor()->updateSettings();
 }
+
+void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour)
+{
+    source->colour = colour;
+
+	OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+
+    editor->updateColours(source);
+}
+
 
 void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
 {
@@ -258,6 +268,7 @@ void OnlinePSTH::saveCustomParametersToXml(XmlElement* xml)
 		sourceXml->setAttribute("name", source->name);
 		sourceXml->setAttribute("line", source->line);
 		sourceXml->setAttribute("type", source->type);
+        sourceXml->setAttribute("colour", source->colour.toString());
 	}
 
     
@@ -275,6 +286,10 @@ void OnlinePSTH::loadCustomParametersFromXml(XmlElement* xml)
 				(TriggerType)sourceXml->getIntAttribute("type", TTL_TRIGGER));
 			
             source->name = sourceXml->getStringAttribute("name");
+			String savedColour = sourceXml->getStringAttribute("colour", "");
+            
+            if (savedColour.length() > 0)
+				source->colour = Colour::fromString(savedColour);
 		}
 	}
 }

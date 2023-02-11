@@ -73,6 +73,9 @@ public:
     
     /** Adds a spike channel for a given trigger source */
     void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
+
+    /** Changes source colour */
+    void updateColourForSource(const TriggerSource* source);
     
     /** Prepare for update*/
     void prepareToUpdate();

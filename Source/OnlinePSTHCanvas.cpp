@@ -242,6 +242,11 @@ void OnlinePSTHCanvas::addSpikeChannel(const SpikeChannel* channel, const Trigge
     display->addSpikeChannel(channel, source);
 }
 
+void OnlinePSTHCanvas::updateColourForSource(const TriggerSource* source)
+{
+    display->updateColourForSource(source);
+}
+
 void OnlinePSTHCanvas::prepareToUpdate()
 {
     display->prepareToUpdate();

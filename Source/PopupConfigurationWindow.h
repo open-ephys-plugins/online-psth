@@ -166,7 +166,8 @@ private:
 /**
 *   Table component used to display colour of each condition
 */
-class ColourDisplayCustomComponent : public Component
+class ColourDisplayCustomComponent : public Component,
+    public ChangeListener
 {
 public:
 
@@ -188,6 +189,9 @@ public:
 
     /** Sets a pointer to the OnlinePSTHTableModel object */
     void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
+
+    /** Responds to color changes*/
+    void changeListenerCallback(ChangeBroadcaster* source);
 
     int row;
     TriggerSource* source;

@@ -77,10 +77,8 @@ void OnlinePSTHEditor::updateSettings()
             
         for (auto source : processor->getTriggerSources())
         {
-            
-
-        if (channel->isValid())
-            canvas->addSpikeChannel(channel, source);
+            if (channel->isValid())
+                canvas->addSpikeChannel(channel, source);
         }
     }
 
@@ -91,6 +89,18 @@ void OnlinePSTHEditor::updateSettings()
     
     canvas->resized();
     
+}
+
+
+void OnlinePSTHEditor::updateColours(TriggerSource* source)
+{
+
+    if (canvas == nullptr)
+        return;
+    
+    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+
+    canvas->updateColourForSource(source);
 }
 
 

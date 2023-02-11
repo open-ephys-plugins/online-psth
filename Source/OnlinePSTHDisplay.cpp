@@ -77,6 +77,16 @@ void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const Trigg
     addAndMakeVisible(h);
 }
 
+void OnlinePSTHDisplay::updateColourForSource(const TriggerSource* source)
+{
+    Array<Histogram*> h = triggerSourceMap[source];
+
+    for (auto hist : h)
+    {
+        hist->setSourceColour(source->colour);
+    }
+}
+
 
 void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms_)
 {

@@ -178,10 +178,49 @@ void TriggerTypeSelectorCustomComponent::setRowAndColumn(const int newRow, const
 
 void ColourDisplayCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive || source == nullptr)
+    const int x = event.getPosition().getX();
+    const int y = event.getPosition().getY();
+    const int boundary = 7;
+
+    if (x < boundary || x > getWidth() - boundary)
         return;
+
+    if (y < boundary || y > getWidth() - boundary)
+        return;
+
+    int options = 0;
+    options += (1 << 1); // showColorAtTop
+    options += (1 << 2); // editableColour
+    options += (1 << 4); // showColourSpace
+
+    auto* colourSelector = new ColourSelector(options);
+    colourSelector->setName("background");
+    colourSelector->setCurrentColour(source->colour);
+    colourSelector->addChangeListener(this);
+    colourSelector->setColour(ColourSelector::backgroundColourId, Colours::black);
+    colourSelector->setSize(250, 270);
+
+    juce::Rectangle<int> rect = juce::Rectangle<int>(event.getScreenPosition().getX(),
+        event.getScreenPosition().getY(), 1, 1);
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(colourSelector),
+            rect,
+            nullptr);
 }
 
+void ColourDisplayCustomComponent::changeListenerCallback(ChangeBroadcaster* colourSelector)
+{
+    ColourSelector* cs = dynamic_cast <ColourSelector*>(colourSelector);
+
+    if (cs != nullptr)
+    {
+        source->processor->setTriggerSourceColour(source, cs->getCurrentColour());
+
+        repaint();
+    }
+
+}
 
 void ColourDisplayCustomComponent::paint(Graphics& g)
 {

@@ -140,6 +140,9 @@ public:
 
     /** Sets trigger source line */
     void setTriggerSourceLine(TriggerSource* source, int line);
+
+    /** Sets trigger source colour */
+    void setTriggerSourceColour(TriggerSource* source, Colour colour);
     
     /** Sets trigger source type */
     void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type);

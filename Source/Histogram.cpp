@@ -178,6 +178,13 @@ void Histogram::setPlotType(int plotType)
     repaint();
 }
 
+void Histogram::setSourceColour(Colour colour)
+{
+    baseColour = colour;
+    conditionLabel->setColour(Label::textColourId, baseColour);
+    repaint();
+}
+
 void Histogram::update()
 {
 
