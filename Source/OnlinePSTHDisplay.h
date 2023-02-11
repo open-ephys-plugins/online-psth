@@ -76,6 +76,12 @@ public:
 
     /** Changes source colour */
     void updateColourForSource(const TriggerSource* source);
+
+    /** Changes num columns */
+    void setNumColumns(int numColumns);
+
+    /** Changes row height */
+    void setRowHeight(int rowHeightPixels);
     
     /** Prepare for update*/
     void prepareToUpdate();
@@ -94,8 +100,9 @@ private:
     std::map<const SpikeChannel*, Array<Histogram*>> spikeChannelMap;
     
     int totalHeight = 0;
-    const int histogramHeight = 100;
+    int histogramHeight = 100;
     const int borderSize = 20;
+    int numColumns = 1;
     
     int post_ms;
     int plotType = 1;

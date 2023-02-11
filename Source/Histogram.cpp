@@ -83,9 +83,23 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
 void Histogram::resized()
 {
     infoLabel->setBounds(getWidth() - 150, 10, 150, 30);
-	channelLabel->setBounds(getWidth() - 150, 26, 150, 30);
-    conditionLabel->setBounds(getWidth() - 150, 45, 150, 15);
-    hoverLabel->setBounds(getWidth() - 150, 66, 150, 45);
+	
+    
+    if (getHeight() < 100)
+    {
+        conditionLabel->setBounds(getWidth() - 150, 26, 150, 15);
+        channelLabel->setVisible(false);
+        hoverLabel->setVisible(false);
+	}
+	else
+	{
+		conditionLabel->setBounds(getWidth() - 150, 45, 150, 15);
+		channelLabel->setVisible(true);
+        channelLabel->setBounds(getWidth() - 150, 26, 150, 30);
+		hoverLabel->setVisible(true);
+        hoverLabel->setBounds(getWidth() - 150, 66, 150, 45);
+	}
+    
 }
 
 void Histogram::clear()

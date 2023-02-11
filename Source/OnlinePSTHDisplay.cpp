@@ -87,6 +87,19 @@ void OnlinePSTHDisplay::updateColourForSource(const TriggerSource* source)
     }
 }
 
+void OnlinePSTHDisplay::setRowHeight(int height)
+{
+	histogramHeight = height;
+	resized();
+}
+
+void OnlinePSTHDisplay::setNumColumns(int numColumns_)
+{
+    numColumns = numColumns_;
+    resized();
+}
+
+
 
 void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms_)
 {

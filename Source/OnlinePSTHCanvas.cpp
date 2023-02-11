@@ -52,7 +52,7 @@ OptionsBar::OptionsBar(OnlinePSTHDisplay* display_)
 
     rowHeightSelector = std::make_unique<ComboBox>("Row Height Selector");
     for (int i = 1; i < 5; i++)
-        rowHeightSelector->addItem(String(i * 100) + " px", i * 100);
+        rowHeightSelector->addItem(String(i * 50) + " px", i * 50);
     rowHeightSelector->setSelectedId(300, dontSendNotification);
     rowHeightSelector->addListener(this);
     addAndMakeVisible(rowHeightSelector.get());
@@ -91,11 +91,11 @@ void OptionsBar::comboBoxChanged(ComboBox* comboBox)
     } 
 	else if (comboBox == columnNumberSelector.get())
 	{
-		//display->setColumnNumber(comboBox->getSelectedId());
+		display->setNumColumns(comboBox->getSelectedId());
 	}
 	else if (comboBox == rowHeightSelector.get())
 	{
-		//display->setRowHeight(comboBox->getSelectedId());
+		display->setRowHeight(comboBox->getSelectedId());
 	}
 }
 
