@@ -42,6 +42,27 @@ OptionsBar::OptionsBar(OnlinePSTHDisplay* display_)
     plotTypeSelector->setSelectedId(1, dontSendNotification);
     plotTypeSelector->addListener(this);
     addAndMakeVisible(plotTypeSelector.get());
+
+    columnNumberSelector = std::make_unique<ComboBox>("Column Number Selector");
+    for (int i = 1; i < 7; i++)
+        columnNumberSelector->addItem(String(i), i);
+    columnNumberSelector->setSelectedId(1, dontSendNotification);
+    columnNumberSelector->addListener(this);
+    addAndMakeVisible(columnNumberSelector.get());
+
+    rowHeightSelector = std::make_unique<ComboBox>("Row Height Selector");
+    for (int i = 1; i < 5; i++)
+        rowHeightSelector->addItem(String(i * 100) + " px", i * 100);
+    rowHeightSelector->setSelectedId(300, dontSendNotification);
+    rowHeightSelector->addListener(this);
+    addAndMakeVisible(rowHeightSelector.get());
+
+    overlayButton = std::make_unique<UtilityButton>("OFF", Font("Default", 12, Font::plain));
+    overlayButton->addListener(this);
+    overlayButton->setRadius(3.0f);
+    overlayButton->setClickingTogglesState(true);
+    addAndMakeVisible(overlayButton.get());
+    
 }
 
 void OptionsBar::buttonClicked(Button* button)
@@ -50,6 +71,16 @@ void OptionsBar::buttonClicked(Button* button)
     {
         display->clear();
     }
+
+    else if (button == overlayButton.get())
+    {
+        // display->overlayConditions(button->getToggleState());
+
+        if (overlayButton->getToggleState())
+            overlayButton->setLabel("ON");
+        else
+			overlayButton->setLabel("OFF");
+    }
 }
 
 void OptionsBar::comboBoxChanged(ComboBox* comboBox)
@@ -57,35 +88,69 @@ void OptionsBar::comboBoxChanged(ComboBox* comboBox)
     if (comboBox == plotTypeSelector.get())
     {
         display->setPlotType(comboBox->getSelectedId());
-    }
+    } 
+	else if (comboBox == columnNumberSelector.get())
+	{
+		//display->setColumnNumber(comboBox->getSelectedId());
+	}
+	else if (comboBox == rowHeightSelector.get())
+	{
+		//display->setRowHeight(comboBox->getSelectedId());
+	}
 }
 
 
 
 void OptionsBar::resized()
 {
-    clearButton->setBounds(getWidth() - 80, 5, 70, 25);
 
-    plotTypeSelector->setBounds(getWidth() - 240, 5, 150, 25);
+    const int verticalOffset = 7;
+    
+    clearButton->setBounds(getWidth() - 100, verticalOffset, 70, 25);
+
+    plotTypeSelector->setBounds(440, verticalOffset, 150, 25);
+
+    rowHeightSelector->setBounds(60, verticalOffset, 80, 25);
+
+	columnNumberSelector->setBounds(200, verticalOffset, 50, 25);
+
+	overlayButton->setBounds(340, verticalOffset, 35, 25);
 
 }
 
 void OptionsBar::paint(Graphics& g)
 {
-    g.fillAll(Colours::orange);
+    g.fillAll(Colours::black);
+
+	g.setColour(Colours::grey);
+
+    const int verticalOffset = 4;
+
+	g.drawText("Row", 0, verticalOffset, 53, 15, Justification::centredRight, false);
+    g.drawText("Height", 0, verticalOffset + 15, 53, 15, Justification::centredRight, false);
+    g.drawText("Num", 150, verticalOffset, 43, 15, Justification::centredRight, false);
+    g.drawText("Cols", 150, verticalOffset + 15, 43, 15, Justification::centredRight, false);
+    g.drawText("Overlay", 240, verticalOffset, 93, 15, Justification::centredRight, false);
+    g.drawText("Conditions", 240, verticalOffset + 15, 93, 15, Justification::centredRight, false);
+    g.drawText("Plot", 390, verticalOffset, 43, 15, Justification::centredRight, false);
+    g.drawText("Type", 390, verticalOffset + 15, 43, 15, Justification::centredRight, false);
+
 }
 
 void OptionsBar::saveCustomParametersToXml(XmlElement* xml)
 {
     xml->setAttribute("plot_type", plotTypeSelector->getSelectedId());
+    xml->setAttribute("num_cols", columnNumberSelector->getSelectedId());
+    xml->setAttribute("row_height", rowHeightSelector->getSelectedId());
+    xml->setAttribute("overlay", overlayButton->getToggleState());
 }
 
 void OptionsBar::loadCustomParametersFromXml(XmlElement* xml)
 {
-
-    int selectedId = xml->getIntAttribute("plot_type", 1);
-
-    plotTypeSelector->setSelectedId(selectedId, sendNotification);
+    columnNumberSelector->setSelectedId(xml->getIntAttribute("num_cols", 1), sendNotification);
+    rowHeightSelector->setSelectedId(xml->getIntAttribute("row_height", 300), sendNotification);
+    overlayButton->setToggleState(xml->getBoolAttribute("overlay", false), sendNotification);
+    plotTypeSelector->setSelectedId(xml->getIntAttribute("plot_type", 1), sendNotification);
 }
 
 
@@ -119,7 +184,7 @@ void OnlinePSTHCanvas::resized()
 
     const int scrollBarThickness = viewport->getScrollBarThickness();
     const int timescaleHeight = 50;
-    const int optionsBarHeight = 50;
+    const int optionsBarHeight = 40;
 
     viewport->setBounds(0, timescaleHeight, getWidth(), getHeight()- timescaleHeight -optionsBarHeight);
     

@@ -71,6 +71,10 @@ private:
     std::unique_ptr<UtilityButton> clearButton;
     std::unique_ptr<ComboBox> plotTypeSelector;
 
+    std::unique_ptr<ComboBox> columnNumberSelector;
+    std::unique_ptr<ComboBox> rowHeightSelector;
+    std::unique_ptr<UtilityButton> overlayButton;
+
     OnlinePSTHDisplay* display;
     
 };
