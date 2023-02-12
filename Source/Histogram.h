@@ -80,6 +80,9 @@ public:
     /** Sets overlay mode */
     void setOverlayMode(bool);
 
+    /** Sets overlay index */
+    void setOverlayIndex(int index);
+
     /** Listens for mouse movements */
     void mouseMove(const MouseEvent& event);
     
@@ -146,6 +149,7 @@ private:
     float histogramHeight;
 
     bool shouldDrawBackground = true;
+    int overlayIndex = 0;
     bool overlayMode = false;
     
     int maxCount = 1;

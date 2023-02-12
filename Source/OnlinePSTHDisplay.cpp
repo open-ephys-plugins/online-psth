@@ -56,6 +56,7 @@ void OnlinePSTHDisplay::resized()
     const int histogramWidth = (rightEdge - leftEdge - borderSize * (numColumns - 1)) / numColumns;
 
     int index = -1;
+    int overlayIndex = 0;
     int row = 0;
     int col = 0;
     bool drawBackground = true;
@@ -68,10 +69,10 @@ void OnlinePSTHDisplay::resized()
         {
             if (hist->spikeChannel != latestChannel)
             {
-                //std::cout << "Incrementing channel" << std::endl;
                 latestChannel = const_cast<SpikeChannel*>(hist->spikeChannel);
                 drawBackground = true;
                 index++;
+                overlayIndex = 0;
             }
 
         }
@@ -82,17 +83,21 @@ void OnlinePSTHDisplay::resized()
 		row = index / numColumns;
 		col = index % numColumns;
 
-        //std::cout << row << " : " << col << std::endl;
-        
         hist->drawBackground(drawBackground);
 		hist->setBounds(leftEdge + col * (histogramWidth + borderSize),
                        row * (histogramHeight + borderSize), 
                        histogramWidth, histogramHeight);
+       
+        hist->setOverlayMode(overlayConditions);
+        hist->setOverlayIndex(overlayIndex);
         
 
         if (overlayConditions)
+        {
             drawBackground = false;
-
+            overlayIndex++;
+        }
+            
         //std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
     }
 
@@ -142,7 +147,7 @@ void OnlinePSTHDisplay::setNumColumns(int numColumns_)
 void OnlinePSTHDisplay::setConditionOverlay(bool overlay_)
 {
 
-    std::cout << "Set condition overlay: " << overlay_ << std::endl;
+    //std::cout << "Set condition overlay: " << overlay_ << std::endl;
     overlayConditions = overlay_;
     resized();
 }

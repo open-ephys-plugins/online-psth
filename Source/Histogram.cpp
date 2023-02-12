@@ -128,8 +128,14 @@ void Histogram::resized()
 	}
 	else
 	{
-        conditionLabel->setVisible(!overlayMode);
+        conditionLabel->setVisible(true);
         channelLabel->setVisible(!overlayMode);
+
+        if (overlayMode)
+        {
+            conditionLabel->setBounds(labelOffset, 45 + 18 * overlayIndex, 150, 15);
+        }
+
 
     }
     
@@ -244,10 +250,22 @@ void Histogram::drawBackground(bool shouldDraw)
 void Histogram::setOverlayMode(bool shouldOverlay)
 {
 
+    
+
     overlayMode = shouldOverlay;
 
 }
 
+
+
+void Histogram::setOverlayIndex(int index)
+{
+   
+    overlayIndex = index;
+
+    resized();
+
+}
 
 void Histogram::update()
 {
@@ -370,6 +388,9 @@ void Histogram::paint(Graphics& g)
             
             if (plotRaster)
                 plotColour = plotColour.withBrightness(0.45f);
+
+            if (overlayMode)
+                plotColour = plotColour.withAlpha(0.5f);
             
             const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
             
@@ -449,17 +470,16 @@ void Histogram::paint(Graphics& g)
                     const float xPos = (relativeTimes[index] + float(pre_ms)) / float(pre_ms + post_ms) * histogramWidth;
                     const int sortedId = relativeTimeSortedIds[index];
                     
-                    if (sortedId == 0)
+                    if (!overlayMode)
                         g.setColour(Colours::white.withAlpha(0.8f));
                     else
-                        g.setColour(colours[(sortedId - 1) % colours.size()]);
+                        g.setColour(baseColour);
                     
                     g.fillEllipse(xPos, yPos, 2, 2);
                 }
             }
         }
     }
-    
     
     float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
     
