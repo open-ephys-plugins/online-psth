@@ -532,3 +532,33 @@ void Histogram::timerCallback()
     
     update();
 }
+
+
+DynamicObject Histogram::getInfo()
+{
+    DynamicObject info;
+
+    info.setProperty(Identifier("electrode"),
+        var(spikeChannel->getName()));
+    info.setProperty(Identifier("condition"),
+        var(source->name));
+    info.setProperty(Identifier("color"),
+        var(source->colour.toString()));
+    info.setProperty(Identifier("trial_count"),
+        var(int(numTrials)));
+    
+    Array<var> bin_edges;
+    Array<var> spike_counts;
+
+    for (int bin = 0; bin < binEdges.size() - 1; bin++)
+    {
+
+        bin_edges.add(binEdges[bin]);
+        spike_counts.add(counts[0][bin]);
+    }
+
+    info.setProperty(Identifier("bin_edges"), bin_edges);
+    info.setProperty(Identifier("spike_counts"), spike_counts);
+
+	return info;
+}

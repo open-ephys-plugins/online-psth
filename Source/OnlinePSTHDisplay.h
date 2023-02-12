@@ -95,6 +95,9 @@ public:
     /** Clears the histograms */
     void clear();
 
+    /** Returns histogram info */
+    DynamicObject getInfo();
+
 private:
     
     OwnedArray<Histogram> histograms;

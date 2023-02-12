@@ -98,6 +98,9 @@ public:
     /** Spike channel for this histogram */
     const SpikeChannel* spikeChannel;
 
+    /** Return info about this histogram */
+    DynamicObject getInfo();
+
 private:
     
     /** Updates histogram after event window closes*/

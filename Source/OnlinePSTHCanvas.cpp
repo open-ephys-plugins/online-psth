@@ -33,6 +33,12 @@ OptionsBar::OptionsBar(OnlinePSTHCanvas* canvas_, OnlinePSTHDisplay* display_, T
     clearButton->setClickingTogglesState(false);
     addAndMakeVisible(clearButton.get());
 
+    saveButton = std::make_unique<UtilityButton>("SAVE", Font("Default", 12, Font::plain));
+    saveButton->addListener(this);
+    saveButton->setRadius(3.0f);
+    saveButton->setClickingTogglesState(false);
+    addAndMakeVisible(saveButton.get());
+
     plotTypeSelector = std::make_unique<ComboBox>("Plot Type Selector");
     plotTypeSelector->addItem("Histogram", 1);
     plotTypeSelector->addItem("Raster", 2);
@@ -83,6 +89,26 @@ void OptionsBar::buttonClicked(Button* button)
 
         canvas->resized();
     }
+    else if (button == saveButton.get())
+    {
+		DynamicObject output = display->getInfo();
+
+		FileChooser chooser("Save histogram statistics to file...",
+			File(),
+			"*.json");
+
+        if (chooser.browseForFileToSave(true))
+        {
+			File file = chooser.getResult();
+
+            if (file.exists())
+                file.deleteFile();
+
+            FileOutputStream f(file);
+
+            output.writeAsJSON(f, 4, false, 4);
+        }
+    }
 }
 
 void OptionsBar::comboBoxChanged(ComboBox* comboBox)
@@ -120,6 +146,7 @@ void OptionsBar::resized()
     const int verticalOffset = 7;
     
     clearButton->setBounds(getWidth() - 100, verticalOffset, 70, 25);
+    saveButton->setBounds(getWidth() - 180, verticalOffset, 70, 25);
 
     plotTypeSelector->setBounds(440, verticalOffset, 150, 25);
 

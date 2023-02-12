@@ -219,3 +219,22 @@ void OnlinePSTHDisplay::clear()
         hist->clear();
     }
 }
+
+DynamicObject OnlinePSTHDisplay::getInfo()
+{
+
+    DynamicObject output;
+
+    Array<var> histogram_info;
+        
+    for (auto hist : histograms)
+    {
+        DynamicObject::Ptr hist_info = hist->getInfo().clone();
+        
+        histogram_info.add(hist_info.get());
+    }
+
+    output.setProperty(Identifier("histograms"), histogram_info);
+
+    return output;
+}

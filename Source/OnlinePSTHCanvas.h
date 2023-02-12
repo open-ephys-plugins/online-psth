@@ -70,6 +70,8 @@ public:
 private:
 
     std::unique_ptr<UtilityButton> clearButton;
+    std::unique_ptr<UtilityButton> saveButton;
+    
     std::unique_ptr<ComboBox> plotTypeSelector;
 
     std::unique_ptr<ComboBox> columnNumberSelector;
