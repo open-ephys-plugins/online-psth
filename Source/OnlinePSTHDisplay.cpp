@@ -107,8 +107,11 @@ void OnlinePSTHDisplay::resized()
 
 void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source)
 {
+
     Histogram* h = new Histogram(channel, source);
     h->setPlotType(plotType);
+
+    LOGD("Display adding ", channel->getName(), " for ", source->name);
     
     histograms.add(h);
     triggerSourceMap[source].add(h);

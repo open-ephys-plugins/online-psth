@@ -61,7 +61,7 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
 
 void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive || source == nullptr)
+    if (source == nullptr)
         return;
 
     std::vector<bool> channelStates;
@@ -106,7 +106,7 @@ void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int ne
 
 void TriggerTypeSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive || source == nullptr)
+    if (source == nullptr)
         return;
 
     TriggerType newType;

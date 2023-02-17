@@ -70,7 +70,6 @@ void OnlinePSTHEditor::updateSettings()
     
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
-    
     for (int i = 0; i < processor->getTotalSpikeChannels(); i++)
     {
         const SpikeChannel* channel = processor->getSpikeChannel(i);
@@ -78,7 +77,11 @@ void OnlinePSTHEditor::updateSettings()
         for (auto source : processor->getTriggerSources())
         {
             if (channel->isValid())
+            {
                 canvas->addSpikeChannel(channel, source);
+                LOGD("Editor adding ", channel->getName(), " for ", source->name);
+            }
+                
         }
     }
 

@@ -50,9 +50,14 @@ OnlinePSTH::OnlinePSTH()
                     10, 1, 100);
     
     addIntParameter(Parameter::GLOBAL_SCOPE,
-                    "trigger",
-                    "The input TTL line to trigger on",
+                    "trigger_line",
+                    "The input TTL line of the current trigger source",
                     1, 1, 16);
+
+    addIntParameter(Parameter::GLOBAL_SCOPE,
+        "trigger_type",
+        "The type of the current trigger source",
+        1, 1, 3);
     
 }
 
@@ -81,7 +86,25 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
     {
         if (canvas != nullptr)
             canvas->setBinSizeMs((int) param->getValue());
+   }
+    else if (param->getName().equalsIgnoreCase("trigger_line"))
+   {
+       if (currentTriggerSource != nullptr)
+         currentTriggerSource->line = (int) param->getValue();
     }
+    else if (param->getName().equalsIgnoreCase("trigger_type"))
+   {
+       if (currentTriggerSource != nullptr)
+       {
+           currentTriggerSource->type = (TriggerType)(int)param->getValue();
+
+           if (currentTriggerSource->type == TTL_TRIGGER)
+               currentTriggerSource->canTrigger = true;
+           else
+               currentTriggerSource->canTrigger = false;
+       }
+       
+   }
 
 }
 
@@ -120,6 +143,8 @@ TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type)
 	TriggerSource* source = new TriggerSource(this, name, line, type);
     source->colour = TriggerSource::getColourForLine(triggerSources.size());
 	triggerSources.add(source);
+
+    LOGD("Adding ", name);
 
 	return source;
 }
@@ -176,7 +201,10 @@ void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name)
 
 void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
 {
-    source->line = line;
+
+    currentTriggerSource = source;
+    
+    getParameter("trigger_line")->setNextValue(line);
 
     getEditor()->updateSettings();
 }
@@ -193,13 +221,11 @@ void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour)
 
 void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
 {
-    source->type = type;
 
-    if (source->type == TTL_TRIGGER)
-        source->canTrigger = true;
-    else
-		source->canTrigger = false;
+    currentTriggerSource = source;
 
+    getParameter("trigger_type")->setNextValue((int) type);
+    
 }
 
 void OnlinePSTH::process(AudioBuffer<float>& buffer)

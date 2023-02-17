@@ -167,6 +167,8 @@ private:
     OwnedArray<TriggerSource> triggerSources;
 
     int nextConditionIndex = 1;
+
+    TriggerSource* currentTriggerSource = nullptr;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTH);
 

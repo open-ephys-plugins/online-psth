@@ -48,7 +48,7 @@ public:
           processor(processor_),
           acquisitionIsActive(acquisitionIsActive_)
     {
-        setEditable(false, !acquisitionIsActive, false);
+        setEditable(false, true, false);
         addListener(this);
         setColour(Label::textColourId, Colours::white);
         setColour(Label::textWhenEditingColourId, Colours::yellow);
