@@ -79,7 +79,7 @@ void OnlinePSTHEditor::updateSettings()
             if (channel->isValid())
             {
                 canvas->addSpikeChannel(channel, source);
-                LOGD("Editor adding ", channel->getName(), " for ", source->name);
+                //LOGD("Editor adding ", channel->getName(), " for ", source->name);
             }
                 
         }

@@ -144,7 +144,7 @@ TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type)
     source->colour = TriggerSource::getColourForLine(triggerSources.size());
 	triggerSources.add(source);
 
-    LOGD("Adding ", name);
+    //LOGD("Adding ", name);
 
 	return source;
 }
@@ -192,34 +192,40 @@ String OnlinePSTH::ensureUniqueName(String name)
     return nameToCheck;
 }
 
-void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name)
+void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name, bool updateEditor)
 {
     source->name = name;
 
-    getEditor()->updateSettings();
+    if (updateEditor)
+        getEditor()->updateSettings();
 }
 
-void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line)
+void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line, bool updateEditor)
 {
 
     currentTriggerSource = source;
     
     getParameter("trigger_line")->setNextValue(line);
 
-    getEditor()->updateSettings();
+    if (updateEditor)
+        getEditor()->updateSettings();
 }
 
-void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour)
+void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour, bool updateEditor)
 {
     source->colour = colour;
 
-	OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+    if (updateEditor)
+    {
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
 
-    editor->updateColours(source);
+        editor->updateColours(source);
+    }
+	
 }
 
 
-void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type)
+void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type, bool updateEditor)
 {
 
     currentTriggerSource = source;
@@ -259,6 +265,95 @@ void OnlinePSTH::handleBroadcastMessage(String message)
         }
     }
 }
+
+String OnlinePSTH::handleConfigMessage(String message)
+{
+    LOGD("Online PSTH received ", message);
+
+    var parsedMessage = JSON::parse(message);
+    
+    if (!parsedMessage.isObject())
+        return "Invalid JSON string";
+    
+    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
+    
+    if (jsonMessage == nullptr)
+        return "Invalid JSON string";
+    
+    int condition_index;
+    bool foundValue = getIntField(jsonMessage,
+        "condition_index", // field name
+        condition_index,   // value to set
+        0,                 // minimum value
+        triggerSources.size()); // maximum value
+
+    LOGD(condition_index);
+
+    if (!foundValue || condition_index >= triggerSources.size())
+        return "Condition index out of bounds.";
+
+    TriggerSource* source = triggerSources[condition_index];
+
+    if (jsonMessage->hasProperty("name"))
+    {
+        String name = ensureUniqueName(jsonMessage->getProperty("name"));
+        
+        setTriggerSourceName(source, name, false);
+    }
+
+    if (jsonMessage->hasProperty("ttl_line"))
+    {
+        int ttl_line;
+        bool foundValue = getIntField(jsonMessage,
+            "ttl_line", // field name
+            ttl_line,   // value to set
+            1,                 // minimum value
+            16); // maximum value
+
+        if (foundValue)
+            setTriggerSourceLine(source, ttl_line - 1, false);
+    }
+
+    if (jsonMessage->hasProperty("trigger_type"))
+    {
+        int trigger_type;
+        bool foundValue = getIntField(jsonMessage,
+            "trigger_type", // field name
+            trigger_type,   // value to set
+            1,                 // minimum value
+            3); // maximum value
+
+        if (foundValue)
+            setTriggerSourceTriggerType(source, (TriggerType) trigger_type, false);
+    }
+
+    startTimer(100);
+    
+    return "Message received.";
+}
+
+bool OnlinePSTH::getIntField(DynamicObject::Ptr payload, 
+        String name, 
+        int& value, 
+        int lowerBound, 
+        int upperBound) 
+{
+    if (!payload->hasProperty(name) || !payload->getProperty(name).isInt())
+        return false;
+    int tempVal = payload->getProperty(name);
+    if ((upperBound != INT_MIN && tempVal > upperBound) || (lowerBound != INT_MAX && tempVal < lowerBound))
+        return false;
+    value = tempVal;
+    return true;
+}
+
+void OnlinePSTH::timerCallback()
+{
+    stopTimer();
+
+    editor->updateSettings();
+}
+
 
 void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
 {

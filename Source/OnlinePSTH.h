@@ -92,7 +92,7 @@ class OnlinePSTHCanvas;
 
 */
 
-class OnlinePSTH : public GenericProcessor
+class OnlinePSTH : public GenericProcessor, public Timer
 {
 public:
 
@@ -136,16 +136,16 @@ public:
     String ensureUniqueName(String name);
 
     /** Sets trigger source name*/
-    void setTriggerSourceName(TriggerSource* source, String name);
+    void setTriggerSourceName(TriggerSource* source, String name, bool updateEditor = true);
 
     /** Sets trigger source line */
-    void setTriggerSourceLine(TriggerSource* source, int line);
+    void setTriggerSourceLine(TriggerSource* source, int line, bool updateEditor = true);
 
     /** Sets trigger source colour */
-    void setTriggerSourceColour(TriggerSource* source, Colour colour);
+    void setTriggerSourceColour(TriggerSource* source, Colour colour, bool updateEditor = true);
     
     /** Sets trigger source type */
-    void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type);
+    void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type, bool updateEditor = true);
 
     /** Saves trigger source parameters */
     void saveCustomParametersToXml(XmlElement* xml) override;
@@ -157,12 +157,25 @@ private:
 
     /** Responds to incoming broadcast messages */
     void handleBroadcastMessage(String message) override;
+
+    /** Responds to incoming configuration messages */
+    String handleConfigMessage(String message) override;
+
+    /** Helper method for parsing dynamic objects */
+    bool getIntField(DynamicObject::Ptr payload,
+        String name,
+        int& value,
+        int lowerBound,
+        int upperBound);
     
     /** Pushes incoming events to the canvas */
     void handleTTLEvent (TTLEventPtr event) override;
 
     /** Pushes incoming spikes to the canvas */
     void handleSpike(SpikePtr spike) override;
+
+    /** Updates editor after receiving config message */
+    void timerCallback() override;
 
     OwnedArray<TriggerSource> triggerSources;
 
