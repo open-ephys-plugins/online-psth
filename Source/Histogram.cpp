@@ -35,13 +35,13 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
     post_ms = 0;
     bin_size_ms = 10;
     
-    infoLabel = new Label("info label");
+    infoLabel = std::make_unique<Label>("info label");
     infoLabel->setJustificationType(Justification::topLeft);
     infoLabel->setText(channel->getName(), dontSendNotification);
     infoLabel->setColour(Label::textColourId, Colours::white);
-    addAndMakeVisible(infoLabel);
+    addAndMakeVisible(infoLabel.get());
 
-    channelLabel = new Label("channel label");
+    channelLabel = std::make_unique<Label>("channel label");
     channelLabel->setFont(14);
     channelLabel->setJustificationType(Justification::topLeft);
     channelLabel->setColour(Label::textColourId, Colours::white);
@@ -52,29 +52,31 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
 
     channelString = channelString.substring(0, channelString.length() - 2);
     channelLabel->setText(channelString, dontSendNotification);
-    addAndMakeVisible(channelLabel);
+    addAndMakeVisible(channelLabel.get());
     
-    conditionLabel = new Label("condition label");
+    conditionLabel = std::make_unique<Label>("condition label");
     conditionLabel->setFont(16);
     conditionLabel->setJustificationType(Justification::topLeft);
     conditionLabel->setText(source->name, dontSendNotification);
     conditionLabel->setColour(Label::textColourId, baseColour);
-    addAndMakeVisible(conditionLabel);
+    addAndMakeVisible(conditionLabel.get());
     
-    hoverLabel = new Label("hover label");
+    hoverLabel = std::make_unique<Label>("hover label");
     hoverLabel->setJustificationType(Justification::topLeft);
     hoverLabel->setFont(12);
     hoverLabel->setColour(Label::textColourId, Colours::white);
-    addAndMakeVisible(hoverLabel);
-    
-    colours.add(Colour(255, 224, 93));
-    colours.add(Colour(255, 178, 99));
-    colours.add(Colour(255, 109, 161));
-    colours.add(Colour(246, 102, 255));
-    colours.add(Colour(175, 98, 255));
-    colours.add(Colour(90, 241, 233));
-    colours.add(Colour(109, 175, 136));
-    colours.add(Colour(160, 237, 181));
+    addAndMakeVisible(hoverLabel.get());
+
+    unitSelector = std::make_unique<ComboBox>("Unit selector");
+    unitSelector->addItem("Unit 0", 1);
+    unitSelector->setSelectedId(1);
+    unitSelector->addListener(this);
+    addChildComponent(unitSelector.get());
+
+    maxCounts.add(1);
+    uniqueSortedIds.add(0);
+    counts.add(Array<int>());
+    maxSortedId = 0;
 
     clear();
     
@@ -82,7 +84,6 @@ Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
 
 void Histogram::resized()
 {
-    
     
     int labelOffset;
     const int width = getWidth();
@@ -103,6 +104,7 @@ void Histogram::resized()
     histogramHeight = getHeight() - 10;
     
     infoLabel->setBounds(labelOffset, 10, 150, 30);
+    unitSelector->setBounds(labelOffset + 5, 28, 100, 20);
     
     if (getHeight() < 100)
     {
@@ -112,7 +114,7 @@ void Histogram::resized()
 	}
 	else
 	{
-		conditionLabel->setBounds(labelOffset, 45, 150, 15);
+		conditionLabel->setBounds(labelOffset, 49, 150, 15);
 		channelLabel->setVisible(!overlayMode);
         channelLabel->setBounds(labelOffset, 26, 150, 30);
 
@@ -133,10 +135,8 @@ void Histogram::resized()
 
         if (overlayMode)
         {
-            conditionLabel->setBounds(labelOffset, 45 + 18 * overlayIndex, 150, 15);
+            conditionLabel->setBounds(labelOffset, 49 + 18 * overlayIndex, 150, 15);
         }
-
-
     }
     
 }
@@ -155,7 +155,7 @@ void Histogram::clear()
 void Histogram::addSpike(int64 sample_number, int sortedId)
 {
     
-    const ScopedLock lock(mutex);
+    //const ScopedLock lock(mutex);
     
     newSpikeSampleNumbers.add(sample_number);
     newSpikeSortedIds.add(sortedId);
@@ -166,6 +166,10 @@ void Histogram::addSpike(int64 sample_number, int sortedId)
     {
         sortedIdIndex = uniqueSortedIds.size();
         uniqueSortedIds.add(sortedId);
+        if (sortedId > 0)
+            unitSelector->addItem("Unit " + String(sortedId), sortedId + 1);
+
+        maxCounts.add(1);
         counts.add(Array<int>());
         maxSortedId = jmax(sortedId, maxSortedId);
     }
@@ -331,7 +335,7 @@ void Histogram::recount(bool full)
         }
     }
 
-    maxCount = 1;
+    maxCounts.fill(1);
 
     for (int i = 0; i < relativeTimes.size(); i++)
     {
@@ -341,16 +345,13 @@ void Histogram::recount(bool full)
             for (int j = 0; j < nBins; j++)
             {
 
-                maxCount = jmax(counts[0][j], maxCount);
-
                 if (relativeTimes[i] > binEdges[j] && relativeTimes[i] < binEdges[j + 1])
                 {
                     int sortedIdIndex = uniqueSortedIds.indexOf(relativeTimeSortedIds[i]);
                     int lastCount = counts[sortedIdIndex][j];
                     int newCount = lastCount + 1;
 
-                    if (sortedIdIndex == 0)
-                        maxCount = jmax(newCount, maxCount);
+                    maxCounts.set(sortedIdIndex, jmax(newCount, maxCounts[sortedIdIndex]));
 
                     counts.getReference(sortedIdIndex).set(j, newCount);
 
@@ -367,6 +368,9 @@ void Histogram::recount(bool full)
 
 void Histogram::paint(Graphics& g)
 {
+
+    if (unitSelector->getNumItems() > 1 && !unitSelector->isVisible())
+        unitSelector->setVisible(true);
     
     if (shouldDrawBackground)
       g.fillAll(Colour(30,30,40));
@@ -376,42 +380,35 @@ void Histogram::paint(Graphics& g)
     
     if (plotHistogram)
     {
-        for (int sortedId = 0; sortedId < maxSortedId + 1; sortedId++)
-        {
-            
-            Colour plotColour;
-            
-            if (sortedId == 0)
-                plotColour = baseColour;
-            else
-                plotColour = colours[(sortedId - 1) % colours.size()];
-            
-            if (plotRaster)
-                plotColour = plotColour.withBrightness(0.45f);
 
-            if (overlayMode)
-                plotColour = plotColour.withAlpha(0.5f);
+        Colour plotColour = baseColour;
+
+        if (plotRaster)
+            plotColour = plotColour.withBrightness(0.45f);
+
+        if (overlayMode)
+            plotColour = plotColour.withAlpha(0.5f);
             
-            const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
+        const int sortedIdIndex = uniqueSortedIds.indexOf(currentUnitId);
             
-            if (sortedIdIndex < 0)
-                continue;
-            
+        if (sortedIdIndex >= 0)
+        {
             for (int i = 0; i < nBins; i++)
             {
                 if (hoverBin == i)
                     g.setColour(plotColour.withAlpha(0.85f));
                 else
                     g.setColour(plotColour);
-                
+
                 float x = binWidth * i;
-                float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCount);
+                float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCounts[sortedIdIndex]);
                 float height = relativeHeight * histogramHeight;
                 float y = 10 + histogramHeight - height;
-                g.fillRect(x, y, binWidth+1, height);
+                g.fillRect(x, y, binWidth + 1, height);
 
             }
         }
+
     }
 
     if (plotLine)
@@ -419,37 +416,31 @@ void Histogram::paint(Graphics& g)
         for (int sortedId = 0; sortedId < maxSortedId + 1; sortedId++)
         {
 
-            Colour plotColour;
+            const int sortedIdIndex = uniqueSortedIds.indexOf(currentUnitId);
 
-            if (sortedId == 0)
-                plotColour = baseColour;
-            else
-                plotColour = colours[(sortedId - 1) % colours.size()];
-
-            const int sortedIdIndex = uniqueSortedIds.indexOf(sortedId);
-
-            if (sortedIdIndex < 0)
-                continue;
-
-			g.setColour(plotColour);
-
-            for (int i = 0; i < nBins - 1; i++)
+            if (sortedIdIndex >= 0)
             {
-                
-                float x1 = binWidth * i + binWidth / 2;
-                float x2 = binWidth * (i + 1) + binWidth / 2;
-                float relativeHeight1 = float(counts[sortedIdIndex][i]) / float(maxCount);
-                float height1 = relativeHeight1 * histogramHeight;
-                float y1 = 9 + histogramHeight - height1;
-                float relativeHeight2 = float(counts[sortedIdIndex][i+1]) / float(maxCount);
-                float height2 = relativeHeight2 * histogramHeight;
-                float y2 = 9 + histogramHeight - height2;
-                g.drawLine(x1, y1, x2, y2, 2.0f);
+                g.setColour(baseColour);
 
-                if (hoverBin == i)
-					g.fillEllipse(x1 - 3, y1 - 3, 6, 6);
+                for (int i = 0; i < nBins - 1; i++)
+                {
 
+                    float x1 = binWidth * i + binWidth / 2;
+                    float x2 = binWidth * (i + 1) + binWidth / 2;
+                    float relativeHeight1 = float(counts[sortedIdIndex][i]) / float(maxCounts[sortedIdIndex]);
+                    float height1 = relativeHeight1 * histogramHeight;
+                    float y1 = 9 + histogramHeight - height1;
+                    float relativeHeight2 = float(counts[sortedIdIndex][i + 1]) / float(maxCounts[sortedIdIndex]);
+                    float height2 = relativeHeight2 * histogramHeight;
+                    float y2 = 9 + histogramHeight - height2;
+                    g.drawLine(x1, y1, x2, y2, 2.0f);
+
+                    if (hoverBin == i)
+                        g.fillEllipse(x1 - 3, y1 - 3, 6, 6);
+
+                }
             }
+			
         }
     }
     
@@ -462,7 +453,7 @@ void Histogram::paint(Graphics& g)
         
         for (int index = 0; index < relativeTimes.size(); index++)
         {
-            if (relativeTimeTrialIndices[index] >= firstTrial)
+            if (relativeTimeTrialIndices[index] >= firstTrial && relativeTimeSortedIds[index] == currentUnitId)
             {
                 if (relativeTimes[index] > -pre_ms && relativeTimes[index] < post_ms)
                 {
@@ -531,6 +522,13 @@ void Histogram::timerCallback()
     waitingForWindowToClose = false;
     
     update();
+}
+
+void Histogram::comboBoxChanged(ComboBox* comboBox)
+{
+    currentUnitId = uniqueSortedIds[comboBox->getSelectedItemIndex()];
+
+    repaint();
 }
 
 

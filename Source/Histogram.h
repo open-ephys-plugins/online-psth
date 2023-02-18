@@ -37,7 +37,8 @@ class TriggerSource;
  */
 class Histogram :
     public Component,
-    public Timer
+    public Timer,
+    public ComboBox::Listener
 {
 public:
     
@@ -88,6 +89,9 @@ public:
     
     /** Listens for mouse movements */
     void mouseExit(const MouseEvent& event);
+
+    /** Listens for ComboBox callbacks */
+    void comboBoxChanged(ComboBox* comboBox) override;
     
     /** Called by OnlinePSTHDisplay after event window closes */
     void update();
@@ -112,10 +116,11 @@ private:
     /** Recomputes bin counts */
     void recount(bool full=true);
     
-    ScopedPointer<Label> infoLabel;
-    ScopedPointer<Label> channelLabel;
-    ScopedPointer<Label> conditionLabel;
-    ScopedPointer<Label> hoverLabel;
+    std::unique_ptr<Label> infoLabel;
+    std::unique_ptr<Label> channelLabel;
+    std::unique_ptr<Label> conditionLabel;
+    std::unique_ptr<Label> hoverLabel;
+    std::unique_ptr<ComboBox> unitSelector;
     
     Array<int64> newSpikeSampleNumbers;
     Array<int> newSpikeSortedIds;
@@ -136,13 +141,11 @@ private:
     Array<double> relativeTimes;
     Array<int> relativeTimeTrialIndices;
     Array<int> relativeTimeSortedIds;
-    Array<Colour> colours;
     Colour baseColour;
     
     Array<Array<int>> counts;
 
     const TriggerSource* source;
-    
     
     int pre_ms;
     int post_ms;
@@ -155,15 +158,15 @@ private:
     int overlayIndex = 0;
     bool overlayMode = false;
     
-    int maxCount = 1;
+    Array<int> maxCounts;
     
     int hoverBin = -1;
-    
-    CriticalSection mutex;
     
     bool waitingForWindowToClose;
     
     float numTrials = 0;
+
+    int currentUnitId = 0;
     
     const double sample_rate;
     
