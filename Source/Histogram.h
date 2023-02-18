@@ -29,6 +29,7 @@
 #include <vector>
 
 class TriggerSource;
+class OnlinePSTHDisplay;
 
 /**
  
@@ -43,7 +44,7 @@ class Histogram :
 public:
     
     /** Constructor */
-    Histogram(const SpikeChannel* channel, const TriggerSource* triggerSource);
+    Histogram(OnlinePSTHDisplay*, const SpikeChannel* channel, const TriggerSource* triggerSource);
     
     /** Destructor */
     ~Histogram() { }
@@ -74,6 +75,9 @@ public:
 
     /** Sets the plot colour */
     void setSourceColour(Colour colour);
+
+    /** Sets the unit ID */
+    void setUnitId(int unitId);
 
     /** Sets background draw state */
     void drawBackground(bool);
@@ -146,6 +150,7 @@ private:
     Array<Array<int>> counts;
 
     const TriggerSource* source;
+    OnlinePSTHDisplay* display;
     
     int pre_ms;
     int post_ms;
@@ -155,6 +160,7 @@ private:
     float histogramHeight;
 
     bool shouldDrawBackground = true;
+
     int overlayIndex = 0;
     bool overlayMode = false;
     

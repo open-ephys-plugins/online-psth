@@ -85,6 +85,9 @@ public:
 
     /** Sets whether conditions are overlaid or not */
     void setConditionOverlay(bool);
+
+    /** Sets selected unit in condition overlay mode */
+    void setUnitForElectrode(const SpikeChannel* channel, int unitId);
     
     /** Prepare for update*/
     void prepareToUpdate();

@@ -94,6 +94,7 @@ void OnlinePSTHDisplay::resized()
 
         if (overlayConditions)
         {
+
             drawBackground = false;
             overlayIndex++;
         }
@@ -108,7 +109,7 @@ void OnlinePSTHDisplay::resized()
 void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source)
 {
 
-    Histogram* h = new Histogram(channel, source);
+    Histogram* h = new Histogram(this, channel, source);
     h->setPlotType(plotType);
 
     //LOGD("Display adding ", channel->getName(), " for ", source->name);
@@ -155,6 +156,14 @@ void OnlinePSTHDisplay::setConditionOverlay(bool overlay_)
     resized();
 }
 
+
+void OnlinePSTHDisplay::setUnitForElectrode(const SpikeChannel* channel, int unitId)
+{
+	for (auto hist : spikeChannelMap[channel])
+	{
+		hist->setUnitId(unitId);
+	}
+}
 
 
 void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms_)

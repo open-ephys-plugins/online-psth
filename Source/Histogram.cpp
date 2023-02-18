@@ -23,9 +23,10 @@
 #include "Histogram.h"
 
 #include "OnlinePSTH.h"
+#include "OnlinePSTHDisplay.h"
 
-Histogram::Histogram(const SpikeChannel* channel, const TriggerSource* source_)
-    : sample_rate(channel->getSampleRate()), spikeChannel(channel), source(source_), baseColour(source_->colour),
+Histogram::Histogram(OnlinePSTHDisplay* display_, const SpikeChannel* channel, const TriggerSource* source_)
+    : display(display_), sample_rate(channel->getSampleRate()), spikeChannel(channel), source(source_), baseColour(source_->colour),
       streamId(channel->getStreamId()),
       waitingForWindowToClose(false),
       latestEventSampleNumber(0)
@@ -370,7 +371,10 @@ void Histogram::paint(Graphics& g)
 {
 
     if (unitSelector->getNumItems() > 1 && !unitSelector->isVisible())
+    {
         unitSelector->setVisible(true);
+    }
+        
     
     if (shouldDrawBackground)
       g.fillAll(Colour(30,30,40));
@@ -526,9 +530,29 @@ void Histogram::timerCallback()
 
 void Histogram::comboBoxChanged(ComboBox* comboBox)
 {
-    currentUnitId = uniqueSortedIds[comboBox->getSelectedItemIndex()];
+    
+    if (overlayMode)
+    {
+        display->setUnitForElectrode(spikeChannel, uniqueSortedIds[comboBox->getSelectedItemIndex()]);
+    }
+    else {
+        currentUnitId = uniqueSortedIds[comboBox->getSelectedItemIndex()];
 
-    repaint();
+        repaint();
+    }
+
+}
+
+void Histogram::setUnitId(int unitId)
+{
+	currentUnitId = unitId;
+
+	if (uniqueSortedIds.contains(currentUnitId))
+        unitSelector->setSelectedItemIndex(uniqueSortedIds.indexOf(currentUnitId));
+	else
+        unitSelector->setSelectedItemIndex(0);
+
+	repaint();
 }
 
 
