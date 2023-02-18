@@ -76,6 +76,9 @@ public:
     /** Sets the plot colour */
     void setSourceColour(Colour colour);
 
+    /** Sets the condition name */
+    void setSourceName(String name);
+
     /** Sets the unit ID */
     void setUnitId(int unitId);
 

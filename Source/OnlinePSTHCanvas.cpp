@@ -286,6 +286,11 @@ void OnlinePSTHCanvas::updateColourForSource(const TriggerSource* source)
     display->updateColourForSource(source);
 }
 
+void OnlinePSTHCanvas::updateConditionName(const TriggerSource* source)
+{
+    display->updateConditionName(source);
+}
+
 void OnlinePSTHCanvas::prepareToUpdate()
 {
     display->prepareToUpdate();

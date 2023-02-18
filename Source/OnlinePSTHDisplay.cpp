@@ -135,6 +135,16 @@ void OnlinePSTHDisplay::updateColourForSource(const TriggerSource* source)
     }
 }
 
+void OnlinePSTHDisplay::updateConditionName(const TriggerSource* source)
+{
+    Array<Histogram*> h = triggerSourceMap[source];
+
+    for (auto hist : h)
+    {
+        hist->setSourceName(source->name);
+    }
+}
+
 void OnlinePSTHDisplay::setRowHeight(int height)
 {
 	histogramHeight = height;

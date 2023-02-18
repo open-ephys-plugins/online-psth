@@ -197,7 +197,11 @@ void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name, bool u
     source->name = name;
 
     if (updateEditor)
-        getEditor()->updateSettings();
+    {
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+
+        editor->updateConditionName(source);
+    }
 }
 
 void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line, bool updateEditor)
@@ -207,8 +211,6 @@ void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line, bool upda
     
     getParameter("trigger_line")->setNextValue(line);
 
-    if (updateEditor)
-        getEditor()->updateSettings();
 }
 
 void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour, bool updateEditor)

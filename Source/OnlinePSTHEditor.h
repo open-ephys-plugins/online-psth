@@ -58,6 +58,9 @@ public:
     /** Called when source colours are updated */
     void updateColours(TriggerSource*);
 
+    /** Called when condition name is updated */
+    void updateConditionName(TriggerSource*);
+
     /** Called when configure button is clicked */
     void buttonClicked(Button* button) override;
 

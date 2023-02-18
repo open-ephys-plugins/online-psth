@@ -77,6 +77,9 @@ public:
     /** Changes source colour */
     void updateColourForSource(const TriggerSource* source);
 
+    /** Changes source name */
+    void updateConditionName(const TriggerSource* source);
+
     /** Changes num columns */
     void setNumColumns(int numColumns);
 

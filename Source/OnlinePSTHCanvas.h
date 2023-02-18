@@ -137,6 +137,9 @@ public:
     /** Changes source colour */
     void updateColourForSource(const TriggerSource* source);
 
+    /** Changes source name */
+    void updateConditionName(const TriggerSource* source);
+
     /** Prepare for update*/
     void prepareToUpdate();
     

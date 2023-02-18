@@ -243,6 +243,11 @@ void Histogram::setSourceColour(Colour colour)
     repaint();
 }
 
+void Histogram::setSourceName(String name)
+{
+    conditionLabel->setText(name, dontSendNotification);
+}
+
 
 void Histogram::drawBackground(bool shouldDraw)
 {

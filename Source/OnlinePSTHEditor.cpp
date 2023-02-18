@@ -107,6 +107,19 @@ void OnlinePSTHEditor::updateColours(TriggerSource* source)
 }
 
 
+void OnlinePSTHEditor::updateConditionName(TriggerSource* source)
+{
+
+    if (canvas == nullptr)
+        return;
+
+    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+
+    canvas->updateConditionName(source);
+}
+
+
+
 void OnlinePSTHEditor::buttonClicked(Button* button)
 {
 
