@@ -52,7 +52,7 @@ OnlinePSTH::OnlinePSTH()
     addIntParameter(Parameter::GLOBAL_SCOPE,
                     "trigger_line",
                     "The input TTL line of the current trigger source",
-                    1, 1, 16);
+                    0, 0, 255);
 
     addIntParameter(Parameter::GLOBAL_SCOPE,
         "trigger_type",
@@ -90,7 +90,9 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
     else if (param->getName().equalsIgnoreCase("trigger_line"))
    {
        if (currentTriggerSource != nullptr)
-         currentTriggerSource->line = (int) param->getValue();
+       {
+		   currentTriggerSource->line = (int)param->getValue();
+       }
     }
     else if (param->getName().equalsIgnoreCase("trigger_type"))
    {
@@ -298,9 +300,9 @@ String OnlinePSTH::handleConfigMessage(String message)
 
     if (jsonMessage->hasProperty("name"))
     {
-        String name = ensureUniqueName(jsonMessage->getProperty("name"));
-        
-        setTriggerSourceName(source, name, false);
+        setTriggerSourceName(source, jsonMessage->getProperty("name"), false);
+
+        startTimer(100);
     }
 
     if (jsonMessage->hasProperty("ttl_line"))
@@ -310,7 +312,7 @@ String OnlinePSTH::handleConfigMessage(String message)
             "ttl_line", // field name
             ttl_line,   // value to set
             1,                 // minimum value
-            16); // maximum value
+            256); // maximum value
 
         if (foundValue)
             setTriggerSourceLine(source, ttl_line - 1, false);
@@ -328,8 +330,6 @@ String OnlinePSTH::handleConfigMessage(String message)
         if (foundValue)
             setTriggerSourceTriggerType(source, (TriggerType) trigger_type, false);
     }
-
-    startTimer(100);
     
     return "Message received.";
 }
@@ -353,7 +353,13 @@ void OnlinePSTH::timerCallback()
 {
     stopTimer();
 
-    editor->updateSettings();
+    for (auto source : getTriggerSources())
+    {
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+
+        editor->updateConditionName(source);
+    }
+
 }
 
 
