@@ -57,9 +57,9 @@ OptionsBar::OptionsBar(OnlinePSTHCanvas* canvas_, OnlinePSTHDisplay* display_, T
     addAndMakeVisible(columnNumberSelector.get());
 
     rowHeightSelector = std::make_unique<ComboBox>("Row Height Selector");
-    for (int i = 1; i < 5; i++)
+    for (int i = 2; i < 6; i++)
         rowHeightSelector->addItem(String(i * 50) + " px", i * 50);
-    rowHeightSelector->setSelectedId(300, dontSendNotification);
+    rowHeightSelector->setSelectedId(150, dontSendNotification);
     rowHeightSelector->addListener(this);
     addAndMakeVisible(rowHeightSelector.get());
 
@@ -132,6 +132,7 @@ void OptionsBar::comboBoxChanged(ComboBox* comboBox)
 	}
 	else if (comboBox == rowHeightSelector.get())
 	{
+
 		display->setRowHeight(comboBox->getSelectedId());
 
         canvas->resized();
@@ -188,7 +189,7 @@ void OptionsBar::saveCustomParametersToXml(XmlElement* xml)
 void OptionsBar::loadCustomParametersFromXml(XmlElement* xml)
 {
     columnNumberSelector->setSelectedId(xml->getIntAttribute("num_cols", 1), sendNotification);
-    rowHeightSelector->setSelectedId(xml->getIntAttribute("row_height", 300), sendNotification);
+    rowHeightSelector->setSelectedId(xml->getIntAttribute("row_height", 150), sendNotification);
     overlayButton->setToggleState(xml->getBoolAttribute("overlay", false), sendNotification);
     plotTypeSelector->setSelectedId(xml->getIntAttribute("plot_type", 1), sendNotification);
 }
@@ -305,6 +306,5 @@ void OnlinePSTHCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void OnlinePSTHCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
     optionsBar->loadCustomParametersFromXml(xml);
 }

@@ -147,6 +147,7 @@ void Histogram::clear()
     relativeTimes.clear();
     relativeTimeSortedIds.clear();
     relativeTimeTrialIndices.clear();
+    maxCounts.fill(1);
     
     numTrials = 0;
 
@@ -260,9 +261,11 @@ void Histogram::drawBackground(bool shouldDraw)
 void Histogram::setOverlayMode(bool shouldOverlay)
 {
 
-    
-
     overlayMode = shouldOverlay;
+
+    maxCounts.fill(1);
+
+    recount();
 
 }
 
@@ -341,8 +344,6 @@ void Histogram::recount(bool full)
         }
     }
 
-    maxCounts.fill(1);
-
     for (int i = 0; i < relativeTimes.size(); i++)
     {
 
@@ -357,8 +358,6 @@ void Histogram::recount(bool full)
                     int lastCount = counts[sortedIdIndex][j];
                     int newCount = lastCount + 1;
 
-                    maxCounts.set(sortedIdIndex, jmax(newCount, maxCounts[sortedIdIndex]));
-
                     counts.getReference(sortedIdIndex).set(j, newCount);
 
                     continue;
@@ -368,6 +367,25 @@ void Histogram::recount(bool full)
         }
 
     }
+    
+	for (int i = 0; i < counts.size(); i++)
+	{
+		int maxCount = 1;
+
+		for (int j = 0; j < nBins; j++)
+		{
+			maxCount = jmax(maxCount, counts[i][j]);
+		}
+
+        if (maxCount > maxCounts[i])
+        {
+            maxCounts.set(i, maxCount);
+
+            if (overlayMode)
+                display->setMaxCountForElectrode(spikeChannel, uniqueSortedIds[i], maxCount);
+        }
+		
+	}
     
     repaint();
 }
@@ -413,7 +431,7 @@ void Histogram::paint(Graphics& g)
                 float relativeHeight = float(counts[sortedIdIndex][i]) / float(maxCounts[sortedIdIndex]);
                 float height = relativeHeight * histogramHeight;
                 float y = 10 + histogramHeight - height;
-                g.fillRect(x, y, binWidth + 1, height);
+                g.fillRect(x, y, binWidth + 0.5f, height);
 
             }
         }
@@ -468,8 +486,7 @@ void Histogram::paint(Graphics& g)
                 {
                     const float yPos = float(relativeTimeTrialIndices[index] - firstTrial) / float(maxRasterTrials) * (histogramHeight+10);
                     const float xPos = (relativeTimes[index] + float(pre_ms)) / float(pre_ms + post_ms) * histogramWidth;
-                    const int sortedId = relativeTimeSortedIds[index];
-                    
+
                     if (!overlayMode)
                         g.setColour(Colours::white.withAlpha(0.8f));
                     else
@@ -499,9 +516,11 @@ void Histogram::mouseMove(const MouseEvent &event)
         hoverBin = (int) (float(event.getPosition().x) / binWidth);
         
         float firing_rate;
+
+		const int sortedIdIndex = uniqueSortedIds.indexOf(currentUnitId);
         
         if (numTrials > 0)
-            firing_rate = float(counts[0][hoverBin] / numTrials) / (float(bin_size_ms) / 1000.0f) ;
+            firing_rate = float(counts[sortedIdIndex][hoverBin] / numTrials) / (float(bin_size_ms) / 1000.0f) ;
         else
             firing_rate = 0;
         
@@ -543,6 +562,7 @@ void Histogram::comboBoxChanged(ComboBox* comboBox)
     else {
         currentUnitId = uniqueSortedIds[comboBox->getSelectedItemIndex()];
 
+        recount();
         repaint();
     }
 
@@ -557,7 +577,21 @@ void Histogram::setUnitId(int unitId)
 	else
         unitSelector->setSelectedItemIndex(0);
 
+    recount();
 	repaint();
+}
+
+void Histogram::setMaxCount(int unitId, int count)
+{
+
+    const int sortedIdIndex = uniqueSortedIds.indexOf(unitId);
+    
+	if (maxCounts[sortedIdIndex] < count)
+	{
+		maxCounts.set(sortedIdIndex, count);
+		repaint();
+	}
+
 }
 
 

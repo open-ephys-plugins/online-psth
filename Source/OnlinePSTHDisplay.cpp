@@ -98,8 +98,6 @@ void OnlinePSTHDisplay::resized()
             drawBackground = false;
             overlayIndex++;
         }
-            
-        //std::cout << "Histogram bounds: 0, " << totalHeight << ", " << getWidth() << ", " << histogramHeight << std::endl;
     }
 
     totalHeight = (row + 1) * (histogramHeight + borderSize);
@@ -147,6 +145,7 @@ void OnlinePSTHDisplay::updateConditionName(const TriggerSource* source)
 
 void OnlinePSTHDisplay::setRowHeight(int height)
 {
+
 	histogramHeight = height;
 	resized();
 }
@@ -161,7 +160,6 @@ void OnlinePSTHDisplay::setNumColumns(int numColumns_)
 void OnlinePSTHDisplay::setConditionOverlay(bool overlay_)
 {
 
-    //std::cout << "Set condition overlay: " << overlay_ << std::endl;
     overlayConditions = overlay_;
     resized();
 }
@@ -173,6 +171,15 @@ void OnlinePSTHDisplay::setUnitForElectrode(const SpikeChannel* channel, int uni
 	{
 		hist->setUnitId(unitId);
 	}
+}
+
+
+void OnlinePSTHDisplay::setMaxCountForElectrode(const SpikeChannel* channel, int unitId, int maxCount)
+{
+    for (auto hist : spikeChannelMap[channel])
+    {
+        hist->setMaxCount(unitId, maxCount);
+    }
 }
 
 

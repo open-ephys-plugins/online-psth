@@ -91,6 +91,9 @@ public:
 
     /** Sets selected unit in condition overlay mode */
     void setUnitForElectrode(const SpikeChannel* channel, int unitId);
+
+    /** Sets the max count in overlay mode */
+    void setMaxCountForElectrode(const SpikeChannel* channel, int unitId, int maxCount);
     
     /** Prepare for update*/
     void prepareToUpdate();
@@ -112,7 +115,7 @@ private:
     std::map<const SpikeChannel*, Array<Histogram*>> spikeChannelMap;
     
     int totalHeight = 0;
-    int histogramHeight = 100;
+    int histogramHeight = 150;
     int borderSize = 10;
     int numColumns = 1;
 

@@ -82,6 +82,9 @@ public:
     /** Sets the unit ID */
     void setUnitId(int unitId);
 
+    /** Sets the max count (used in condition overlay mode) */
+    void setMaxCount(int unitId, int count);
+
     /** Sets background draw state */
     void drawBackground(bool);
 
@@ -143,7 +146,7 @@ private:
     bool plotLine = false;
     
     int maxSortedId = 0;
-    int maxRasterTrials = 20;
+    int maxRasterTrials = 30;
     
     Array<double> relativeTimes;
     Array<int> relativeTimeTrialIndices;
