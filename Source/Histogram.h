@@ -120,9 +120,6 @@ private:
     /** Updates histogram after event window closes*/
     void timerCallback();
     
-    /** Recomputes temporal offsets */
-    void recompute();
-    
     /** Recomputes bin counts */
     void recount(bool full=true);
     
