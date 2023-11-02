@@ -34,30 +34,35 @@ OnlinePSTH::OnlinePSTH()
       canvas(nullptr)
 {
 
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "pre_ms",
+                    "Pre size",
                     "Size of the PSTH window in ms",
                     500, 10, 1000);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "post_ms",
+                    "Post size",
                     "Size of the PSTH window in ms",
                     500, 10, 1000);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "bin_size",
+                    "Bin size",
                     "Size of the PSTH bins in ms",
                     10, 1, 100);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "trigger_line",
+                    "The input TTL line of the current trigger source",
                     "The input TTL line of the current trigger source",
                     0, 0, 255);
 
-    addIntParameter(Parameter::GLOBAL_SCOPE,
-        "trigger_type",
-        "The type of the current trigger source",
-        1, 1, 3);
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
+                    "trigger_type",
+                    "The type of the current trigger source",
+                    "The type of the current trigger source",
+                    1, 1, 3);
     
 }
 

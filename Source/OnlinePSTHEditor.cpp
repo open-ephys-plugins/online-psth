@@ -36,15 +36,17 @@ OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
       currentConfigWindow(nullptr)
 
 {
-    addTextBoxParameterEditor("pre_ms", 20, 30);
-    addTextBoxParameterEditor("post_ms", 20, 75);
-    addTextBoxParameterEditor("bin_size", 125, 30);
+    addSliderParameterEditor(Parameter::PROCESSOR_SCOPE, "pre_ms", 15, 29);
+    addSliderParameterEditor(Parameter::PROCESSOR_SCOPE, "post_ms", 15, 54);
+    addSliderParameterEditor(Parameter::PROCESSOR_SCOPE, "bin_size", 15, 79);
 
     configureButton = std::make_unique<UtilityButton>("configure", titleFont);
     configureButton->addListener(this);
-    configureButton->setRadius(3.0f);
-    configureButton->setBounds(125, 85, 80, 30);
+    configureButton->setRadius(1.0f);
+    configureButton->setBounds(15, 105, 150, 20);
     addAndMakeVisible(configureButton.get());
+
+    desiredWidth = 180;
 }
 
 Visualizer* OnlinePSTHEditor::createNewCanvas()
