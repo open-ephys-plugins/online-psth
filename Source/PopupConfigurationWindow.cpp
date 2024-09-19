@@ -81,10 +81,12 @@ void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     channelSelector->setChannelButtonColour(Colour(197, 62, 199));
     channelSelector->setMaximumSelectableChannels(1);
 
-     CallOutBox& myBox
+    CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             getScreenBounds(),
             nullptr);
+
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
     
 void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
@@ -663,6 +665,8 @@ void TriggerSourceGenerator::buttonClicked(Button* button)
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
                 button->getScreenBounds(),
                 nullptr);
+
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
     }
 
 }
