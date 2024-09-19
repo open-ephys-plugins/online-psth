@@ -28,6 +28,8 @@
 
 #include <math.h>
 
+using namespace OnlinePSTHTableComponents;
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -425,7 +427,7 @@ void OnlinePSTHTableModel::update(Array<TriggerSource*> triggerSources_)
 {
     triggerSources = triggerSources_;
 
-	std::cout << "UPDATING, num rows = " << getNumRows() << std::endl;
+	LOGD("UPDATING, num rows = ", getNumRows());
     
     for (int i = 0; i < getNumRows(); i++)
     {

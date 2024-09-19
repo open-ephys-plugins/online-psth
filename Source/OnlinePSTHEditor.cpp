@@ -129,7 +129,7 @@ void OnlinePSTHEditor::buttonClicked(Button* button)
         OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
         Array<TriggerSource*> triggerLines = processor->getTriggerSources();
-        std::cout << triggerLines.size() << " trigger sources found." << std::endl;
+        LOGD (triggerLines.size(), " trigger sources found.");
 
         currentConfigWindow = new PopupConfigurationWindow(this,
             triggerLines,

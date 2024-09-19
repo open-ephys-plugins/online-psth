@@ -33,6 +33,10 @@ class OnlinePSTHEditor;
 class PopupConfigurationWindow;
 class OnlinePSTHTableModel;
 
+
+namespace OnlinePSTHTableComponents
+{
+
 /** 
 *   Table component used to edit Trigger Source names
 */
@@ -236,6 +240,8 @@ private:
     int columnId;
     bool acquisitionIsActive;
 };
+
+} // namespace OnlinePSTHTableComponents
 
 /**
 *   TableListBoxModel used for editing Spike Channel parameters
