@@ -406,19 +406,25 @@ void OnlinePSTH::saveCustomParametersToXml(XmlElement* xml)
 
 void OnlinePSTH::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
-	for (auto sourceXml : xml->getChildIterator())
-	{
-		if (sourceXml->hasTagName("TRIGGERSOURCE"))
-		{
-			TriggerSource* source = addTriggerSource(sourceXml->getIntAttribute("line", 0),
-				(TriggerType)sourceXml->getIntAttribute("type", TTL_TRIGGER));
-			
-            source->name = sourceXml->getStringAttribute("name");
-			String savedColour = sourceXml->getStringAttribute("colour", "");
-            
+    triggerSources.clear();
+    nextConditionIndex = 1;
+
+    for (auto sourceXml : xml->getChildIterator())
+    {
+        if (sourceXml->hasTagName("TRIGGERSOURCE"))
+        {
+            String savedName = sourceXml->getStringAttribute("name");
+            int savedLine = sourceXml->getIntAttribute("line", 0);
+            int savedType = sourceXml->getIntAttribute("type", TTL_TRIGGER);
+            String savedColour = sourceXml->getStringAttribute("colour", "");
+
+            TriggerSource *source = addTriggerSource(savedLine, (TriggerType)savedType);
+
+            if (savedName.isNotEmpty())
+                source->name = savedName;
+
             if (savedColour.length() > 0)
-				source->colour = Colour::fromString(savedColour);
-		}
-	}
+                source->colour = Colour::fromString(savedColour);
+        }
+    }
 }
