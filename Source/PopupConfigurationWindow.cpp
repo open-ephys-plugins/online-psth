@@ -76,17 +76,9 @@ void LineSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 			channelStates.push_back(false);
     }
 
-    auto* channelSelector = new PopupChannelSelector(this, channelStates);
-    
-    channelSelector->setChannelButtonColour(Colour(197, 62, 199));
-    channelSelector->setMaximumSelectableChannels(1);
+    auto* channelSelector = new SyncLineSelector(this->getParentComponent(), this, 16, source->line, true, true);
 
-    CallOutBox& myBox
-        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-            getScreenBounds(),
-            nullptr);
-
-    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+    CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (channelSelector), this);
 }
     
 void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
@@ -552,12 +544,14 @@ TriggerSourceGenerator::TriggerSourceGenerator(OnlinePSTHEditor* editor_,
     triggerTypeSelector->setSelectedId(TriggerType::TTL_TRIGGER);
     addAndMakeVisible(triggerTypeSelector.get());
 
-    channelSelectorButton = std::make_unique<UtilityButton>("Channels", Font("Default", 16, Font::plain));
+    channelSelectorButton = std::make_unique<UtilityButton>("Channels");
+    channelSelectorButton->setFont (FontOptions (16.0f));
     channelSelectorButton->addListener(this);
     channelSelectorButton->setBounds(290, 5, 80, 20);
     addAndMakeVisible(channelSelectorButton.get());
 
-    plusButton = std::make_unique<UtilityButton>("+", Font("Default", 16, Font::plain));
+    plusButton = std::make_unique<UtilityButton>("+");
+    plusButton->setFont (FontOptions (16.0f));
     plusButton->addListener(this);
     plusButton->setBounds(380, 5, 20, 20);
     addAndMakeVisible(plusButton.get());
@@ -655,18 +649,13 @@ void TriggerSourceGenerator::buttonClicked(Button* button)
             
         }
 
-        auto* channelSelector = new PopupChannelSelector(this, channelStates);
+        auto* channelSelector = new PopupChannelSelector(window, this, channelStates);
 
-        channelSelector->setChannelButtonColour(Colour(197, 62, 199));
+        channelSelector->setChannelButtonColour(findColour (ProcessorColour::SINK_COLOUR));
 
         channelSelector->setMaximumSelectableChannels(numTriggerChannelsToAdd);
 
-        CallOutBox& myBox
-            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-                button->getScreenBounds(),
-                nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+        CoreServices::getPopupManager()->showPopup(std::unique_ptr<Component>(channelSelector), button);
     }
 
 }

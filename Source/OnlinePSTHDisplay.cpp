@@ -258,7 +258,7 @@ DynamicObject OnlinePSTHDisplay::getInfo()
         
     for (auto hist : histograms)
     {
-        DynamicObject::Ptr hist_info = hist->getInfo().clone();
+        auto hist_info = hist->getInfo().clone();
         
         histogram_info.add(hist_info.get());
     }

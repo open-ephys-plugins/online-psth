@@ -21,21 +21,20 @@
 */
 
 #include "OnlinePSTHCanvas.h"
-#include "OnlinePSTH.h"
 
 OptionsBar::OptionsBar(OnlinePSTHCanvas* canvas_, OnlinePSTHDisplay* display_, Timescale* timescale_)
 	: canvas(canvas_), display(display_), timescale(timescale_)
 {
     
-    clearButton = std::make_unique<UtilityButton>("CLEAR", Font("Default", 12, Font::plain));
+    clearButton = std::make_unique<UtilityButton>("CLEAR");
+    clearButton->setFont (FontOptions (12.0f));
     clearButton->addListener(this);
-    clearButton->setRadius(3.0f);
     clearButton->setClickingTogglesState(false);
     addAndMakeVisible(clearButton.get());
 
-    saveButton = std::make_unique<UtilityButton>("SAVE", Font("Default", 12, Font::plain));
+    saveButton = std::make_unique<UtilityButton>("SAVE");
+    saveButton->setFont (FontOptions (12.0f));
     saveButton->addListener(this);
-    saveButton->setRadius(3.0f);
     saveButton->setClickingTogglesState(false);
     addAndMakeVisible(saveButton.get());
 
@@ -63,9 +62,9 @@ OptionsBar::OptionsBar(OnlinePSTHCanvas* canvas_, OnlinePSTHDisplay* display_, T
     rowHeightSelector->addListener(this);
     addAndMakeVisible(rowHeightSelector.get());
 
-    overlayButton = std::make_unique<UtilityButton>("OFF", Font("Default", 12, Font::plain));
+    overlayButton = std::make_unique<UtilityButton>("OFF");
+    overlayButton->setFont (FontOptions (12.0f));
     overlayButton->addListener(this);
-    overlayButton->setRadius(3.0f);
     overlayButton->setClickingTogglesState(true);
     addAndMakeVisible(overlayButton.get());
     
@@ -106,7 +105,9 @@ void OptionsBar::buttonClicked(Button* button)
 
             FileOutputStream f(file);
 
-            output.writeAsJSON(f, 4, false, 4);
+            output.writeAsJSON(f, JSON::FormatOptions {}.withIndentLevel (5)
+                                                        .withSpacing (JSON::Spacing::multiLine)
+                                                        .withMaxDecimalPlaces (4));
         }
     }
 }
@@ -195,7 +196,8 @@ void OptionsBar::loadCustomParametersFromXml(XmlElement* xml)
 }
 
 
-OnlinePSTHCanvas::OnlinePSTHCanvas()
+OnlinePSTHCanvas::OnlinePSTHCanvas(OnlinePSTH* processor_)
+    : Visualizer (processor_)
 {
     
     scale = std::make_unique<Timescale>();

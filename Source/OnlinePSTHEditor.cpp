@@ -31,19 +31,28 @@
 #include <stdio.h>
 
 OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, "PSTH", 225), 
+    : VisualizerEditor(parentNode, "PSTH", 210), 
       canvas(nullptr),
       currentConfigWindow(nullptr)
 
 {
-    addTextBoxParameterEditor("pre_ms", 20, 30);
-    addTextBoxParameterEditor("post_ms", 20, 75);
-    addTextBoxParameterEditor("bin_size", 125, 30);
+    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "pre_ms", 20, 30);
 
-    configureButton = std::make_unique<UtilityButton>("configure", titleFont);
+    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "post_ms", 20, 78);
+
+    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "bin_size", 115, 30);
+
+    for (auto& p : { "pre_ms", "post_ms", "bin_size" })
+    {
+        auto* ed = getParameterEditor (p);
+        ed->setLayout (ParameterEditor::Layout::nameOnTop);
+        ed->setBounds (ed->getX(), ed->getY(), 80, 36);
+    }
+
+    configureButton = std::make_unique<UtilityButton>("CONFIGURE");
+    configureButton->setFont (FontOptions (14.0f));
     configureButton->addListener(this);
-    configureButton->setRadius(3.0f);
-    configureButton->setBounds(125, 85, 80, 30);
+    configureButton->setBounds(115, 85, 80, 30);
     addAndMakeVisible(configureButton.get());
 }
 
@@ -52,7 +61,7 @@ Visualizer* OnlinePSTHEditor::createNewCanvas()
 
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
     
-    canvas = new OnlinePSTHCanvas();
+    canvas = new OnlinePSTHCanvas(processor);
     processor->canvas = canvas;
     
     updateSettings();

@@ -26,6 +26,7 @@
 
 #include <VisualizerWindowHeaders.h>
 
+#include "OnlinePSTH.h"
 #include "OnlinePSTHDisplay.h"
 #include "Timescale.h"
 
@@ -96,7 +97,7 @@ public:
     
  
     /** Constructor */
-    OnlinePSTHCanvas();
+    OnlinePSTHCanvas(OnlinePSTH* processor);
     
     /** Destructor */
     ~OnlinePSTHCanvas() { }
@@ -111,7 +112,7 @@ public:
     
     /** Called when the Visualizer is first created, and optionally when
         the parameters of the underlying processor are changed. */
-    void update() { }
+    void updateSettings() override { }
     
     /** Called when the component changes size */
     void resized();

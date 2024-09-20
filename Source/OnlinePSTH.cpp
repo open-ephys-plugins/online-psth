@@ -34,30 +34,35 @@ OnlinePSTH::OnlinePSTH()
       canvas(nullptr)
 {
 
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "pre_ms",
+                    "Pre MS ",
                     "Size of the PSTH window in ms",
                     500, 10, 1000);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "post_ms",
+                    "Post MS ",
                     "Size of the PSTH window in ms",
                     500, 10, 1000);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "bin_size",
+                    "Bin Size ",
                     "Size of the PSTH bins in ms",
                     10, 1, 100);
     
-    addIntParameter(Parameter::GLOBAL_SCOPE,
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "trigger_line",
+                    "Trigger Line",
                     "The input TTL line of the current trigger source",
                     0, 0, 255);
 
-    addIntParameter(Parameter::GLOBAL_SCOPE,
-        "trigger_type",
-        "The type of the current trigger source",
-        1, 1, 3);
+    addIntParameter(Parameter::PROCESSOR_SCOPE,
+                    "trigger_type",
+                    "Trigger Type",
+                    "The type of the current trigger source",
+                    1, 1, 3);
     
 }
 
@@ -243,7 +248,7 @@ void OnlinePSTH::process(AudioBuffer<float>& buffer)
     checkForEvents(true);
 }
 
-void OnlinePSTH::handleBroadcastMessage(String message)
+void OnlinePSTH::handleBroadcastMessage(const String& message, const int64 sysTimeMs)
 {
     LOGD("Online PSTH received ", message);
 
@@ -270,7 +275,7 @@ void OnlinePSTH::handleBroadcastMessage(String message)
     }
 }
 
-String OnlinePSTH::handleConfigMessage(String message)
+String OnlinePSTH::handleConfigMessage(const String& message)
 {
     LOGD("Online PSTH received ", message);
 

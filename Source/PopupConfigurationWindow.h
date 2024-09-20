@@ -84,7 +84,7 @@ private:
 */
 class LineSelectorCustomComponent : 
     public juce::Label,
-    public PopupChannelSelector::Listener
+    public SyncLineSelector::Listener
 {
 public:
 
@@ -100,13 +100,13 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
     
     /** Callback for changes in PopupChannelSelector */
-    void channelStateChanged(Array<int> newChannels) override
+    void selectedLineChanged(int selectedLine) override
     {
 
-        if (newChannels.size() > 0)
+        if (selectedLine >= 0)
 		{
-			source->processor->setTriggerSourceLine(source, newChannels[0]);
-			setText("TTL " + String(newChannels[0] + 1), dontSendNotification);
+			source->processor->setTriggerSourceLine(source, selectedLine);
+			setText("TTL " + String(selectedLine + 1), dontSendNotification);
         }
         else {
             source->processor->setTriggerSourceLine(source, -1);
@@ -114,6 +114,11 @@ public:
         }
     
     }
+
+    /** Called by SyncLineSelector to get the selected line */
+    int getSelectedLine() override { return source->line; }
+
+    void primaryStreamChanged() override { }
     
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);
@@ -321,7 +326,9 @@ public:
     ~TriggerSourceGenerator() { }
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels);
+    void channelStateChanged(Array<int> selectedChannels) override;
+
+    Array<int> getSelectedChannels() override { return startChannels; }
 
     /** Responds to button clicks*/
     void buttonClicked(Button* button);
@@ -343,7 +350,7 @@ private:
 
     std::unique_ptr<Label> triggerSourceCountLabel;
     std::unique_ptr<ComboBox> triggerTypeSelector;
-    std::unique_ptr<Button> channelSelectorButton;
+    std::unique_ptr<UtilityButton> channelSelectorButton;
     std::unique_ptr<UtilityButton> plusButton;
 };
 

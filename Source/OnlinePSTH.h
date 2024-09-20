@@ -156,10 +156,10 @@ public:
 private:
 
     /** Responds to incoming broadcast messages */
-    void handleBroadcastMessage(String message) override;
+    void handleBroadcastMessage(const String& message, const int64 sysTimeMs) override;
 
     /** Responds to incoming configuration messages */
-    String handleConfigMessage(String message) override;
+    String handleConfigMessage(const String& message) override;
 
     /** Helper method for parsing dynamic objects */
     bool getIntField(DynamicObject::Ptr payload,
