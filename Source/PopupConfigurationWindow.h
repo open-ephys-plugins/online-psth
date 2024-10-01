@@ -100,20 +100,7 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
     
     /** Callback for changes in PopupChannelSelector */
-    void selectedLineChanged(int selectedLine) override
-    {
-
-        if (selectedLine >= 0)
-		{
-			source->processor->setTriggerSourceLine(source, selectedLine);
-			setText("TTL " + String(selectedLine + 1), dontSendNotification);
-        }
-        else {
-            source->processor->setTriggerSourceLine(source, -1);
-            setText("NONE", dontSendNotification);
-        }
-    
-    }
+    void selectedLineChanged(int selectedLine) override;
 
     /** Called by SyncLineSelector to get the selected line */
     int getSelectedLine() override { return source->line; }

@@ -21,8 +21,8 @@
 
 */
 
-#ifndef SpikeDetectorActions_h
-#define SpikeDetectorActions_h
+#ifndef OnlinePSTHActions_h
+#define OnlinePSTHActions_h
 
 #include <ProcessorHeaders.h>
 
@@ -30,11 +30,9 @@
 #include "PopupConfigurationWindow.h"
 
 /**
-    Adds a spike channel to the spike detector,
-    based on the description.
+    Adds trigger condition(s) to OnlinePSTH
 
-    Undo: removes the spike channel from the
-    spike detector.
+    Undo: removes the trigger condition(s) from OnlinePSTH.
 */
 class AddTriggerConditions : public ProcessorAction
 {
@@ -91,4 +89,81 @@ private:
     Array<TriggerSource *> triggerSourcesToRemove;
 };
 
-#endif /* SpikeDetectorActions_h */
+
+class RenameTriggerSource : public ProcessorAction
+{
+public:
+    /** Constructor*/
+    RenameTriggerSource(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, const String& newName);
+
+    /** Destructor */
+    ~RenameTriggerSource();
+
+    void restoreOwner(GenericProcessor *processor) override;
+
+    /** Perform the action*/
+    bool perform() override;
+
+    /** Undo the action*/
+    bool undo() override;
+
+private:
+    OnlinePSTH *psthProcessor;
+    TriggerSource * triggerSourcesToRename;
+    String newName;
+    String oldName;
+    int triggerIndex = -1;
+};
+
+
+class ChangeTriggerTTLLine : public ProcessorAction
+{
+public:
+    /** Constructor*/
+    ChangeTriggerTTLLine(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, const int newLine);
+
+    /** Destructor */
+    ~ChangeTriggerTTLLine();
+
+    void restoreOwner(GenericProcessor *processor) override;
+
+    /** Perform the action*/
+    bool perform() override;
+
+    /** Undo the action*/
+    bool undo() override;
+
+private:
+    OnlinePSTH *psthProcessor;
+    TriggerSource * triggerSource;
+    int newLine;
+    int oldLine;
+    int triggerIndex = -1;
+};
+
+class ChangeTriggerType : public ProcessorAction
+{
+public:
+    /** Constructor*/
+    ChangeTriggerType(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, TriggerType newType);
+
+    /** Destructor */
+    ~ChangeTriggerType();
+
+    void restoreOwner(GenericProcessor *processor) override;
+
+    /** Perform the action*/
+    bool perform() override;
+
+    /** Undo the action*/
+    bool undo() override;
+
+private:
+    OnlinePSTH *psthProcessor;
+    TriggerSource * triggerSource;
+    TriggerType newType;
+    TriggerType oldType;
+    int triggerIndex = -1;
+};
+
+#endif /* OnlinePSTHActions_h */

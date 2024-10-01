@@ -24,6 +24,7 @@
 #include "PopupConfigurationWindow.h"
 
 #include "OnlinePSTHEditor.h"
+#include "OnlinePSTHActions.h"
 #include <stdio.h>
 
 #include <math.h>
@@ -57,7 +58,10 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
 
     label->setText(newName, dontSendNotification);
 
-    processor->setTriggerSourceName(source, newName);
+    RenameTriggerSource* action = new RenameTriggerSource(processor, source, newName);
+
+    CoreServices::getUndoManager()->beginNewTransaction();
+    CoreServices::getUndoManager()->perform((UndoableAction*) action);
 }
 
 
@@ -99,6 +103,22 @@ void LineSelectorCustomComponent::setRowAndColumn(const int newRow, const int ne
 
 }
 
+void LineSelectorCustomComponent::selectedLineChanged (int selectedLine)
+{
+    if (selectedLine >= 0)
+    {
+        // source->processor->setTriggerSourceLine(source, selectedLine);
+        setText("TTL " + String(selectedLine + 1), dontSendNotification);
+    }
+    else {
+        // source->processor->setTriggerSourceLine(source, -1);
+        setText("NONE", dontSendNotification);
+    }
+
+    ChangeTriggerTTLLine* action = new ChangeTriggerTTLLine(source->processor, source, selectedLine);
+    CoreServices::getUndoManager()->beginNewTransaction();
+    CoreServices::getUndoManager()->perform((UndoableAction*) action);
+}
 
 void TriggerTypeSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
@@ -122,7 +142,9 @@ void TriggerTypeSelectorCustomComponent::mouseDown(const juce::MouseEvent& event
         break;
     }
 
-    source->processor->setTriggerSourceTriggerType(source, newType);
+    ChangeTriggerType* action = new ChangeTriggerType(source->processor, source, newType);
+    CoreServices::getUndoManager()->beginNewTransaction();
+    CoreServices::getUndoManager()->perform((UndoableAction*) action);
     
     repaint();
 }

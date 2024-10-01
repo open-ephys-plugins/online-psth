@@ -34,7 +34,7 @@ AddTriggerConditions::AddTriggerConditions(OnlinePSTH *processor_,
 {
     triggerSources.clear();
     triggerNames.clear();
-    triggerIndices.insertMultiple (0, -1, triggerLines.size());
+    triggerIndices.insertMultiple(0, -1, triggerLines.size());
 }
 
 AddTriggerConditions::~AddTriggerConditions()
@@ -167,5 +167,140 @@ bool RemoveTriggerConditions::undo()
 
     CoreServices::sendStatusMessage("Added " + String(triggerSourcesToRemove.size()) + " trigger condition(s)");
     psthProcessor->getEditor()->updateSettings();
+    return true;
+}
+
+RenameTriggerSource::RenameTriggerSource(OnlinePSTH *processor_,
+                                         TriggerSource *source_,
+                                         const String &newName_) : ProcessorAction("RenameTriggerSource"),
+                                                                   psthProcessor(processor_),
+                                                                   triggerSourcesToRename(source_),
+                                                                   newName(newName_)
+{
+    triggerIndex = psthProcessor->getTriggerSources().indexOf(triggerSourcesToRename);
+    oldName = triggerSourcesToRename->name;
+}
+
+RenameTriggerSource::~RenameTriggerSource()
+{
+}
+
+void RenameTriggerSource::restoreOwner(GenericProcessor *processor)
+{
+    psthProcessor = (OnlinePSTH *)processor;
+}
+
+bool RenameTriggerSource::perform()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceName(source, newName);
+        psthProcessor->registerUndoableAction(psthProcessor->getNodeId(), this);
+        CoreServices::sendStatusMessage("Renamed trigger condition from " + oldName + " to " + newName);
+    }
+
+    return true;
+}
+
+bool RenameTriggerSource::undo()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceName(source, oldName);
+        CoreServices::sendStatusMessage("Renamed trigger condition from " + newName + " to " + oldName);
+    }
+
+    return true;
+}
+
+ChangeTriggerTTLLine::ChangeTriggerTTLLine(OnlinePSTH *processor_,
+                                           TriggerSource *source_,
+                                           const int newLine_) : ProcessorAction("ChangeTriggerTTLLine"),
+                                                                 psthProcessor(processor_),
+                                                                 triggerSource(source_),
+                                                                 newLine(newLine_)
+{
+    triggerIndex = psthProcessor->getTriggerSources().indexOf(triggerSource);
+    oldLine = triggerSource->line;
+}
+
+ChangeTriggerTTLLine::~ChangeTriggerTTLLine()
+{
+}
+
+void ChangeTriggerTTLLine::restoreOwner(GenericProcessor *processor)
+{
+    psthProcessor = (OnlinePSTH *)processor;
+}
+
+bool ChangeTriggerTTLLine::perform()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceLine(source, newLine);
+        psthProcessor->registerUndoableAction(psthProcessor->getNodeId(), this);
+        CoreServices::sendStatusMessage("Changed trigger condition line from " + String(oldLine) + " to " + String(newLine));
+    }
+
+    return true;
+}
+
+bool ChangeTriggerTTLLine::undo()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceLine(source, oldLine);
+        CoreServices::sendStatusMessage("Changed trigger condition line from " + String(newLine) + " to " + String(oldLine));
+    }
+
+    return true;
+}
+
+ChangeTriggerType::ChangeTriggerType(OnlinePSTH *processor_,
+                                     TriggerSource *source_,
+                                     TriggerType newType_) : ProcessorAction("ChangeTriggerType"),
+                                                             psthProcessor(processor_),
+                                                             triggerSource(source_),
+                                                             newType(newType_)
+{
+    triggerIndex = psthProcessor->getTriggerSources().indexOf(triggerSource);
+    oldType = triggerSource->type;
+}
+
+ChangeTriggerType::~ChangeTriggerType()
+{
+}
+
+void ChangeTriggerType::restoreOwner(GenericProcessor *processor)
+{
+    psthProcessor = (OnlinePSTH *)processor;
+}
+
+bool ChangeTriggerType::perform()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceTriggerType(source, newType);
+        psthProcessor->registerUndoableAction(psthProcessor->getNodeId(), this);
+        CoreServices::sendStatusMessage("Changed trigger condition type from " + String(oldType) + " to " + String(newType));
+    }
+
+    return true;
+}
+
+bool ChangeTriggerType::undo()
+{
+    auto source = psthProcessor->getTriggerSources()[triggerIndex];
+    if (source != nullptr)
+    {
+        psthProcessor->setTriggerSourceTriggerType(source, oldType);
+        CoreServices::sendStatusMessage("Changed trigger condition line from " + String(newType) + " to " + String(oldType));
+    }
+
     return true;
 }

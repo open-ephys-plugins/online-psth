@@ -56,7 +56,7 @@ OnlinePSTH::OnlinePSTH()
                     "trigger_line",
                     "Trigger Line",
                     "The input TTL line of the current trigger source",
-                    0, 0, 255);
+                    0, -1, 255);
 
     addIntParameter(Parameter::PROCESSOR_SCOPE,
                     "trigger_type",
@@ -96,7 +96,7 @@ void OnlinePSTH::parameterValueChanged(Parameter* param)
    {
        if (currentTriggerSource != nullptr)
        {
-		   currentTriggerSource->line = (int)param->getValue();
+           currentTriggerSource->line = (int)param->getValue();
        }
     }
     else if (param->getName().equalsIgnoreCase("trigger_type"))
@@ -164,12 +164,18 @@ void OnlinePSTH::removeTriggerSources(Array<TriggerSource*> sources)
 {
 	for (auto source : sources)
 	{
-		triggerSources.removeObject(source);
+		if (currentTriggerSource == source)
+            currentTriggerSource = nullptr;
+
+        triggerSources.removeObject(source);
 	}
 }
 
 void OnlinePSTH::removeTriggerSource(int index)
 {
+    if (index >=0 && triggerSources.size() <= index && triggerSources[index] == currentTriggerSource)
+        currentTriggerSource = nullptr;
+
     triggerSources.remove(index);
 }
 
@@ -221,11 +227,8 @@ void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name, bool u
 
 void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line, bool updateEditor)
 {
-
     currentTriggerSource = source;
-    
-    getParameter("trigger_line")->setNextValue(line);
-
+    getParameter("trigger_line")->setNextValue(line, false);
 }
 
 void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour, bool updateEditor)
@@ -244,11 +247,8 @@ void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour, bo
 
 void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type, bool updateEditor)
 {
-
     currentTriggerSource = source;
-
-    getParameter("trigger_type")->setNextValue((int) type);
-    
+    getParameter("trigger_type")->setNextValue((int) type, false);
 }
 
 void OnlinePSTH::process(AudioBuffer<float>& buffer)
