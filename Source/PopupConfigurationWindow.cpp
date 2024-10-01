@@ -678,7 +678,7 @@ void TriggerSourceGenerator::paint(Graphics& g)
 PopupConfigurationWindow::PopupConfigurationWindow(OnlinePSTHEditor* editor_, 
                                                    Array<TriggerSource*> triggerSources, 
                                                    bool acquisitionIsActive) 
-    : editor(editor_)
+    : PopupComponent ((Component*) editor_), editor(editor_)
 {
     //tableHeader.reset(new TableHeaderComponent());
 
@@ -778,4 +778,18 @@ void PopupConfigurationWindow::update(Array<TriggerSource*> triggerSources)
         triggerSourceGenerator->setBounds(10, 8, 460, 30);
     }
     
+}
+
+void PopupConfigurationWindow::updatePopup()
+{
+    OnlinePSTH* psthProcessor = (OnlinePSTH*) editor->getProcessor();
+    update (psthProcessor->getTriggerSources());
+}
+
+bool PopupConfigurationWindow::keyPressed (const KeyPress& key)
+{
+    // Popup component handles globally reserved undo/redo keys
+    PopupComponent::keyPressed (key);
+
+    return true;
 }

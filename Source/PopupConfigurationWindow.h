@@ -357,7 +357,7 @@ private:
 /**
 *   Popup window used to edit Spike Channel settings
 */
-class PopupConfigurationWindow : public Component,
+class PopupConfigurationWindow : public PopupComponent,
     public ScrollBar::Listener
 {
 
@@ -373,6 +373,11 @@ public:
 
     /** Updates the window with a new set of Spike Channels*/
     void update(Array<TriggerSource*> triggerSources);
+
+    /** Callback to update the popup */
+    void updatePopup() override;
+
+    bool keyPressed (const KeyPress& key) override;
 
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;
