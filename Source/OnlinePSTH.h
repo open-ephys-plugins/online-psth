@@ -147,6 +147,8 @@ public:
     /** Sets trigger source type */
     void setTriggerSourceTriggerType(TriggerSource* source, TriggerType type, bool updateEditor = true);
 
+    int getNextConditionIndex() { return nextConditionIndex; }
+
     /** Saves trigger source parameters */
     void saveCustomParametersToXml(XmlElement* xml) override;
 

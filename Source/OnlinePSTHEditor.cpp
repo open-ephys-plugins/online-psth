@@ -25,7 +25,7 @@
 
 #include "OnlinePSTHCanvas.h"
 #include "OnlinePSTH.h"
-
+#include "OnlinePSTHActions.h"
 #include "PopupConfigurationWindow.h"
 
 #include <stdio.h>
@@ -144,12 +144,7 @@ void OnlinePSTHEditor::buttonClicked(Button* button)
             triggerLines,
             acquisitionIsActive);
 
-        CallOutBox& myBox
-            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow),
-                button->getScreenBounds(),
-                nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+        CoreServices::getPopupManager()->showPopup (std::unique_ptr<PopupComponent> (currentConfigWindow), button);
 
         return;
     }
@@ -160,17 +155,14 @@ void OnlinePSTHEditor::buttonClicked(Button* button)
 void OnlinePSTHEditor::addTriggerSources(PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
 {
 	OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
-	
-	for (int i = 0; i < lines.size(); i++)
-	{
-		TriggerSource* source = processor->addTriggerSource(lines[i], type);
-        
-	}
+
+    AddTriggerConditions* action = new AddTriggerConditions(processor, lines, type);
+
+    CoreServices::getUndoManager()->beginNewTransaction("Disabled during acquisition");
+    CoreServices::getUndoManager()->perform((UndoableAction*) action);
 
     if (window != nullptr)
         window->update(processor->getTriggerSources());
-
-    updateSettings();
 }
 
 
@@ -178,10 +170,11 @@ void OnlinePSTHEditor::removeTriggerSources(PopupConfigurationWindow* window, Ar
 {
     OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
 
-    processor->removeTriggerSources(triggerSourcesToRemove);
+    RemoveTriggerConditions* action = new RemoveTriggerConditions(processor, triggerSourcesToRemove);
+
+    CoreServices::getUndoManager()->beginNewTransaction("Disabled during acquisition");
+    CoreServices::getUndoManager()->perform((UndoableAction*) action);
 
     if (window != nullptr)
         window->update(processor->getTriggerSources());
-
-    updateSettings();
 }
