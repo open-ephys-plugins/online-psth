@@ -33,6 +33,8 @@ AddTriggerConditions::AddTriggerConditions(OnlinePSTH *processor_,
                                                                 type(type_)
 {
     triggerSources.clear();
+    triggerNames.clear();
+    triggerIndices.insertMultiple (0, -1, triggerLines.size());
 }
 
 AddTriggerConditions::~AddTriggerConditions()
@@ -43,8 +45,25 @@ bool AddTriggerConditions::perform()
 {
     for (int i = 0; i < triggerLines.size(); i++)
     {
-        TriggerSource *source = psthProcessor->addTriggerSource(triggerLines[i], type);
+        TriggerSource *source = psthProcessor->addTriggerSource(triggerLines[i], type, triggerIndices[i]);
         triggerSources.add(source);
+    }
+
+    if (triggerNames.isEmpty())
+    {
+        auto allSources = psthProcessor->getTriggerSources();
+        for (int i = 0; i < triggerSources.size(); i++)
+        {
+            triggerNames.add(triggerSources[i]->name);
+            triggerIndices.set(i, allSources.indexOf(triggerSources[i]));
+        }
+    }
+    else
+    {
+        for (int i = 0; i < triggerSources.size(); i++)
+        {
+            triggerSources[i]->name = triggerNames[i];
+        }
     }
 
     psthProcessor->registerUndoableAction(psthProcessor->getNodeId(), this);
@@ -58,7 +77,11 @@ bool AddTriggerConditions::undo()
 {
     if (triggerLines.size() > 0)
     {
-        psthProcessor->removeTriggerSources(triggerSources);
+        triggerSources.clear();
+
+        for (int i = 0; i < triggerLines.size(); i++)
+            psthProcessor->removeTriggerSource(triggerIndices[i]);
+
         psthProcessor->getEditor()->updateSettings();
         CoreServices::sendStatusMessage("Removed " + String(triggerLines.size()) + " trigger condition(s)");
     }
@@ -79,6 +102,7 @@ RemoveTriggerConditions::RemoveTriggerConditions(OnlinePSTH *processor_,
 {
     settings = std::make_unique<XmlElement>("TRIGGER_SOURCES");
 
+    auto allSources = psthProcessor->getTriggerSources();
     for (auto source : triggerSourcesToRemove)
     {
         XmlElement *sourceXml = settings->createNewChildElement("SOURCE");
@@ -86,6 +110,7 @@ RemoveTriggerConditions::RemoveTriggerConditions(OnlinePSTH *processor_,
         sourceXml->setAttribute("line", source->line);
         sourceXml->setAttribute("type", source->type);
         sourceXml->setAttribute("colour", source->colour.toString());
+        sourceXml->setAttribute("index", allSources.indexOf(source));
     }
 }
 
@@ -102,11 +127,17 @@ bool RemoveTriggerConditions::perform()
 {
     if (triggerSourcesToRemove.size() > 0)
     {
-        psthProcessor->removeTriggerSources(triggerSourcesToRemove);
+        for (auto *sourceXml : settings->getChildIterator())
+        {
+            int indexToRemove = sourceXml->getIntAttribute("index", -1);
+            psthProcessor->removeTriggerSource(indexToRemove);
+        }
 
         psthProcessor->registerUndoableAction(psthProcessor->getNodeId(), this);
         psthProcessor->getEditor()->updateSettings();
         CoreServices::sendStatusMessage("Removed " + String(triggerSourcesToRemove.size()) + " trigger condition(s)");
+
+        triggerSourcesToRemove.clear();
     }
 
     return true;
@@ -121,8 +152,9 @@ bool RemoveTriggerConditions::undo()
         int savedLine = sourceXml->getIntAttribute("line", 0);
         int savedType = sourceXml->getIntAttribute("type", TTL_TRIGGER);
         String savedColour = sourceXml->getStringAttribute("colour", "");
+        int savedIndex = sourceXml->getIntAttribute("index", -1);
 
-        TriggerSource *source = psthProcessor->addTriggerSource(savedLine, (TriggerType)savedType);
+        TriggerSource *source = psthProcessor->addTriggerSource(savedLine, (TriggerType)savedType, savedIndex);
 
         if (savedName.isNotEmpty())
             source->name = savedName;

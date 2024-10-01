@@ -62,6 +62,8 @@ private:
     Array<int> triggerLines;
     TriggerType type;
     Array<TriggerSource *> triggerSources;
+    StringArray triggerNames;
+    Array <int> triggerIndices;
 };
 
 class RemoveTriggerConditions : public ProcessorAction

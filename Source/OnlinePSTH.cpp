@@ -143,13 +143,17 @@ Array<TriggerSource*> OnlinePSTH::getTriggerSources()
     return sources;
 }
 
-TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type)
+TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type, int index)
 {
 	String name = "Condition " + String(nextConditionIndex++);
     
 	TriggerSource* source = new TriggerSource(this, name, line, type);
     source->colour = TriggerSource::getColourForLine(triggerSources.size());
-	triggerSources.add(source);
+
+    if (index >= 0 && index < triggerSources.size())
+        triggerSources.insert(index, source);
+    else
+        triggerSources.add(source);
 
     //LOGD("Adding ", name);
 
@@ -164,6 +168,10 @@ void OnlinePSTH::removeTriggerSources(Array<TriggerSource*> sources)
 	}
 }
 
+void OnlinePSTH::removeTriggerSource(int index)
+{
+    triggerSources.remove(index);
+}
 
 String OnlinePSTH::ensureUniqueName(String name)
 {

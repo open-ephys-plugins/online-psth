@@ -127,10 +127,13 @@ public:
 	Array<TriggerSource*> getTriggerSources();
 
     /** Adds a new trigger source */
-    TriggerSource* addTriggerSource(int line, TriggerType type);
+    TriggerSource* addTriggerSource(int line, TriggerType type, int index = -1);
 
     /** Removes trigger sources */
 	void removeTriggerSources(Array<TriggerSource*> sources);
+
+    /** Removes a trigger source by index*/
+    void removeTriggerSource(int indexToRemove);
 
     /** Checks whether the source name is unique*/
     String ensureUniqueName(String name);
