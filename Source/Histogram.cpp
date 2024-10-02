@@ -91,8 +91,6 @@ void Histogram::resized()
 
     if (width < 320)
         labelOffset = 5;
-    else if (width >= 320 && width < 700)
-        labelOffset = width - 120;
     else
         labelOffset = width - 150;
         

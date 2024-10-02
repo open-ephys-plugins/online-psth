@@ -162,9 +162,9 @@ void OptionsBar::resized()
 
 void OptionsBar::paint(Graphics& g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(findColour (ThemeColours::componentBackground));
 
-	g.setColour(Colours::grey);
+	g.setColour(findColour(ThemeColours::defaultText));
 
     const int verticalOffset = 4;
 
@@ -208,6 +208,7 @@ OnlinePSTHCanvas::OnlinePSTHCanvas(OnlinePSTH* processor_)
 
     display = std::make_unique<OnlinePSTHDisplay>();
     viewport->setViewedComponent(display.get(), false);
+    viewport->setScrollBarThickness (15);
     addAndMakeVisible(viewport.get());
     display->setBounds(0, 50, 500, 100);
 
