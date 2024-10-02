@@ -162,9 +162,8 @@ void OptionsBar::resized()
 
 void OptionsBar::paint(Graphics& g)
 {
-    g.fillAll(findColour (ThemeColours::componentBackground));
-
 	g.setColour(findColour(ThemeColours::defaultText));
+    g.setFont (FontOptions ("Inter", "Regular", 15.0f));
 
     const int verticalOffset = 4;
 
@@ -212,8 +211,13 @@ OnlinePSTHCanvas::OnlinePSTHCanvas(OnlinePSTH* processor_)
     addAndMakeVisible(viewport.get());
     display->setBounds(0, 50, 500, 100);
 
-	optionsBar = std::make_unique<OptionsBar>(this, display.get(), scale.get());
-    addAndMakeVisible(optionsBar.get());
+    optionsBarHolder = std::make_unique<Viewport>();
+    optionsBarHolder->setScrollBarsShown(false, true);
+    optionsBarHolder->setScrollBarThickness(10);
+
+    optionsBar = std::make_unique<OptionsBar>(this, display.get(), scale.get());
+    optionsBarHolder->setViewedComponent(optionsBar.get(), false);
+    addAndMakeVisible(optionsBarHolder.get());
 
 }
 
@@ -228,7 +232,7 @@ void OnlinePSTHCanvas::resized()
 
     const int scrollBarThickness = viewport->getScrollBarThickness();
     const int timescaleHeight = 40;
-    const int optionsBarHeight = 40;
+    const int optionsBarHeight = 44;
 
     if (scale->isVisible())
     {
@@ -242,7 +246,10 @@ void OnlinePSTHCanvas::resized()
     display->setBounds(0, 0, getWidth()-scrollBarThickness, display->getDesiredHeight());
     display->resized();
 
-	optionsBar->setBounds(0, getHeight() - optionsBarHeight, getWidth(), optionsBarHeight);
+	optionsBarHolder->setBounds(0, getHeight() - optionsBarHeight, getWidth(), optionsBarHeight);
+
+    int optionsWidth = getWidth() < 775 ? 775 : getWidth();
+    optionsBar->setBounds(0, 0, optionsWidth, optionsBarHolder->getHeight());
 
 }
 
@@ -250,6 +257,9 @@ void OnlinePSTHCanvas::paint(Graphics& g)
 {
     
     g.fillAll(Colour(0,18,43));
+
+    g.setColour (findColour (ThemeColours::componentBackground));
+    g.fillRect (optionsBarHolder->getBounds());
     
 }
 

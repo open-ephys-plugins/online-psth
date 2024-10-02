@@ -160,6 +160,7 @@ private:
     std::unique_ptr<Timescale> scale;
     std::unique_ptr<OnlinePSTHDisplay> display;
 
+    std::unique_ptr<Viewport> optionsBarHolder;
     std::unique_ptr<OptionsBar> optionsBar;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
