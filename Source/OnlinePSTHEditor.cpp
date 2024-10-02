@@ -23,24 +23,24 @@
 
 #include "OnlinePSTHEditor.h"
 
-#include "OnlinePSTHCanvas.h"
 #include "OnlinePSTH.h"
 #include "OnlinePSTHActions.h"
+#include "OnlinePSTHCanvas.h"
 #include "PopupConfigurationWindow.h"
 
 #include <stdio.h>
 
-OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, "PSTH", 210), 
-      canvas(nullptr),
-      currentConfigWindow(nullptr)
+OnlinePSTHEditor::OnlinePSTHEditor (GenericProcessor* parentNode)
+    : VisualizerEditor (parentNode, "PSTH", 210),
+      canvas (nullptr),
+      currentConfigWindow (nullptr)
 
 {
-    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "pre_ms", 20, 30);
+    addBoundedValueParameterEditor (Parameter::PROCESSOR_SCOPE, "pre_ms", 20, 30);
 
-    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "post_ms", 20, 78);
+    addBoundedValueParameterEditor (Parameter::PROCESSOR_SCOPE, "post_ms", 20, 78);
 
-    addBoundedValueParameterEditor(Parameter::PROCESSOR_SCOPE, "bin_size", 115, 30);
+    addBoundedValueParameterEditor (Parameter::PROCESSOR_SCOPE, "bin_size", 115, 30);
 
     for (auto& p : { "pre_ms", "post_ms", "bin_size" })
     {
@@ -49,132 +49,117 @@ OnlinePSTHEditor::OnlinePSTHEditor(GenericProcessor* parentNode)
         ed->setBounds (ed->getX(), ed->getY(), 80, 36);
     }
 
-    configureButton = std::make_unique<UtilityButton>("CONFIGURE");
+    configureButton = std::make_unique<UtilityButton> ("CONFIGURE");
     configureButton->setFont (FontOptions (14.0f));
-    configureButton->addListener(this);
-    configureButton->setBounds(115, 85, 80, 30);
-    addAndMakeVisible(configureButton.get());
+    configureButton->addListener (this);
+    configureButton->setBounds (115, 85, 80, 30);
+    addAndMakeVisible (configureButton.get());
 }
 
 Visualizer* OnlinePSTHEditor::createNewCanvas()
 {
-
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
-    
-    canvas = new OnlinePSTHCanvas(processor);
+
+    canvas = new OnlinePSTHCanvas (processor);
     processor->canvas = canvas;
-    
+
     updateSettings();
-    
+
     return canvas;
 }
 
 void OnlinePSTHEditor::updateSettings()
 {
-    
     if (canvas == nullptr)
         return;
-    
+
     canvas->prepareToUpdate();
-    
+
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
     for (int i = 0; i < processor->getTotalSpikeChannels(); i++)
     {
-        const SpikeChannel* channel = processor->getSpikeChannel(i);
-            
+        const SpikeChannel* channel = processor->getSpikeChannel (i);
+
         for (auto source : processor->getTriggerSources())
         {
             if (channel->isValid())
             {
-                canvas->addSpikeChannel(channel, source);
+                canvas->addSpikeChannel (channel, source);
                 //LOGD("Editor adding ", channel->getName(), " for ", source->name);
             }
-                
         }
     }
 
-    canvas->setWindowSizeMs(processor->getPreWindowSizeMs(),
-                            processor->getPostWindowSizeMs());
-    
-    canvas->setBinSizeMs(processor->getBinSizeMs());
-    
+    canvas->setWindowSizeMs (processor->getPreWindowSizeMs(),
+                             processor->getPostWindowSizeMs());
+
+    canvas->setBinSizeMs (processor->getBinSizeMs());
+
     canvas->resized();
-    
 }
 
-
-void OnlinePSTHEditor::updateColours(TriggerSource* source)
+void OnlinePSTHEditor::updateColours (TriggerSource* source)
 {
-
-    if (canvas == nullptr)
-        return;
-    
-    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
-
-    canvas->updateColourForSource(source);
-}
-
-
-void OnlinePSTHEditor::updateConditionName(TriggerSource* source)
-{
-
     if (canvas == nullptr)
         return;
 
-    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+    OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
-    canvas->updateConditionName(source);
+    canvas->updateColourForSource (source);
 }
 
-
-
-void OnlinePSTHEditor::buttonClicked(Button* button)
+void OnlinePSTHEditor::updateConditionName (TriggerSource* source)
 {
+    if (canvas == nullptr)
+        return;
 
+    OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
+
+    canvas->updateConditionName (source);
+}
+
+void OnlinePSTHEditor::buttonClicked (Button* button)
+{
     if (button == configureButton.get())
     {
-
         OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
         Array<TriggerSource*> triggerLines = processor->getTriggerSources();
         LOGD (triggerLines.size(), " trigger sources found.");
 
-        currentConfigWindow = new PopupConfigurationWindow(this,
-            triggerLines,
-            acquisitionIsActive);
+        currentConfigWindow = new PopupConfigurationWindow (this,
+                                                            triggerLines,
+                                                            acquisitionIsActive);
 
         CoreServices::getPopupManager()->showPopup (std::unique_ptr<PopupComponent> (currentConfigWindow), button);
 
         return;
     }
-
 }
 
-
-void OnlinePSTHEditor::addTriggerSources(PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
+void OnlinePSTHEditor::addTriggerSources (PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
 {
-	OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+    OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
-    AddTriggerConditions* action = new AddTriggerConditions(processor, lines, type);
+    AddTriggerConditions* action = new AddTriggerConditions (processor, lines, type);
 
-    CoreServices::getUndoManager()->beginNewTransaction("Disabled during acquisition");
-    CoreServices::getUndoManager()->perform((UndoableAction*) action);
+    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+    CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
     if (window != nullptr)
-        window->update(processor->getTriggerSources());
+        window->update (processor->getTriggerSources());
 }
 
-
-void OnlinePSTHEditor::removeTriggerSources(PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove)
+void OnlinePSTHEditor::removeTriggerSources (PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove)
 {
-    OnlinePSTH* processor = (OnlinePSTH*)getProcessor();
+    OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
-    RemoveTriggerConditions* action = new RemoveTriggerConditions(processor, triggerSourcesToRemove);
+    RemoveTriggerConditions* action = new RemoveTriggerConditions (processor, triggerSourcesToRemove);
 
-    CoreServices::getUndoManager()->beginNewTransaction("Disabled during acquisition");
-    CoreServices::getUndoManager()->perform((UndoableAction*) action);
+    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+    CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
     if (window != nullptr)
-        window->update(processor->getTriggerSources());
+        window->update (processor->getTriggerSources());
 }

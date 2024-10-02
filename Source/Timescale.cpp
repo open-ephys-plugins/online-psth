@@ -22,20 +22,19 @@
 
 #include "Timescale.h"
 
-
-void Timescale::paint(Graphics& g)
+void Timescale::paint (Graphics& g)
 {
     const float histogramWidth = getWidth() - 30;
-    
-    float zeroLoc = float(pre_ms) / float(pre_ms + post_ms) * histogramWidth;
-    
-    g.setColour(Colours::white);
+
+    float zeroLoc = float (pre_ms) / float (pre_ms + post_ms) * histogramWidth;
+
+    g.setColour (Colours::white);
     //g.drawLine(0, getHeight()-3, histogramWidth, getHeight()-3, 3.0);
-    g.drawLine(zeroLoc, 0, zeroLoc, getHeight(), 2.0);
-    
-    float window_size_ms = float(pre_ms + post_ms);
+    g.drawLine (zeroLoc, 0, zeroLoc, getHeight(), 2.0);
+
+    float window_size_ms = float (pre_ms + post_ms);
     float stepSize;
-    
+
     if (window_size_ms == 20.0f)
         stepSize = 1.0f;
     else if (window_size_ms > 20.0f && window_size_ms <= 50.0f)
@@ -52,40 +51,36 @@ void Timescale::paint(Graphics& g)
         stepSize = 250.0f;
     else
         stepSize = 500.0f;
-    
+
     float tickDistance = (stepSize / window_size_ms) * histogramWidth;
-    
+
     float tick = stepSize;
     float tickLoc = zeroLoc + tickDistance;
-    
+
     while (tick < post_ms)
     {
-        g.drawLine(tickLoc, getHeight(), tickLoc, getHeight()-8, 2.0);
-        g.drawText(String(tick), tickLoc-50, getHeight()-25, 100, 15, Justification::centred);
+        g.drawLine (tickLoc, getHeight(), tickLoc, getHeight() - 8, 2.0);
+        g.drawText (String (tick), tickLoc - 50, getHeight() - 25, 100, 15, Justification::centred);
         tick += stepSize;
         tickLoc += tickDistance;
-        
     }
-    
+
     tick = -stepSize;
     tickLoc = zeroLoc - tickDistance;
-    
+
     while (tick > -pre_ms)
     {
-        g.drawLine(tickLoc, getHeight(), tickLoc, getHeight()-8, 2.0);
-        g.drawText(String(tick), tickLoc-54, getHeight()-25, 100, 15, Justification::centred);
+        g.drawLine (tickLoc, getHeight(), tickLoc, getHeight() - 8, 2.0);
+        g.drawText (String (tick), tickLoc - 54, getHeight() - 25, 100, 15, Justification::centred);
         tick -= stepSize;
         tickLoc -= tickDistance;
-        
     }
-    
 }
 
-
-void Timescale::setWindowSizeMs(int pre, int post)
+void Timescale::setWindowSizeMs (int pre, int post)
 {
     pre_ms = pre;
     post_ms = post;
-    
+
     repaint();
 }

@@ -25,9 +25,7 @@
 
 OnlinePSTHDisplay::OnlinePSTHDisplay()
 {
-
 }
-
 
 void OnlinePSTHDisplay::refresh()
 {
@@ -37,22 +35,20 @@ void OnlinePSTHDisplay::refresh()
     }
 }
 
-
 void OnlinePSTHDisplay::prepareToUpdate()
 {
     histograms.clear();
     triggerSourceMap.clear();
     spikeChannelMap.clear();
-    setBounds(0, 0, getWidth(), 0);
+    setBounds (0, 0, getWidth(), 0);
 }
-
 
 void OnlinePSTHDisplay::resized()
 {
     totalHeight = 0;
-	const int numPlots = histograms.size();
+    const int numPlots = histograms.size();
     const int leftEdge = 10;
-	const int rightEdge = getWidth() - borderSize;
+    const int rightEdge = getWidth() - borderSize;
     const int histogramWidth = (rightEdge - leftEdge - borderSize * (numColumns - 1)) / numColumns;
 
     int index = -1;
@@ -69,32 +65,31 @@ void OnlinePSTHDisplay::resized()
         {
             if (hist->spikeChannel != latestChannel)
             {
-                latestChannel = const_cast<SpikeChannel*>(hist->spikeChannel);
+                latestChannel = const_cast<SpikeChannel*> (hist->spikeChannel);
                 drawBackground = true;
                 index++;
                 overlayIndex = 0;
             }
-
         }
-        else {
+        else
+        {
             index++;
         }
-        
-		row = index / numColumns;
-		col = index % numColumns;
 
-        hist->drawBackground(drawBackground);
-		hist->setBounds(leftEdge + col * (histogramWidth + borderSize),
-                       row * (histogramHeight + borderSize), 
-                       histogramWidth, histogramHeight);
-       
-        hist->setOverlayMode(overlayConditions);
-        hist->setOverlayIndex(overlayIndex);
-        
+        row = index / numColumns;
+        col = index % numColumns;
+
+        hist->drawBackground (drawBackground);
+        hist->setBounds (leftEdge + col * (histogramWidth + borderSize),
+                         row * (histogramHeight + borderSize),
+                         histogramWidth,
+                         histogramHeight);
+
+        hist->setOverlayMode (overlayConditions);
+        hist->setOverlayIndex (overlayIndex);
 
         if (overlayConditions)
         {
-
             drawBackground = false;
             overlayIndex++;
         }
@@ -103,138 +98,122 @@ void OnlinePSTHDisplay::resized()
     totalHeight = (row + 1) * (histogramHeight + borderSize);
 }
 
-
-void OnlinePSTHDisplay::addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source)
+void OnlinePSTHDisplay::addSpikeChannel (const SpikeChannel* channel, const TriggerSource* source)
 {
-
-    Histogram* h = new Histogram(this, channel, source);
-    h->setPlotType(plotType);
+    Histogram* h = new Histogram (this, channel, source);
+    h->setPlotType (plotType);
 
     //LOGD("Display adding ", channel->getName(), " for ", source->name);
-    
-    histograms.add(h);
-    triggerSourceMap[source].add(h);
-    spikeChannelMap[channel].add(h);
+
+    histograms.add (h);
+    triggerSourceMap[source].add (h);
+    spikeChannelMap[channel].add (h);
 
     int numRows = histograms.size() / numColumns + 1;
 
     totalHeight = (numRows + 1) * (histogramHeight + 10);
 
-    addAndMakeVisible(h);
+    addAndMakeVisible (h);
 }
 
-void OnlinePSTHDisplay::updateColourForSource(const TriggerSource* source)
+void OnlinePSTHDisplay::updateColourForSource (const TriggerSource* source)
 {
     Array<Histogram*> h = triggerSourceMap[source];
 
     for (auto hist : h)
     {
-        hist->setSourceColour(source->colour);
+        hist->setSourceColour (source->colour);
     }
 }
 
-void OnlinePSTHDisplay::updateConditionName(const TriggerSource* source)
+void OnlinePSTHDisplay::updateConditionName (const TriggerSource* source)
 {
     Array<Histogram*> h = triggerSourceMap[source];
 
     for (auto hist : h)
     {
-        hist->setSourceName(source->name);
+        hist->setSourceName (source->name);
     }
 }
 
-void OnlinePSTHDisplay::setRowHeight(int height)
+void OnlinePSTHDisplay::setRowHeight (int height)
 {
-
-	histogramHeight = height;
-	resized();
+    histogramHeight = height;
+    resized();
 }
 
-void OnlinePSTHDisplay::setNumColumns(int numColumns_)
+void OnlinePSTHDisplay::setNumColumns (int numColumns_)
 {
     numColumns = numColumns_;
     resized();
 }
 
-
-void OnlinePSTHDisplay::setConditionOverlay(bool overlay_)
+void OnlinePSTHDisplay::setConditionOverlay (bool overlay_)
 {
-
     overlayConditions = overlay_;
     resized();
 }
 
-
-void OnlinePSTHDisplay::setUnitForElectrode(const SpikeChannel* channel, int unitId)
-{
-	for (auto hist : spikeChannelMap[channel])
-	{
-		hist->setUnitId(unitId);
-	}
-}
-
-
-void OnlinePSTHDisplay::setMaxCountForElectrode(const SpikeChannel* channel, int unitId, int maxCount)
+void OnlinePSTHDisplay::setUnitForElectrode (const SpikeChannel* channel, int unitId)
 {
     for (auto hist : spikeChannelMap[channel])
     {
-        hist->setMaxCount(unitId, maxCount);
+        hist->setUnitId (unitId);
     }
 }
 
-
-void OnlinePSTHDisplay::setWindowSizeMs(int pre_ms, int post_ms_)
+void OnlinePSTHDisplay::setMaxCountForElectrode (const SpikeChannel* channel, int unitId, int maxCount)
 {
-    
+    for (auto hist : spikeChannelMap[channel])
+    {
+        hist->setMaxCount (unitId, maxCount);
+    }
+}
+
+void OnlinePSTHDisplay::setWindowSizeMs (int pre_ms, int post_ms_)
+{
     post_ms = post_ms_;
-    
+
     for (auto hist : histograms)
     {
-        hist->setWindowSizeMs(pre_ms, post_ms);
+        hist->setWindowSizeMs (pre_ms, post_ms);
     }
 }
 
-void OnlinePSTHDisplay::setBinSizeMs(int bin_size)
+void OnlinePSTHDisplay::setBinSizeMs (int bin_size)
 {
     for (auto hist : histograms)
     {
-        hist->setBinSizeMs(bin_size);
+        hist->setBinSizeMs (bin_size);
     }
 }
 
-
-
-void OnlinePSTHDisplay::setPlotType(int plotType_)
+void OnlinePSTHDisplay::setPlotType (int plotType_)
 {
-    
     plotType = plotType_;
-    
+
     for (auto hist : histograms)
     {
-        hist->setPlotType(plotType);
+        hist->setPlotType (plotType);
     }
 }
 
-void OnlinePSTHDisplay::pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number)
+void OnlinePSTHDisplay::pushEvent (const TriggerSource* source, uint16 streamId, int64 sample_number)
 {
-    
     for (auto hist : triggerSourceMap[source])
     {
         if (hist->streamId == streamId)
-            hist->addEvent(sample_number);
+            hist->addEvent (sample_number);
     }
-    
 }
 
-void OnlinePSTHDisplay::pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId)
+void OnlinePSTHDisplay::pushSpike (const SpikeChannel* channel, int64 sample_number, int sortedId)
 {
-
     for (auto hist : spikeChannelMap[channel])
     {
-        hist->addSpike(sample_number, sortedId);
+        hist->addSpike (sample_number, sortedId);
     }
 }
-
 
 int OnlinePSTHDisplay::getDesiredHeight()
 {
@@ -251,19 +230,18 @@ void OnlinePSTHDisplay::clear()
 
 DynamicObject OnlinePSTHDisplay::getInfo()
 {
-
     DynamicObject output;
 
     Array<var> histogram_info;
-        
+
     for (auto hist : histograms)
     {
         auto hist_info = hist->getInfo().clone();
-        
-        histogram_info.add(hist_info.get());
+
+        histogram_info.add (hist_info.get());
     }
 
-    output.setProperty(Identifier("histograms"), histogram_info);
+    output.setProperty (Identifier ("histograms"), histogram_info);
 
     return output;
 }

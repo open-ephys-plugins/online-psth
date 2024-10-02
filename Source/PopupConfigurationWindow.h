@@ -24,7 +24,6 @@
 #ifndef __ONLINEPSTHCONFIGWINDOW_H_F0BD2DD9__
 #define __ONLINEPSTHCONFIGWINDOW_H_F0BD2DD9__
 
-
 #include <EditorHeaders.h>
 
 #include "OnlinePSTH.h"
@@ -33,46 +32,42 @@ class OnlinePSTHEditor;
 class PopupConfigurationWindow;
 class OnlinePSTHTableModel;
 
-
 namespace OnlinePSTHTableComponents
 {
 
 /** 
 *   Table component used to edit Trigger Source names
 */
-class EditableTextCustomComponent : 
-    public juce::Label,
-    public Label::Listener
+class EditableTextCustomComponent : public juce::Label,
+                                    public Label::Listener
 {
 public:
-
     /** Constructor */
-    EditableTextCustomComponent(OnlinePSTH* processor_, TriggerSource* source_, bool acquisitionIsActive_)
-        : source(source_),
-          processor(processor_),
-          acquisitionIsActive(acquisitionIsActive_)
+    EditableTextCustomComponent (OnlinePSTH* processor_, TriggerSource* source_, bool acquisitionIsActive_)
+        : source (source_),
+          processor (processor_),
+          acquisitionIsActive (acquisitionIsActive_)
     {
-        setEditable(false, true, false);
-        addListener(this);
-        setColour(Label::textColourId, Colours::white);
-        setColour(Label::textWhenEditingColourId, Colours::yellow);
-        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
+        setEditable (false, true, false);
+        addListener (this);
+        setColour (Label::textColourId, Colours::white);
+        setColour (Label::textWhenEditingColourId, Colours::yellow);
+        setColour (TextEditor::highlightedTextColourId, Colours::yellow);
     }
 
     /** Responds to button clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
-    
+    void mouseDown (const juce::MouseEvent& event) override;
+
     /** Called when the label is updated */
-    void labelTextChanged(Label* label) override;
+    void labelTextChanged (Label* label) override;
 
     /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
-    
+    void setRowAndColumn (const int newRow, const int newColumn);
+
     int row;
     TriggerSource* source;
 
 private:
-    
     OnlinePSTH* processor;
     bool acquisitionIsActive;
     int columnId;
@@ -82,44 +77,40 @@ private:
 *   Table component used to edit the TTL line
 *   used by a Trigger Source
 */
-class LineSelectorCustomComponent : 
-    public juce::Label,
-    public SyncLineSelector::Listener
+class LineSelectorCustomComponent : public juce::Label,
+                                    public SyncLineSelector::Listener
 {
 public:
-
     /** Constructor */
-    LineSelectorCustomComponent(TriggerSource* source_, bool acquisitionIsActive_)
-        : source(source_),
-          acquisitionIsActive(acquisitionIsActive_)
+    LineSelectorCustomComponent (TriggerSource* source_, bool acquisitionIsActive_)
+        : source (source_),
+          acquisitionIsActive (acquisitionIsActive_)
     {
-        setEditable(false, false, false);
+        setEditable (false, false, false);
     }
 
     /** Responds to mouse clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
-    
+    void mouseDown (const juce::MouseEvent& event) override;
+
     /** Callback for changes in PopupChannelSelector */
-    void selectedLineChanged(int selectedLine) override;
+    void selectedLineChanged (int selectedLine) override;
 
     /** Called by SyncLineSelector to get the selected line */
     int getSelectedLine() override { return source->line; }
 
-    void primaryStreamChanged() override { }
-    
+    void primaryStreamChanged() override {}
+
     /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
-    
+    void setRowAndColumn (const int newRow, const int newColumn);
+
     int row;
     TriggerSource* source;
 
 private:
-    
     int columnId;
     juce::Colour textColour;
     bool acquisitionIsActive;
 };
-
 
 /**
 *   Table component used to select the trigger type
@@ -128,31 +119,29 @@ private:
 class TriggerTypeSelectorCustomComponent : public Component
 {
 public:
-
     /** Constructor */
-    TriggerTypeSelectorCustomComponent(TriggerSource* source_, bool acquisitionIsActive_)
-        : acquisitionIsActive(acquisitionIsActive_), source(source_)
+    TriggerTypeSelectorCustomComponent (TriggerSource* source_, bool acquisitionIsActive_)
+        : acquisitionIsActive (acquisitionIsActive_), source (source_)
     {
-		assert(source != nullptr);
+        assert (source != nullptr);
     }
 
     /** Handles mouse clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
-    
+    void mouseDown (const juce::MouseEvent& event) override;
+
     /** Renders the waveform type icon */
-    void paint(Graphics& g) override;
-    
+    void paint (Graphics& g) override;
+
     /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
+    void setRowAndColumn (const int newRow, const int newColumn);
 
     /** Sets a pointer to the OnlinePSTHTableModel object */
-    void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
+    void setTableModel (OnlinePSTHTableModel* table_) { table = table_; };
 
     int row;
     TriggerSource* source;
 
 private:
-    
     OnlinePSTHTableModel* table;
     int columnId;
     juce::Colour textColour;
@@ -163,42 +152,39 @@ private:
 *   Table component used to display colour of each condition
 */
 class ColourDisplayCustomComponent : public Component,
-    public ChangeListener
+                                     public ChangeListener
 {
 public:
-
     /** Constructor */
-    ColourDisplayCustomComponent(TriggerSource* source_, bool acquisitionIsActive_)
-        : acquisitionIsActive(acquisitionIsActive_), source(source_)
+    ColourDisplayCustomComponent (TriggerSource* source_, bool acquisitionIsActive_)
+        : acquisitionIsActive (acquisitionIsActive_), source (source_)
     {
-        assert(source != nullptr);
+        assert (source != nullptr);
     }
 
     /** Handles mouse clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseDown (const juce::MouseEvent& event) override;
 
     /** Renders the color icon */
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
+    void setRowAndColumn (const int newRow, const int newColumn);
 
     /** Sets a pointer to the OnlinePSTHTableModel object */
-    void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
+    void setTableModel (OnlinePSTHTableModel* table_) { table = table_; };
 
     /** Responds to color changes*/
-    void changeListenerCallback(ChangeBroadcaster* source);
+    void changeListenerCallback (ChangeBroadcaster* source);
 
     int row;
     TriggerSource* source;
 
 private:
-
     OnlinePSTHTableModel* table;
     int columnId;
     bool acquisitionIsActive;
 };
-
 
 /**
 *   Table component used to delete electrodes
@@ -206,24 +192,23 @@ private:
 class DeleteButtonCustomComponent : public Component
 {
 public:
-
     /** Constructor */
-    DeleteButtonCustomComponent(bool acquisitionIsActive_)
-        : acquisitionIsActive(acquisitionIsActive_)
+    DeleteButtonCustomComponent (bool acquisitionIsActive_)
+        : acquisitionIsActive (acquisitionIsActive_)
     {
     }
 
     /** Handles mouse click events */
-    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseDown (const juce::MouseEvent& event) override;
 
     /** Renders the delete icon */
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
+    void setRowAndColumn (const int newRow, const int newColumn);
 
     /** Sets a pointer to the SpikeDetectorTableModel object */
-    void setTableModel(OnlinePSTHTableModel* table_) { table = table_; };
+    void setTableModel (OnlinePSTHTableModel* table_) { table = table_; };
 
     int row;
 
@@ -240,16 +225,15 @@ private:
 */
 class OnlinePSTHTableModel : public TableListBoxModel
 {
-
 public:
-
     /** Constructor */
-    OnlinePSTHTableModel(OnlinePSTHEditor* editor,
-                            PopupConfigurationWindow* owner,
-                            bool acquisitionIsActive);
+    OnlinePSTHTableModel (OnlinePSTHEditor* editor,
+                          PopupConfigurationWindow* owner,
+                          bool acquisitionIsActive);
 
     /** Column types*/
-    enum Columns {
+    enum Columns
+    {
         INDEX = 1,
         NAME,
         LINE,
@@ -259,75 +243,70 @@ public:
     };
 
     /** Callback when a cell is clicked (not a sub-component) */
-    void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
+    void cellClicked (int rowNumber, int columnId, const MouseEvent& event) override;
 
     /** Called whenever a cell needs to be updated; creates custom components inside each cell*/
-    Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected,
-        Component* existingComponentToUpdate) override;
+    Component* refreshComponentForCell (int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate) override;
 
     /** Returns the number of rows in the table */
     int getNumRows() override;
-    
+
     /** Updates the underlying TriggerSource objects */
-    void update(Array<TriggerSource*> triggerSources);
+    void update (Array<TriggerSource*> triggerSources);
 
     /** Determines row colors */
-    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
-    
+    void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
+
     /** Deletes the SpikeChannel objects associated with each row */
-    void deleteSelectedRows(int rowThatWasClicked);
+    void deleteSelectedRows (int rowThatWasClicked);
 
     /** Paints the INDEX and TYPE columns*/
-    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+    void paintCell (Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
     Array<TriggerSource*> triggerSources;
     TableListBox* table;
-private:
 
+private:
     OnlinePSTHEditor* editor;
-    
+
     PopupConfigurationWindow* owner;
 
     bool acquisitionIsActive;
-
 };
 
 /** 
     Interface to generate new Spike Channels
 */
-class TriggerSourceGenerator : 
-    public Component,
-    public PopupChannelSelector::Listener,
-    public Button::Listener,
-    public Label::Listener
+class TriggerSourceGenerator : public Component,
+                               public PopupChannelSelector::Listener,
+                               public Button::Listener,
+                               public Label::Listener
 {
 public:
-
     /** Constructor */
-    TriggerSourceGenerator(OnlinePSTHEditor* editor,
-                          PopupConfigurationWindow* window,
-                          int channelCount,
-                          bool acquisitionIsActive);
+    TriggerSourceGenerator (OnlinePSTHEditor* editor,
+                            PopupConfigurationWindow* window,
+                            int channelCount,
+                            bool acquisitionIsActive);
 
     /** Destructor*/
-    ~TriggerSourceGenerator() { }
+    ~TriggerSourceGenerator() {}
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels) override;
+    void channelStateChanged (Array<int> selectedChannels) override;
 
     Array<int> getSelectedChannels() override { return startChannels; }
 
     /** Responds to button clicks*/
-    void buttonClicked(Button* button);
+    void buttonClicked (Button* button);
 
     /** Responds to Label */
-    void labelTextChanged(Label* label);
+    void labelTextChanged (Label* label);
 
     /** Draws border and text */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
 private:
-
     OnlinePSTHEditor* editor;
     PopupConfigurationWindow* window;
 
@@ -345,21 +324,19 @@ private:
 *   Popup window used to edit Spike Channel settings
 */
 class PopupConfigurationWindow : public PopupComponent,
-    public ScrollBar::Listener
+                                 public ScrollBar::Listener
 {
-
 public:
-    
     /** Constructor */
-    PopupConfigurationWindow(OnlinePSTHEditor* editor, 
-                             Array<TriggerSource*> triggerSources,
-                             bool acquisitionIsActive);
+    PopupConfigurationWindow (OnlinePSTHEditor* editor,
+                              Array<TriggerSource*> triggerSources,
+                              bool acquisitionIsActive);
 
     /** Destructor */
-    ~PopupConfigurationWindow() { }
+    ~PopupConfigurationWindow() {}
 
     /** Updates the window with a new set of Spike Channels*/
-    void update(Array<TriggerSource*> triggerSources);
+    void update (Array<TriggerSource*> triggerSources);
 
     /** Callback to update the popup */
     void updatePopup() override;
@@ -374,21 +351,20 @@ public:
 
     /** Custom list box for Spike Channel settings*/
     std::unique_ptr<TableListBox> table;
-    
+
     /** Listens for viewport scrolling */
-    void scrollBarMoved(ScrollBar* scrollBar, double newRangeStart);
+    void scrollBarMoved (ScrollBar* scrollBar, double newRangeStart);
 
 private:
     OnlinePSTHEditor* editor;
 
     std::unique_ptr<TriggerSourceGenerator> triggerSourceGenerator;
-    
+
     std::unique_ptr<Viewport> viewport;
 
     int scrollDistance = 0;
-    
+
     bool updating = false;
 };
 
-
-#endif  // __SPIKEDETECTORCONFIGWINDOW_H_F0BD2DD9__
+#endif // __SPIKEDETECTORCONFIGWINDOW_H_F0BD2DD9__

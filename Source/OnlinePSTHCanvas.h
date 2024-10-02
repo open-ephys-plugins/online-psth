@@ -38,41 +38,39 @@ class OnlinePSTHCanvas;
     Histogram options interface
 
 */
-class OptionsBar :
-    public Component,
-    public Button::Listener,
-    public ComboBox::Listener
+class OptionsBar : public Component,
+                   public Button::Listener,
+                   public ComboBox::Listener
 {
 public:
     /** Constructor */
-    OptionsBar(OnlinePSTHCanvas* canvas, OnlinePSTHDisplay* display, Timescale* timescale);
+    OptionsBar (OnlinePSTHCanvas* canvas, OnlinePSTHDisplay* display, Timescale* timescale);
 
     /** Destructor */
-    ~OptionsBar() { }
+    ~OptionsBar() {}
 
     /** Respond to button clicks */
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Respond to button clicks */
-    void comboBoxChanged(ComboBox* comboBox) override;
+    void comboBoxChanged (ComboBox* comboBox) override;
 
     /** Called when the component changes size */
     void resized();
 
     /** Renders component background */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Save plot type*/
-    void saveCustomParametersToXml(XmlElement* xml);
+    void saveCustomParametersToXml (XmlElement* xml);
 
     /** Load plot type*/
-    void loadCustomParametersFromXml(XmlElement* xml);
+    void loadCustomParametersFromXml (XmlElement* xml);
 
 private:
-
     std::unique_ptr<UtilityButton> clearButton;
     std::unique_ptr<UtilityButton> saveButton;
-    
+
     std::unique_ptr<ComboBox> plotTypeSelector;
 
     std::unique_ptr<ComboBox> columnNumberSelector;
@@ -82,7 +80,6 @@ private:
     OnlinePSTHDisplay* display;
     OnlinePSTHCanvas* canvas;
     Timescale* timescale;
-    
 };
 
 /**
@@ -90,81 +87,76 @@ private:
     Visualizer for spike histograms
 
 */
-class OnlinePSTHCanvas :
-    public Visualizer
+class OnlinePSTHCanvas : public Visualizer
 {
 public:
-    
- 
     /** Constructor */
-    OnlinePSTHCanvas(OnlinePSTH* processor);
-    
+    OnlinePSTHCanvas (OnlinePSTH* processor);
+
     /** Destructor */
-    ~OnlinePSTHCanvas() { }
-    
+    ~OnlinePSTHCanvas() {}
+
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
-    void refresh() { }
+    void refresh() {}
 
     /** Called when the Visualizer's tab becomes visible after being hidden .*/
     void refreshState();
-    
+
     /** Called when the Visualizer is first created, and optionally when
         the parameters of the underlying processor are changed. */
-    void updateSettings() override { }
-    
+    void updateSettings() override {}
+
     /** Called when the component changes size */
     void resized();
-    
+
     /** Renders component background */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Sets the overall window size*/
-    void setWindowSizeMs(int pre_ms, int post_ms);
-    
+    void setWindowSizeMs (int pre_ms, int post_ms);
+
     /** Sets the bin size*/
-    void setBinSizeMs(int bin_size);
-    
+    void setBinSizeMs (int bin_size);
+
     /** Add an event to the queue */
-    void pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number);
-    
+    void pushEvent (const TriggerSource* source, uint16 streamId, int64 sample_number);
+
     /** Add a spike to the queue */
-    void pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId);
-    
+    void pushSpike (const SpikeChannel* channel, int64 sample_number, int sortedId);
+
     /** Adds a spike channel */
-    void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
+    void addSpikeChannel (const SpikeChannel* channel, const TriggerSource* source);
 
     /** Changes source colour */
-    void updateColourForSource(const TriggerSource* source);
+    void updateColourForSource (const TriggerSource* source);
 
     /** Changes source name */
-    void updateConditionName(const TriggerSource* source);
+    void updateConditionName (const TriggerSource* source);
 
     /** Prepare for update*/
     void prepareToUpdate();
-    
+
     /** Save plot type*/
-    void saveCustomParametersToXml(XmlElement* xml) override;
-    
+    void saveCustomParametersToXml (XmlElement* xml) override;
+
     /** Load plot type*/
-    void loadCustomParametersFromXml(XmlElement* xml) override;
+    void loadCustomParametersFromXml (XmlElement* xml) override;
 
 private:
-    
     int pre_ms;
     int post_ms;
-    
+
     std::unique_ptr<Viewport> viewport;
-    
+
     std::unique_ptr<Timescale> scale;
     std::unique_ptr<OnlinePSTHDisplay> display;
 
     std::unique_ptr<Viewport> optionsBarHolder;
     std::unique_ptr<OptionsBar> optionsBar;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHCanvas);
 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OnlinePSTHCanvas);
 };
 
-#endif  // OnlinePSTHCANVAS_H_
+#endif // OnlinePSTHCANVAS_H_

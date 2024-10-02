@@ -38,14 +38,14 @@ class AddTriggerConditions : public ProcessorAction
 {
 public:
     /** Constructor*/
-    AddTriggerConditions(OnlinePSTH *processor,
-                         Array<int> triggerLines,
-                         TriggerType type);
+    AddTriggerConditions (OnlinePSTH* processor,
+                          Array<int> triggerLines,
+                          TriggerType type);
 
     /** Destructor */
     ~AddTriggerConditions();
 
-    void restoreOwner(GenericProcessor *processor) override;
+    void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
     bool perform() override;
@@ -56,25 +56,25 @@ public:
     std::unique_ptr<XmlElement> settings;
 
 private:
-    OnlinePSTH *psthProcessor;
+    OnlinePSTH* psthProcessor;
     Array<int> triggerLines;
     TriggerType type;
-    Array<TriggerSource *> triggerSources;
+    Array<TriggerSource*> triggerSources;
     StringArray triggerNames;
-    Array <int> triggerIndices;
+    Array<int> triggerIndices;
 };
 
 class RemoveTriggerConditions : public ProcessorAction
 {
 public:
     /** Constructor*/
-    RemoveTriggerConditions(OnlinePSTH *processor,
-                            Array<TriggerSource *> triggerSourcesToRemove);
+    RemoveTriggerConditions (OnlinePSTH* processor,
+                             Array<TriggerSource*> triggerSourcesToRemove);
 
     /** Destructor */
     ~RemoveTriggerConditions();
 
-    void restoreOwner(GenericProcessor *processor) override;
+    void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
     bool perform() override;
@@ -85,21 +85,20 @@ public:
     std::unique_ptr<XmlElement> settings;
 
 private:
-    OnlinePSTH *psthProcessor;
-    Array<TriggerSource *> triggerSourcesToRemove;
+    OnlinePSTH* psthProcessor;
+    Array<TriggerSource*> triggerSourcesToRemove;
 };
-
 
 class RenameTriggerSource : public ProcessorAction
 {
 public:
     /** Constructor*/
-    RenameTriggerSource(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, const String& newName);
+    RenameTriggerSource (OnlinePSTH* processor, TriggerSource* triggerSourcesToRename, const String& newName);
 
     /** Destructor */
     ~RenameTriggerSource();
 
-    void restoreOwner(GenericProcessor *processor) override;
+    void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
     bool perform() override;
@@ -108,24 +107,23 @@ public:
     bool undo() override;
 
 private:
-    OnlinePSTH *psthProcessor;
-    TriggerSource * triggerSourcesToRename;
+    OnlinePSTH* psthProcessor;
+    TriggerSource* triggerSourcesToRename;
     String newName;
     String oldName;
     int triggerIndex = -1;
 };
 
-
 class ChangeTriggerTTLLine : public ProcessorAction
 {
 public:
     /** Constructor*/
-    ChangeTriggerTTLLine(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, const int newLine);
+    ChangeTriggerTTLLine (OnlinePSTH* processor, TriggerSource* triggerSourcesToRename, const int newLine);
 
     /** Destructor */
     ~ChangeTriggerTTLLine();
 
-    void restoreOwner(GenericProcessor *processor) override;
+    void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
     bool perform() override;
@@ -134,8 +132,8 @@ public:
     bool undo() override;
 
 private:
-    OnlinePSTH *psthProcessor;
-    TriggerSource * triggerSource;
+    OnlinePSTH* psthProcessor;
+    TriggerSource* triggerSource;
     int newLine;
     int oldLine;
     int triggerIndex = -1;
@@ -145,12 +143,12 @@ class ChangeTriggerType : public ProcessorAction
 {
 public:
     /** Constructor*/
-    ChangeTriggerType(OnlinePSTH *processor, TriggerSource* triggerSourcesToRename, TriggerType newType);
+    ChangeTriggerType (OnlinePSTH* processor, TriggerSource* triggerSourcesToRename, TriggerType newType);
 
     /** Destructor */
     ~ChangeTriggerType();
 
-    void restoreOwner(GenericProcessor *processor) override;
+    void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
     bool perform() override;
@@ -159,8 +157,8 @@ public:
     bool undo() override;
 
 private:
-    OnlinePSTH *psthProcessor;
-    TriggerSource * triggerSource;
+    OnlinePSTH* psthProcessor;
+    TriggerSource* triggerSource;
     TriggerType newType;
     TriggerType oldType;
     int triggerIndex = -1;

@@ -28,42 +28,49 @@
 #include "OnlinePSTHCanvas.h"
 #include "OnlinePSTHEditor.h"
 
-
 OnlinePSTH::OnlinePSTH()
-    : GenericProcessor("Online PSTH"),
-      canvas(nullptr)
+    : GenericProcessor ("Online PSTH"),
+      canvas (nullptr)
 {
+    addIntParameter (Parameter::PROCESSOR_SCOPE,
+                     "pre_ms",
+                     "Pre MS ",
+                     "Size of the PSTH window in ms",
+                     500,
+                     10,
+                     1000);
 
-    addIntParameter(Parameter::PROCESSOR_SCOPE,
-                    "pre_ms",
-                    "Pre MS ",
-                    "Size of the PSTH window in ms",
-                    500, 10, 1000);
-    
-    addIntParameter(Parameter::PROCESSOR_SCOPE,
-                    "post_ms",
-                    "Post MS ",
-                    "Size of the PSTH window in ms",
-                    500, 10, 1000);
-    
-    addIntParameter(Parameter::PROCESSOR_SCOPE,
-                    "bin_size",
-                    "Bin Size ",
-                    "Size of the PSTH bins in ms",
-                    10, 1, 100);
-    
-    addIntParameter(Parameter::PROCESSOR_SCOPE,
-                    "trigger_line",
-                    "Trigger Line",
-                    "The input TTL line of the current trigger source",
-                    0, -1, 255);
+    addIntParameter (Parameter::PROCESSOR_SCOPE,
+                     "post_ms",
+                     "Post MS ",
+                     "Size of the PSTH window in ms",
+                     500,
+                     10,
+                     1000);
 
-    addIntParameter(Parameter::PROCESSOR_SCOPE,
-                    "trigger_type",
-                    "Trigger Type",
-                    "The type of the current trigger source",
-                    1, 1, 3);
-    
+    addIntParameter (Parameter::PROCESSOR_SCOPE,
+                     "bin_size",
+                     "Bin Size ",
+                     "Size of the PSTH bins in ms",
+                     10,
+                     1,
+                     100);
+
+    addIntParameter (Parameter::PROCESSOR_SCOPE,
+                     "trigger_line",
+                     "Trigger Line",
+                     "The input TTL line of the current trigger source",
+                     0,
+                     -1,
+                     255);
+
+    addIntParameter (Parameter::PROCESSOR_SCOPE,
+                     "trigger_type",
+                     "Trigger Type",
+                     "The type of the current trigger source",
+                     1,
+                     1,
+                     3);
 }
 
 AudioProcessorEditor* OnlinePSTH::createEditor()
@@ -72,63 +79,59 @@ AudioProcessorEditor* OnlinePSTH::createEditor()
     return editor.get();
 }
 
-
-void OnlinePSTH::parameterValueChanged(Parameter* param)
+void OnlinePSTH::parameterValueChanged (Parameter* param)
 {
-   if (param->getName().equalsIgnoreCase("pre_ms"))
+    if (param->getName().equalsIgnoreCase ("pre_ms"))
     {
         if (canvas != nullptr)
-            canvas->setWindowSizeMs((int) param->getValue(),
-                                    (int) getParameter("post_ms")->getValue());
+            canvas->setWindowSizeMs ((int) param->getValue(),
+                                     (int) getParameter ("post_ms")->getValue());
     }
-    else if (param->getName().equalsIgnoreCase("post_ms"))
+    else if (param->getName().equalsIgnoreCase ("post_ms"))
     {
         if (canvas != nullptr)
-            canvas->setWindowSizeMs((int) getParameter("pre_ms")->getValue(),
-                                    (int) getParameter("post_ms")->getValue());
+            canvas->setWindowSizeMs ((int) getParameter ("pre_ms")->getValue(),
+                                     (int) getParameter ("post_ms")->getValue());
     }
-    else if (param->getName().equalsIgnoreCase("bin_size"))
+    else if (param->getName().equalsIgnoreCase ("bin_size"))
     {
         if (canvas != nullptr)
-            canvas->setBinSizeMs((int) param->getValue());
-   }
-    else if (param->getName().equalsIgnoreCase("trigger_line"))
-   {
-       if (currentTriggerSource != nullptr)
-       {
-           currentTriggerSource->line = (int)param->getValue();
-       }
+            canvas->setBinSizeMs ((int) param->getValue());
     }
-    else if (param->getName().equalsIgnoreCase("trigger_type"))
-   {
-       if (currentTriggerSource != nullptr)
-       {
-           currentTriggerSource->type = (TriggerType)(int)param->getValue();
+    else if (param->getName().equalsIgnoreCase ("trigger_line"))
+    {
+        if (currentTriggerSource != nullptr)
+        {
+            currentTriggerSource->line = (int) param->getValue();
+        }
+    }
+    else if (param->getName().equalsIgnoreCase ("trigger_type"))
+    {
+        if (currentTriggerSource != nullptr)
+        {
+            currentTriggerSource->type = (TriggerType) (int) param->getValue();
 
-           if (currentTriggerSource->type == TTL_TRIGGER)
-               currentTriggerSource->canTrigger = true;
-           else
-               currentTriggerSource->canTrigger = false;
-       }
-       
-   }
-
+            if (currentTriggerSource->type == TTL_TRIGGER)
+                currentTriggerSource->canTrigger = true;
+            else
+                currentTriggerSource->canTrigger = false;
+        }
+    }
 }
 
 int OnlinePSTH::getPreWindowSizeMs()
 {
-    return (int) getParameter("pre_ms")->getValue();
+    return (int) getParameter ("pre_ms")->getValue();
 }
 
 int OnlinePSTH::getPostWindowSizeMs()
 {
-    return (int) getParameter("post_ms")->getValue();
+    return (int) getParameter ("post_ms")->getValue();
 }
-
 
 int OnlinePSTH::getBinSizeMs()
 {
-    return (int) getParameter("bin_size")->getValue();
+    return (int) getParameter ("bin_size")->getValue();
 }
 
 Array<TriggerSource*> OnlinePSTH::getTriggerSources()
@@ -137,51 +140,50 @@ Array<TriggerSource*> OnlinePSTH::getTriggerSources()
 
     for (auto source : triggerSources)
     {
-        sources.add(source);
+        sources.add (source);
     }
 
     return sources;
 }
 
-TriggerSource* OnlinePSTH::addTriggerSource(int line, TriggerType type, int index)
+TriggerSource* OnlinePSTH::addTriggerSource (int line, TriggerType type, int index)
 {
-	String name = "Condition " + String(nextConditionIndex++);
-    
-	TriggerSource* source = new TriggerSource(this, name, line, type);
-    source->colour = TriggerSource::getColourForLine(triggerSources.size());
+    String name = "Condition " + String (nextConditionIndex++);
+
+    TriggerSource* source = new TriggerSource (this, name, line, type);
+    source->colour = TriggerSource::getColourForLine (triggerSources.size());
 
     if (index >= 0 && index < triggerSources.size())
-        triggerSources.insert(index, source);
+        triggerSources.insert (index, source);
     else
-        triggerSources.add(source);
+        triggerSources.add (source);
 
     //LOGD("Adding ", name);
 
-	return source;
+    return source;
 }
 
-void OnlinePSTH::removeTriggerSources(Array<TriggerSource*> sources)
+void OnlinePSTH::removeTriggerSources (Array<TriggerSource*> sources)
 {
-	for (auto source : sources)
-	{
-		if (currentTriggerSource == source)
+    for (auto source : sources)
+    {
+        if (currentTriggerSource == source)
             currentTriggerSource = nullptr;
 
-        triggerSources.removeObject(source);
-	}
+        triggerSources.removeObject (source);
+    }
 }
 
-void OnlinePSTH::removeTriggerSource(int index)
+void OnlinePSTH::removeTriggerSource (int index)
 {
-    if (index >=0 && triggerSources.size() <= index && triggerSources[index] == currentTriggerSource)
+    if (index >= 0 && triggerSources.size() <= index && triggerSources[index] == currentTriggerSource)
         currentTriggerSource = nullptr;
 
-    triggerSources.remove(index);
+    triggerSources.remove (index);
 }
 
-String OnlinePSTH::ensureUniqueName(String name)
+String OnlinePSTH::ensureUniqueName (String name)
 {
-
     // std::cout << "Candidate name: " << name << std::endl;
 
     bool matchingName = true;
@@ -193,13 +195,13 @@ String OnlinePSTH::ensureUniqueName(String name)
     while (matchingName)
     {
         if (append > 0)
-            nameToCheck = name + " (" + String(append) + ")";
+            nameToCheck = name + " (" + String (append) + ")";
 
         matchingName = false;
 
         for (auto source : triggerSources)
         {
-            if (source->name.equalsIgnoreCase(nameToCheck))
+            if (source->name.equalsIgnoreCase (nameToCheck))
             {
                 matchingName = true;
                 append += 1;
@@ -213,56 +215,54 @@ String OnlinePSTH::ensureUniqueName(String name)
     return nameToCheck;
 }
 
-void OnlinePSTH::setTriggerSourceName(TriggerSource* source, String name, bool updateEditor)
+void OnlinePSTH::setTriggerSourceName (TriggerSource* source, String name, bool updateEditor)
 {
     source->name = name;
 
     if (updateEditor)
     {
-        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*) getEditor();
 
-        editor->updateConditionName(source);
+        editor->updateConditionName (source);
     }
 }
 
-void OnlinePSTH::setTriggerSourceLine(TriggerSource* source, int line, bool updateEditor)
+void OnlinePSTH::setTriggerSourceLine (TriggerSource* source, int line, bool updateEditor)
 {
     currentTriggerSource = source;
-    getParameter("trigger_line")->setNextValue(line, false);
+    getParameter ("trigger_line")->setNextValue (line, false);
 }
 
-void OnlinePSTH::setTriggerSourceColour(TriggerSource* source, Colour colour, bool updateEditor)
+void OnlinePSTH::setTriggerSourceColour (TriggerSource* source, Colour colour, bool updateEditor)
 {
     source->colour = colour;
 
     if (updateEditor)
     {
-        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*) getEditor();
 
-        editor->updateColours(source);
+        editor->updateColours (source);
     }
-	
 }
 
-
-void OnlinePSTH::setTriggerSourceTriggerType(TriggerSource* source, TriggerType type, bool updateEditor)
+void OnlinePSTH::setTriggerSourceTriggerType (TriggerSource* source, TriggerType type, bool updateEditor)
 {
     currentTriggerSource = source;
-    getParameter("trigger_type")->setNextValue((int) type, false);
+    getParameter ("trigger_type")->setNextValue ((int) type, false);
 }
 
-void OnlinePSTH::process(AudioBuffer<float>& buffer)
+void OnlinePSTH::process (AudioBuffer<float>& buffer)
 {
-    checkForEvents(true);
+    checkForEvents (true);
 }
 
-void OnlinePSTH::handleBroadcastMessage(const String& message, const int64 sysTimeMs)
+void OnlinePSTH::handleBroadcastMessage (const String& message, const int64 sysTimeMs)
 {
-    LOGD("Online PSTH received ", message);
+    LOGD ("Online PSTH received ", message);
 
     for (auto source : triggerSources)
     {
-        if (message.equalsIgnoreCase(source->name))
+        if (message.equalsIgnoreCase (source->name))
         {
             if (source->type == TTL_AND_MSG_TRIGGER)
             {
@@ -275,7 +275,7 @@ void OnlinePSTH::handleBroadcastMessage(const String& message, const int64 sysTi
                     for (auto stream : getDataStreams())
                     {
                         const uint16 streamId = stream->getStreamId();
-                        canvas->pushEvent(source, streamId, getFirstSampleNumberForBlock(streamId));
+                        canvas->pushEvent (source, streamId, getFirstSampleNumberForBlock (streamId));
                     }
                 }
             }
@@ -283,79 +283,79 @@ void OnlinePSTH::handleBroadcastMessage(const String& message, const int64 sysTi
     }
 }
 
-String OnlinePSTH::handleConfigMessage(const String& message)
+String OnlinePSTH::handleConfigMessage (const String& message)
 {
-    LOGD("Online PSTH received ", message);
+    LOGD ("Online PSTH received ", message);
 
-    var parsedMessage = JSON::parse(message);
-    
-    if (!parsedMessage.isObject())
+    var parsedMessage = JSON::parse (message);
+
+    if (! parsedMessage.isObject())
         return "Invalid JSON string";
-    
+
     DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
-    
+
     if (jsonMessage == nullptr)
         return "Invalid JSON string";
-    
+
     int condition_index;
-    bool foundValue = getIntField(jsonMessage,
-        "condition_index", // field name
-        condition_index,   // value to set
-        0,                 // minimum value
-        triggerSources.size()); // maximum value
+    bool foundValue = getIntField (jsonMessage,
+                                   "condition_index", // field name
+                                   condition_index, // value to set
+                                   0, // minimum value
+                                   triggerSources.size()); // maximum value
 
-    LOGD(condition_index);
+    LOGD (condition_index);
 
-    if (!foundValue || condition_index >= triggerSources.size())
+    if (! foundValue || condition_index >= triggerSources.size())
         return "Condition index out of bounds.";
 
     TriggerSource* source = triggerSources[condition_index];
 
-    if (jsonMessage->hasProperty("name"))
+    if (jsonMessage->hasProperty ("name"))
     {
-        setTriggerSourceName(source, jsonMessage->getProperty("name"), false);
+        setTriggerSourceName (source, jsonMessage->getProperty ("name"), false);
 
-        startTimer(100);
+        startTimer (100);
     }
 
-    if (jsonMessage->hasProperty("ttl_line"))
+    if (jsonMessage->hasProperty ("ttl_line"))
     {
         int ttl_line;
-        bool foundValue = getIntField(jsonMessage,
-            "ttl_line", // field name
-            ttl_line,   // value to set
-            1,                 // minimum value
-            256); // maximum value
+        bool foundValue = getIntField (jsonMessage,
+                                       "ttl_line", // field name
+                                       ttl_line, // value to set
+                                       1, // minimum value
+                                       256); // maximum value
 
         if (foundValue)
-            setTriggerSourceLine(source, ttl_line - 1, false);
+            setTriggerSourceLine (source, ttl_line - 1, false);
     }
 
-    if (jsonMessage->hasProperty("trigger_type"))
+    if (jsonMessage->hasProperty ("trigger_type"))
     {
         int trigger_type;
-        bool foundValue = getIntField(jsonMessage,
-            "trigger_type", // field name
-            trigger_type,   // value to set
-            1,                 // minimum value
-            3); // maximum value
+        bool foundValue = getIntField (jsonMessage,
+                                       "trigger_type", // field name
+                                       trigger_type, // value to set
+                                       1, // minimum value
+                                       3); // maximum value
 
         if (foundValue)
-            setTriggerSourceTriggerType(source, (TriggerType) trigger_type, false);
+            setTriggerSourceTriggerType (source, (TriggerType) trigger_type, false);
     }
-    
+
     return "Message received.";
 }
 
-bool OnlinePSTH::getIntField(DynamicObject::Ptr payload, 
-        String name, 
-        int& value, 
-        int lowerBound, 
-        int upperBound) 
+bool OnlinePSTH::getIntField (DynamicObject::Ptr payload,
+                              String name,
+                              int& value,
+                              int lowerBound,
+                              int upperBound)
 {
-    if (!payload->hasProperty(name) || !payload->getProperty(name).isInt())
+    if (! payload->hasProperty (name) || ! payload->getProperty (name).isInt())
         return false;
-    int tempVal = payload->getProperty(name);
+    int tempVal = payload->getProperty (name);
     if ((upperBound != INT32_MIN && tempVal > upperBound) || (lowerBound != INT32_MAX && tempVal < lowerBound))
         return false;
     value = tempVal;
@@ -368,76 +368,66 @@ void OnlinePSTH::timerCallback()
 
     for (auto source : getTriggerSources())
     {
-        OnlinePSTHEditor* editor = (OnlinePSTHEditor*)getEditor();
+        OnlinePSTHEditor* editor = (OnlinePSTHEditor*) getEditor();
 
-        editor->updateConditionName(source);
+        editor->updateConditionName (source);
     }
-
 }
 
-
-void OnlinePSTH::handleTTLEvent(TTLEventPtr event)
+void OnlinePSTH::handleTTLEvent (TTLEventPtr event)
 {
-    
     for (auto source : triggerSources)
     {
         if (event->getLine() == source->line && event->getState() && source->canTrigger)
         {
             if (canvas != nullptr)
-                canvas->pushEvent(source, event->getStreamId(), event->getSampleNumber());
+                canvas->pushEvent (source, event->getStreamId(), event->getSampleNumber());
 
             if (source->type == TTL_AND_MSG_TRIGGER)
-				source->canTrigger = false;
+                source->canTrigger = false;
         }
     }
-    
 }
 
-void OnlinePSTH::handleSpike(SpikePtr spike)
+void OnlinePSTH::handleSpike (SpikePtr spike)
 {
-   if (canvas != nullptr)
-       canvas->pushSpike(spike->getChannelInfo(), spike->getSampleNumber(), spike->getSortedId());
+    if (canvas != nullptr)
+        canvas->pushSpike (spike->getChannelInfo(), spike->getSampleNumber(), spike->getSortedId());
 }
 
-
-
-void OnlinePSTH::saveCustomParametersToXml(XmlElement* xml)
+void OnlinePSTH::saveCustomParametersToXml (XmlElement* xml)
 {
-    
-	for (auto source : triggerSources)
-	{
-		XmlElement* sourceXml = xml->createNewChildElement("TRIGGERSOURCE");
-		sourceXml->setAttribute("name", source->name);
-		sourceXml->setAttribute("line", source->line);
-		sourceXml->setAttribute("type", source->type);
-        sourceXml->setAttribute("colour", source->colour.toString());
-	}
-
-    
+    for (auto source : triggerSources)
+    {
+        XmlElement* sourceXml = xml->createNewChildElement ("TRIGGERSOURCE");
+        sourceXml->setAttribute ("name", source->name);
+        sourceXml->setAttribute ("line", source->line);
+        sourceXml->setAttribute ("type", source->type);
+        sourceXml->setAttribute ("colour", source->colour.toString());
+    }
 }
 
-
-void OnlinePSTH::loadCustomParametersFromXml(XmlElement* xml)
+void OnlinePSTH::loadCustomParametersFromXml (XmlElement* xml)
 {
     triggerSources.clear();
     nextConditionIndex = 1;
 
     for (auto sourceXml : xml->getChildIterator())
     {
-        if (sourceXml->hasTagName("TRIGGERSOURCE"))
+        if (sourceXml->hasTagName ("TRIGGERSOURCE"))
         {
-            String savedName = sourceXml->getStringAttribute("name");
-            int savedLine = sourceXml->getIntAttribute("line", 0);
-            int savedType = sourceXml->getIntAttribute("type", TTL_TRIGGER);
-            String savedColour = sourceXml->getStringAttribute("colour", "");
+            String savedName = sourceXml->getStringAttribute ("name");
+            int savedLine = sourceXml->getIntAttribute ("line", 0);
+            int savedType = sourceXml->getIntAttribute ("type", TTL_TRIGGER);
+            String savedColour = sourceXml->getStringAttribute ("colour", "");
 
-            TriggerSource *source = addTriggerSource(savedLine, (TriggerType)savedType);
+            TriggerSource* source = addTriggerSource (savedLine, (TriggerType) savedType);
 
             if (savedName.isNotEmpty())
                 source->name = savedName;
 
             if (savedColour.length() > 0)
-                source->colour = Colour::fromString(savedColour);
+                source->colour = Colour::fromString (savedColour);
         }
     }
 }

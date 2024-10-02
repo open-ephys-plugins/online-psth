@@ -39,68 +39,66 @@ class TriggerSource;
  */
 class OnlinePSTHDisplay : public Component
 {
-    
 public:
-    
     /** Constructor */
     OnlinePSTHDisplay();
-    
+
     /** Destructor */
-    ~OnlinePSTHDisplay() { }
-    
+    ~OnlinePSTHDisplay() {}
+
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
     void refresh();
-    
+
     /** Called when component changes size*/
     void resized();
 
     /** Sets the overall window size*/
-    void setWindowSizeMs(int pre_ms, int post_ms);
-    
+    void setWindowSizeMs (int pre_ms, int post_ms);
+
     /** Sets the bin size*/
-    void setBinSizeMs(int bin_size);
-    
+    void setBinSizeMs (int bin_size);
+
     /** Sets the bin size*/
-    void setPlotType(int plotType);
-    
+    void setPlotType (int plotType);
+
     /** Add an event to the queue */
-    void pushEvent(const TriggerSource* source, uint16 streamId, int64 sample_number);
-    
+    void pushEvent (const TriggerSource* source, uint16 streamId, int64 sample_number);
+
     /** Add a spike to the queue */
-    void pushSpike(const SpikeChannel* channel, int64 sample_number, int sortedId);
-    
+    void pushSpike (const SpikeChannel* channel, int64 sample_number, int sortedId);
+
     /** Adds a spike channel for a given trigger source */
-    void addSpikeChannel(const SpikeChannel* channel, const TriggerSource* source);
+    void addSpikeChannel (const SpikeChannel* channel, const TriggerSource* source);
 
     /** Changes source colour */
-    void updateColourForSource(const TriggerSource* source);
+    void updateColourForSource (const TriggerSource* source);
 
     /** Changes source name */
-    void updateConditionName(const TriggerSource* source);
+    void updateConditionName (const TriggerSource* source);
 
     /** Changes num columns */
-    void setNumColumns(int numColumns);
+    void setNumColumns (int numColumns);
 
     /** Changes row height */
-    void setRowHeight(int rowHeightPixels);
+    void setRowHeight (int rowHeightPixels);
 
     /** Sets whether conditions are overlaid or not */
-    void setConditionOverlay(bool);
+    void setConditionOverlay (bool);
 
     /** Sets selected unit in condition overlay mode */
-    void setUnitForElectrode(const SpikeChannel* channel, int unitId);
+    void setUnitForElectrode (const SpikeChannel* channel, int unitId);
 
     /** Sets the max count in overlay mode */
-    void setMaxCountForElectrode(const SpikeChannel* channel, int unitId, int maxCount);
-    
+    void setMaxCountForElectrode (const SpikeChannel* channel, int unitId, int maxCount);
+
     /** Prepare for update*/
     void prepareToUpdate();
-    
+
     /** Returns the desired height for this component*/
     int getDesiredHeight();
-    
+
     /** Clears the histograms */
     void clear();
 
@@ -108,22 +106,20 @@ public:
     DynamicObject getInfo();
 
 private:
-    
     OwnedArray<Histogram> histograms;
-    
-	std::map<const TriggerSource*, Array<Histogram*>> triggerSourceMap;
+
+    std::map<const TriggerSource*, Array<Histogram*>> triggerSourceMap;
     std::map<const SpikeChannel*, Array<Histogram*>> spikeChannelMap;
-    
+
     int totalHeight = 0;
     int histogramHeight = 150;
     int borderSize = 10;
     int numColumns = 1;
 
     bool overlayConditions = false;
-    
+
     int post_ms;
     int plotType = 1;
 };
 
-
-#endif  // OnlinePSTHDISPLAY_H_
+#endif // OnlinePSTHDISPLAY_H_

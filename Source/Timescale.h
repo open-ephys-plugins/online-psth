@@ -28,7 +28,6 @@
 
 #include <vector>
 
-
 /**
  
     Displays the timescale for all histograms
@@ -37,25 +36,21 @@
 class Timescale : public Component
 {
 public:
-    
     /** Constructor */
-    Timescale() { }
-    
+    Timescale() {}
+
     /** Destructor */
-    ~Timescale() { }
-    
+    ~Timescale() {}
+
     /** Renders the timescle */
-    void paint(Graphics& g);
-    
+    void paint (Graphics& g);
+
     /** Sets the upper and lower bounds */
-    void setWindowSizeMs(int pre_ms, int post_ms);
-    
+    void setWindowSizeMs (int pre_ms, int post_ms);
+
 private:
-    
     int pre_ms;
     int post_ms;
-    
 };
 
-
-#endif  // OnlinePSTHTIMESCALE_H_
+#endif // OnlinePSTHTIMESCALE_H_

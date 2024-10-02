@@ -42,12 +42,11 @@ class OnlinePSTHEditor : public VisualizerEditor,
                          public Button::Listener
 {
 public:
-    
     /** Constructor */
-    OnlinePSTHEditor(GenericProcessor* parentNode);
+    OnlinePSTHEditor (GenericProcessor* parentNode);
 
     /** Destructor */
-    ~OnlinePSTHEditor() { }
+    ~OnlinePSTHEditor() {}
 
     /** Creates the visualizer */
     Visualizer* createNewCanvas() override;
@@ -56,33 +55,28 @@ public:
     void updateSettings() override;
 
     /** Called when source colours are updated */
-    void updateColours(TriggerSource*);
+    void updateColours (TriggerSource*);
 
     /** Called when condition name is updated */
-    void updateConditionName(TriggerSource*);
+    void updateConditionName (TriggerSource*);
 
     /** Called when configure button is clicked */
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Adds triggers with a given type */
-	void addTriggerSources(PopupConfigurationWindow* window, Array<int> lines, TriggerType type);
+    void addTriggerSources (PopupConfigurationWindow* window, Array<int> lines, TriggerType type);
 
     /** Removes triggers based on an array of pointers to trigger objects*/
-    void removeTriggerSources(PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove);
-    
-private:
+    void removeTriggerSources (PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove);
 
+private:
     std::unique_ptr<UtilityButton> configureButton;
-    
+
     OnlinePSTHCanvas* canvas;
 
     PopupConfigurationWindow* currentConfigWindow;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OnlinePSTHEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OnlinePSTHEditor);
 };
 
-
-
-
-#endif  // __OnlinePSTHEDITOR_H_F0BD2DD9__
+#endif // __OnlinePSTHEDITOR_H_F0BD2DD9__
