@@ -128,7 +128,7 @@ void OnlinePSTHEditor::buttonClicked (Button* button)
         Array<TriggerSource*> triggerLines = processor->getTriggerSources();
         LOGD (triggerLines.size(), " trigger sources found.");
 
-        currentConfigWindow = new PopupConfigurationWindow (this,
+        currentConfigWindow = new OnlinePSTHPopup::PopupConfigurationWindow (this,
                                                             triggerLines,
                                                             acquisitionIsActive);
 
@@ -138,7 +138,7 @@ void OnlinePSTHEditor::buttonClicked (Button* button)
     }
 }
 
-void OnlinePSTHEditor::addTriggerSources (PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
+void OnlinePSTHEditor::addTriggerSources (OnlinePSTHPopup::PopupConfigurationWindow* window, Array<int> lines, TriggerType type)
 {
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 
@@ -151,7 +151,7 @@ void OnlinePSTHEditor::addTriggerSources (PopupConfigurationWindow* window, Arra
         window->update (processor->getTriggerSources());
 }
 
-void OnlinePSTHEditor::removeTriggerSources (PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove)
+void OnlinePSTHEditor::removeTriggerSources (OnlinePSTHPopup::PopupConfigurationWindow* window, juce::Array<TriggerSource*, juce::DummyCriticalSection, 0> triggerSourcesToRemove)
 {
     OnlinePSTH* processor = (OnlinePSTH*) getProcessor();
 

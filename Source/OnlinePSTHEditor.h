@@ -28,7 +28,10 @@
 
 #include "OnlinePSTH.h"
 
+namespace OnlinePSTHPopup
+{
 class PopupConfigurationWindow;
+}
 
 class OnlinePSTHCanvas;
 
@@ -64,17 +67,17 @@ public:
     void buttonClicked (Button* button) override;
 
     /** Adds triggers with a given type */
-    void addTriggerSources (PopupConfigurationWindow* window, Array<int> lines, TriggerType type);
+    void addTriggerSources (OnlinePSTHPopup::PopupConfigurationWindow* window, Array<int> lines, TriggerType type);
 
     /** Removes triggers based on an array of pointers to trigger objects*/
-    void removeTriggerSources (PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove);
+    void removeTriggerSources (OnlinePSTHPopup::PopupConfigurationWindow* window, Array<TriggerSource*> triggerSourcesToRemove);
 
 private:
     std::unique_ptr<UtilityButton> configureButton;
 
     OnlinePSTHCanvas* canvas;
 
-    PopupConfigurationWindow* currentConfigWindow;
+    OnlinePSTHPopup::PopupConfigurationWindow* currentConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OnlinePSTHEditor);
 };

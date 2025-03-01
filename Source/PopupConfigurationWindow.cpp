@@ -29,11 +29,12 @@
 
 #include <math.h>
 
-using namespace OnlinePSTHTableComponents;
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+namespace OnlinePSTHPopup
+{
 
 void EditableTextCustomComponent::mouseDown (const MouseEvent& event)
 {
@@ -513,7 +514,7 @@ TriggerSourceGenerator::TriggerSourceGenerator (OnlinePSTHEditor* editor_,
                                                 PopupConfigurationWindow* window_,
                                                 int channelCount_,
                                                 bool acquisitionIsActive)
-    : editor (editor_), window (window_), channelCount (16)
+    : editor (editor_), window (window_), channelCount (channelCount_)
 {
     lastLabelValue = "1";
     triggerSourceCountLabel = std::make_unique<Label> ("Label", lastLabelValue);
@@ -764,3 +765,5 @@ bool PopupConfigurationWindow::keyPressed (const KeyPress& key)
 
     return true;
 }
+
+} // namespace OnlinePSTHPopup

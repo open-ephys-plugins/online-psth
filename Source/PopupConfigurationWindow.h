@@ -29,11 +29,11 @@
 #include "OnlinePSTH.h"
 
 class OnlinePSTHEditor;
+
+namespace OnlinePSTHPopup
+{
 class PopupConfigurationWindow;
 class OnlinePSTHTableModel;
-
-namespace OnlinePSTHTableComponents
-{
 
 /** 
 *   Table component used to edit Trigger Source names
@@ -218,8 +218,6 @@ private:
     bool acquisitionIsActive;
 };
 
-} // namespace OnlinePSTHTableComponents
-
 /**
 *   TableListBoxModel used for editing Spike Channel parameters
 */
@@ -297,6 +295,8 @@ public:
 
     Array<int> getSelectedChannels() override { return startChannels; }
 
+    int getChannelCount() override { return channelCount; }
+
     /** Responds to button clicks*/
     void buttonClicked (Button* button);
 
@@ -366,5 +366,7 @@ private:
 
     bool updating = false;
 };
+
+} // namespace OnlinePSTHPopup
 
 #endif // __SPIKEDETECTORCONFIGWINDOW_H_F0BD2DD9__
