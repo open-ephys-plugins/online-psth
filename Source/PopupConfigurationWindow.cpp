@@ -533,8 +533,8 @@ TriggerSourceGenerator::TriggerSourceGenerator (OnlinePSTHEditor* editor_,
     triggerTypeSelector->setSelectedId (TriggerType::TTL_TRIGGER);
     addAndMakeVisible (triggerTypeSelector.get());
 
-    channelSelectorButton = std::make_unique<UtilityButton> ("Channels");
-    channelSelectorButton->setFont (FontOptions (16.0f));
+    channelSelectorButton = std::make_unique<UtilityButton> ("TTL Line(s)");
+    channelSelectorButton->setFont (FontOptions (12.0f));
     channelSelectorButton->addListener (this);
     channelSelectorButton->setBounds (290, 5, 80, 20);
     addAndMakeVisible (channelSelectorButton.get());
