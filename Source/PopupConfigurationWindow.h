@@ -100,6 +100,8 @@ public:
 
     void primaryStreamChanged() override {}
 
+    bool isPrimaryStream() override { return true; }
+
     /** Sets row and column */
     void setRowAndColumn (const int newRow, const int newColumn);
 
